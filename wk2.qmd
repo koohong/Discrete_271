@@ -12,9 +12,10 @@ execute:
    echo: false
 editor_options: 
   chunk_output_type: console
+editor: 
+  markdown: 
+    wrap: 72
 ---
-
-
 
 ```{=html}
 <style>
@@ -31,23 +32,29 @@ source(here("source","get_lib.R"))
 
 Reading CH 2.1, 2.2.1-2.2.4 (page 61- 94)
 
-# Logistic regression 
+# Logistic regression
 
-- In CH1, we first focused on estimating $\pi$
-- Then, $\pi_1$ and $\pi_2$ and independent groups 
-  - Briefly talked about `matched pair` case where $\pi_1$ and $\pi_2$ are dependent. 
-  
-- Now we start talking about many different possible probabilities of success to estimate and perform inference upon.
-
+-   In CH1, we first focused on estimating $\pi$
+-   Then, $\pi_1$ and $\pi_2$ and independent groups
+    -   Briefly talked about `matched pair` case where $\pi_1$ and
+        $\pi_2$ are dependent.
+-   Now we start talking about many different possible probabilities of
+    success to estimate and perform inference upon.
 
 ## Functional form
 
 $$\pi_i = \frac{\text{exp}(\beta_0 + \beta_1x_{i,1}+...++ \beta_px_{i,p})}{1+\text{exp}(\beta_0 + \beta_1x_{i,1}+...++ \beta_px_{i,p})}$$
 
-$$\text{logit}(\pi_i)=\text{log}(\frac{\pi_i}{1-\pi_i}) = \beta_0 + \beta_1x_{i,1}+...++ \beta_px_{i,p}$$
-- Unfortunately, there are only a few simple cases where these parameter estimates have `closed-form solutions`; i.e., we cannot generally write out the parameter estimates in terms of the observed data like we could for the single probability estimate $\pi$ in Section 1.1.2. 
+$$\text{logit}(\pi_i)=\text{log}(\frac{\pi_i}{1-\pi_i}) = \beta_0 + \beta_1x_{i,1}+...++ \beta_px_{i,p}$$ 
 
-- Instead, we use iterative numerical procedures, as described in Appendix B.3.2, to successively find estimates of the regression parameters that increase the log-likelihood function
+- Unfortunately, there are only a few simple cases where these parameter
+estimates have `closed-form solutions`; i.e., we cannot generally write
+out the parameter estimates in terms of the observed data like we could
+for the single probability estimate $\pi$ in Section 1.1.2.
+
+- Instead, we use iterative numerical procedures, as described in
+  Appendix B.3.2, to successively find estimates of the regression
+  parameters that increase the log-likelihood function
 
 ## parameter estimation in R
 
@@ -60,8 +67,7 @@ placekick %>% head %>% kable("html") %>%
   kable_styling(bootstrap_options = c("striped", "hover"))
 
 #fit the model
-mod.fit <- glm(formula = good ~ distance , family =
-binomial(link = logit), data = placekick)
+mod.fit <- glm(formula = good ~ distance , family = binomial(link = logit), data = placekick)
 
 mod.fit
 
@@ -73,28 +79,128 @@ $$
 \log\left[ \frac { P( \operatorname{good} = \operatorname{1} ) }{ 1 - P( \operatorname{good} = \operatorname{1} ) } \right] = 5.812 +- 0.115\cdot(\operatorname{distance})
 $$
 
-```{r}
-confint(mod.fit)
+- You can get confidence interval this way
 
+```{r}
+#| echo: true
+confint(mod.fit)
+```
+
+- also this way
+
+```{r}
 summary(mod.fit)
 ```
 
 page74
 
+## Hypothesis tests for regression parameters
+
+-   (see page 56)
+-   Wald test, which involves calculating $\Z_0$ and using standard
+    normal distribution often suffer from bias.
+-   LRT typically performs better than the Wald Test
+
+
+$$H_0: \text{logit}(\pi) =
+\log\left[ \frac { P( \operatorname{good} = \operatorname{1} ) }{ 1 - P( \operatorname{good} = \operatorname{1} ) } \right] = \alpha + \beta_{1}\cdot\operatorname{distance}
+$$
+
+
+
+$$H_A: \text{logit}(\pi) =
+\log\left[ \frac { P( \operatorname{good} = \operatorname{1} ) }{ 1 - P( \operatorname{good} = \operatorname{1} ) } \right] = \alpha + \beta_{1}\cdot\operatorname{distance} + \beta_2\cdot\text{another_feature}
+$$
+
+
+### LRT
+
+![](image/LRT.png){fig-align="center" width="400"}
+
+
+$$\Lambda = \frac{\text{ML under }H_0 }{\text{ML under }H_A}$$ 
+
+
+### Transformed LRT
+
+![](image/transformed LRT.webp){fig-align="center" width="400"}
+
+$$-2\text{log}{(\Lambda)} \approx \chi^2$$
+
+```{r}
+#| echo: true
+mod.fit2 <- glm(formula = good ~ change + distance , family =
+binomial(link = logit), data = placekick)
+
+#one at a time test
+Anova(mod.fit2, test = "LR")
+
+
+anova(mod.fit, mod.fit2, test = "LR")
+
+```
+
+# Deviance 
+
+-   `deviance` refers to the amount that a particular model deviates
+    from another model as measured by $-2\text{log}(\Lambda)$.
+
+## Saturated model 
+
+- `saturated model`, which has a different coefficent for each data point, 
+leading to perfect prediction, a likelihood of one, and a log likelihood of zero.
+
+## Null deviance 
+
+-   The `null deviance` measures the performance of the worst model
+    using only `an intercept`, providing a benchmark.
+
+$$
+\text{Null Deviance}= -2 \text{log}(L(\hat{\beta_0}|y_1,..., y_n))
+$$
+
+
+## Residual deviance
+
+-   The `residual deviance` is the deviance of our fitted model.
+-   It is always greater than zero unless it is the saturated model which explains the data perfectly.
+
+$$
+\text{Residual Deviance}= -2 \text{log}(L(\hat{\beta}|y_1,..., y_n))
+$$
+
+-   Therefore, how much better (smaller) our `residual deviance` is
+    compared to the `null deviance` and how close it is to zero is a
+    measure of model fit.
+
+-   Sometimes people will compute an $R^2$ for logistic regression using
+    $1-\frac{\text{Residual Deviance}}{\text{Null Deviance}}$ since it
+    is bounded between 0 (residual deviance = null deviance) and 1
+    (residual deviance = saturated model = 0).
+
+-   Note that we can compute deviance of two separate models by
+    substracting the null model residual deviance and the alternative
+    model residual deviance from separate logistic regression fits. 
+
+-  See page 81 for more information
+
+
 # ODDS
 
-- see page 83, the odd of success at a particular value of `x`
+-   see page 83, the odd of success at a particular value of `x`
 
 $$\text{Odds}_x = \text{exp}(\beta_0 + \beta_1x)$$
 
-
 # Log odds to probability
 
--   Your aunt offers a service in which she weights coins to make them unfair.
+-   Your aunt offers a service in which she weights coins to make them
+    unfair.
 
--   You give her a coin and tell her how much you want the `log-odds` to change. She returns the modified coin.
+-   You give her a coin and tell her how much you want the `log-odds` to
+    change. She returns the modified coin.
 
--   For each of the following orders, use your function to compute the resulting probability of heads:
+-   For each of the following orders, use your function to compute the
+    resulting probability of heads:
 
     -   fair coin, increase log-odds by 1.
     -   fair coin, increase log-odds by 2.
@@ -103,7 +209,8 @@ $$\text{Odds}_x = \text{exp}(\beta_0 + \beta_1x)$$
     -   fair coin, decrease log-odds by 2.
     -   fair coin, decrease log-odds by 10.
 
--   Write an R function that computes the `probability of heads`, given log-odds.
+-   Write an R function that computes the `probability of heads`, given
+    log-odds.
 
 ```{r, error = TRUE}
 log.odds.to.prob <- function(x){
@@ -121,7 +228,8 @@ data.frame(log_odds = log_odds,  probability = round(log.odds.to.prob(log_odds),
   kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
--   In you own words, describe how changes in log-odds translate to changes in probability
+-   In you own words, describe how changes in log-odds translate to
+    changes in probability
 
 ```{r echo=FALSE}
 log_odds_vector = seq(from = -10, to = 10, by = 0.25)
@@ -136,50 +244,65 @@ labs(title = "probability versus odds")
 
 ```
 
--   You can see in this plot, As log-odds increase, the probability of success increases relative to the probability of failure, and it approaches one. As log-odds decrease probability of success decrease and converges to zero.
+-   You can see in this plot, As log-odds increase, the probability of
+    success increases relative to the probability of failure, and it
+    approaches one. As log-odds decrease probability of success decrease
+    and converges to zero.
 
--   If you get log-odds values that are very very small like -10 the probability of success is almost zero, and if you get log-odds values that are very big like 10 or the probability of success is almost one.
+-   If you get log-odds values that are very very small like -10 the
+    probability of success is almost zero, and if you get log-odds
+    values that are very big like 10 or the probability of success is
+    almost one.
 
--   The relationship between log-odd and probability is not linear, but of s-curve type, and log odds ratios ranging from -5 to +5 create probabilities that range from just above 0 to very close to 1.
-
+-   The relationship between log-odd and probability is not linear, but
+    of s-curve type, and log odds ratios ranging from -5 to +5 create
+    probabilities that range from just above 0 to very close to 1.
 
 # Case Study: South African Heart Disease
 
-## Introduction 
+## Introduction
 
-- Target: `Probability of getting coronary heart disease`, `chd` 
-- Feature:
-  - High blood pressure, high LDL cholesterol, diabetes, smoking, secondhand smoke exposure, obesity, an unhealthy diet, and physical inactivity are among the leading risk factors for heart disease.
+-   Target: `Probability of getting coronary heart disease`, `chd`
+-   Feature:
+    -   High blood pressure, high LDL cholesterol, diabetes, smoking,
+        secondhand smoke exposure, obesity, an unhealthy diet, and
+        physical inactivity are among the leading risk factors for heart
+        disease.
+-   Data Source: Source: Rousseauw, J., du Plessis, J., Benade, A.,
+    Jordaan, P., Kotze, J. and Ferreira, J. (1983). Coronary risk factor
+    screening in three rural communities, South African Medical Journal
+    64: 430–436.
 
-- Data Source:
-  Source: Rousseauw, J., du Plessis, J., Benade, A., Jordaan, P., Kotze, J. and Ferreira, J. (1983). Coronary risk factor screening in three rural communities, South African   Medical Journal 64: 430–436.
+## Data Description
 
-## Data Description 
-
-  - sbp: systolic blood pressure
-  - tobacco: cumulative tobacco use (kg)
-  - ldl: low density lipoprotein cholesterol ('bad' cholestrol)
-  - adiposity: Body adiposity index determines body fat percentage(calculated as (HC / (HM)1.5) - 18,
-    where HC = Hip Circumference in Centimetres and HM = Height in meters)
-  - famhist: family history of heart disease
-  - typea: A personality type that could raise one's chances of developing coronary heart disease
-  - obesity: Body Mass Index (BMI) ($kg/m^2$)
-  - alcohol: current alcohol consumption
-  - age: age at onset
-  - `chd`: coronary heart disease
+-   sbp: systolic blood pressure
+-   tobacco: cumulative tobacco use (kg)
+-   ldl: low density lipoprotein cholesterol ('bad' cholestrol)
+-   adiposity: Body adiposity index determines body fat
+    percentage(calculated as (HC / (HM)1.5) - 18, where HC = Hip
+    Circumference in Centimetres and HM = Height in meters)
+-   famhist: family history of heart disease
+-   typea: A personality type that could raise one's chances of
+    developing coronary heart disease
+-   obesity: Body Mass Index (BMI) ($kg/m^2$)
+-   alcohol: current alcohol consumption
+-   age: age at onset
+-   `chd`: coronary heart disease
 
 \newpage
 
 # Exploratory Analysis
 
-For this case study, we focus on blood pressure, smoking, cholesterol, and age.
+For this case study, we focus on blood pressure, smoking, cholesterol,
+and age.
 
-- Load the data and answer the following questions:
+-   Load the data and answer the following questions:
 
-  - What are the number of variables and number of observations?
-  - What is the type of each variable? Do we need to change it? 
-  - Are there any missing values (in each of the variables)?
-  - Are there any abnormal values in each of the variables in the raw data?
+    -   What are the number of variables and number of observations?
+    -   What is the type of each variable? Do we need to change it?
+    -   Are there any missing values (in each of the variables)?
+    -   Are there any abnormal values in each of the variables in the
+        raw data?
 
 ```{r}
 df <- SAheart %>%
@@ -193,9 +316,11 @@ head(df)%>%
 
 ## Univariate Analysis
 
-- The response (or dependent) variable of interest, Heart disease, is a binary variable taking the type factor.  
+-   The response (or dependent) variable of interest, Heart disease, is
+    a binary variable taking the type factor.
 
-- Use a bar chart to explore the distribution of the response variable (chd). What do you learn?
+-   Use a bar chart to explore the distribution of the response variable
+    (chd). What do you learn?
 
 ```{r echo=FALSE, warning=FALSE}
 
@@ -216,10 +341,11 @@ df %>%
 
 ```
 
-For metric variables, a density plot or histogram allows us to determine the shape of the distribution and look for outliers.
+For metric variables, a density plot or histogram allows us to determine
+the shape of the distribution and look for outliers.
 
-- Use a density plot to explore the distribution of explanatory variables. What do you discover? 
-
+-   Use a density plot to explore the distribution of explanatory
+    variables. What do you discover?
 
 ```{r echo=FALSE, fig.width=10, fig.height=11}
 
@@ -264,16 +390,20 @@ grid.arrange(p1, p2,p3,p4, nrow = 2, ncol = 2)
 
 ```
 
-
 ## Bivariate Analysis
 
-- Prior to moving on to the fully specified model, it is advisable to first examine the simple associations between the response and each explanatory variable.
+-   Prior to moving on to the fully specified model, it is advisable to
+    first examine the simple associations between the response and each
+    explanatory variable.
 
-- `Box plots` are useful for exploring the association between a categorical variable and a variable measured on an interval scale.
+-   `Box plots` are useful for exploring the association between a
+    categorical variable and a variable measured on an interval scale.
 
-- Use a `boxplot` to examine how the explanatory variables are correlated with the response variable (chd)?
+-   Use a `boxplot` to examine how the explanatory variables are
+    correlated with the response variable (chd)?
 
-  - The `coord_flip()` function is used to keep the dependent variable on the y-axis.
+    -   The `coord_flip()` function is used to keep the dependent
+        variable on the y-axis.
 
 ```{r echo=FALSE, fig.height=11}
 p5 <- df %>%
@@ -319,10 +449,10 @@ p8 <- df %>%
 p5/p6/p7/p8
 ```
 
-
 \newpage
 
-- Use the convenient summary_factorlist() function from the finalfit package to tabulate data. 
+-   Use the convenient summary_factorlist() function from the finalfit
+    package to tabulate data.
 
 ```{r}
 dependent <- "chd"
@@ -335,9 +465,9 @@ df %>%
    kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
-
-- According to the plots and the tables, What variable is most important for explaining heart disease? How is that variable correlated with heart disease?
-
+-   According to the plots and the tables, What variable is most
+    important for explaining heart disease? How is that variable
+    correlated with heart disease?
 
 \newpage
 
@@ -345,11 +475,14 @@ df %>%
 
 ## Linear probability model
 
-- Is the linear probability model an appropriate choice to study the relationship between heart disease and risk factors?
+-   Is the linear probability model an appropriate choice to study the
+    relationship between heart disease and risk factors?
 
-- Estimate the following linear probability model and interpret the model results.
+-   Estimate the following linear probability model and interpret the
+    model results.
 
 $$ chd = \beta_0 + \beta_1 ldl + \beta_2 sbp + + \beta_3 tobacco + \beta_4 age + u$$
+
 ```{r error = TRUE}
 #mod.linear <-  # uncomment and replace with your code
 mod.linear <- lm(chd ~ ldl + sbp + tobacco + age, data = df)
@@ -357,7 +490,8 @@ mod.linear <- lm(chd ~ ldl + sbp + tobacco + age, data = df)
 summary(mod.linear)
 ```
 
-- What are the advantages and disadvantages of the linear probability model?
+-   What are the advantages and disadvantages of the linear probability
+    model?
 
 ```{r}
 fitted_values <- data.frame(mod.linear$fitted.values)
@@ -369,12 +503,12 @@ fitted_values %>%
   geom_hline(aes(yintercept = 1), color = "red")
 ```
 
-
 \newpage
 
-##  Generalized linear model
+## Generalized linear model
 
-- Estimate the following logistic regression model and interpret the model results.
+-   Estimate the following logistic regression model and interpret the
+    model results.
 
 $$ logit(\pi_i) =\beta_0 + \beta_1 ldl + \beta_2 sbp + + \beta_3 tobacco + \beta_4 age +  u$$
 
@@ -385,26 +519,31 @@ mod.logit.h0 <- glm(chd ~ ldl + sbp + tobacco + age, family = binomial(link = lo
 summary(mod.logit.h0)
 ```
 
-###  Interpretation of model results
+### Interpretation of model results
 
-- Do the `raw` coefficient estimates `directionally make sense`?
+-   Do the `raw` coefficient estimates `directionally make sense`?
 
 ```{r}
 # Replace with your code
 summary(mod.logit.h0)
 ```
 
-- > **Again, all of the explanatory variables except blood pressure are statistically significant and positively correlated with the probability of heart disease, same as the linear probability model.**
+-   
 
+    > **Again, all of the explanatory variables except blood pressure
+    > are statistically significant and positively correlated with the
+    > probability of heart disease, same as the linear probability
+    > model.**
 
-- Recall that (page 83)
+-   Recall that (page 83)
 
 $$
 \text{OR} = \frac{\text{Odds}_{x_k+c}}{\text{Odds}_{x_k}}=exp(c \beta_k)
-$$
-- The odd of a success change by exp(c$\beta_k$) `times` for every c-unit increase in x  
+$$ - The odd of a success change by exp(c$\beta_k$) `times` for every
+c-unit increase in x
 
-- Compute and interpret the estimated odds ratio for a 10-unit increase in each explanatory variable.
+-   Compute and interpret the estimated odds ratio for a 10-unit
+    increase in each explanatory variable.
 
 ```{r}
 #| echo: true
@@ -412,24 +551,27 @@ $$
 round(exp(10*coef(mod.logit.h0)),2)
 ```
 
+> **The estimated odds of success or having a heart disease change by
+> 6.37 times for every 10-unit increase in LDL or 'bad' cholesterol.**
 
-> **The estimated odds of success or having a heart disease change by 6.37 times for every 10-unit increase in LDL or 'bad' cholesterol.** 
-    
-> **Interestingly, the odds of having a heart disease is almost 1 for every 10-unit increase in blood pressure, which means an increase in blood pressure doesn't change the odds of having heart disease, and it's consistent with its insignificant coefficient.**
-
+> **Interestingly, the odds of having a heart disease is almost 1 for
+> every 10-unit increase in blood pressure, which means an increase in
+> blood pressure doesn't change the odds of having heart disease, and
+> it's consistent with its insignificant coefficient.**
 
 # Statistical Inference
 
-
 ## Hypothesis Test
 
-- Using the likelihood ratio test (LRT) for hypothesis testing is a common practice in a logistic regression model. 
+-   Using the likelihood ratio test (LRT) for hypothesis testing is a
+    common practice in a logistic regression model.
 
-- Use LRT to test whether ($obesity$) is associated with heart disease.
+-   Use LRT to test whether ($obesity$) is associated with heart
+    disease.
 
-  - $H_0: \beta_{obesity} = 0$
+    -   $H_0: \beta_{obesity} = 0$
 
-  - $H_a: \beta_{obesity} \ne 0$
+    -   $H_a: \beta_{obesity} \ne 0$
 
 Use both *Anova()* or *anova()* functions.
 
@@ -446,37 +588,54 @@ anova(mod.logit.h0, mod.logit.ha, test = "Chisq")
 Anova(mod.logit.ha, test = "LR")
 ```
 
-## Deviance 
+## Deviance
 
-- `deviance` refers to the amount that a particular model deviates from another model as measured by $-2\text{log}(\Lambda)$. 
+-   `deviance` refers to the amount that a particular model deviates
+    from another model as measured by $-2\text{log}(\Lambda)$.
 
-- What are the null deviance and residual deviance in the model summary?
-  - For `null` and `residual deviance`, the alternative model we use is the `saturated model`, which has a different coefficent for each data point, leading to perfect prediction, a likelihood of one, and a log likelihood of zero.
+-   What are the null deviance and residual deviance in the model
+    summary?
 
-- The `null deviance` measures the performance of the worst model using only `an intercept`, providing a benchmark.
+    -   For `null` and `residual deviance`, the alternative model we use
+        is the `saturated model`, which has a different coefficent for
+        each data point, leading to perfect prediction, a likelihood of
+        one, and a log likelihood of zero.
+
+-   The `null deviance` measures the performance of the worst model
+    using only `an intercept`, providing a benchmark.
 
 $$
 \text{Null Deviance}= -2 \text{log}(L(\hat{\beta_0}|y_1,..., y_n))
 $$
 
-- The `residual deviance` is the deviance of our fitted model. 
-  - It is always greater than zero unless it is the saturated model / explains the data perfectly.
+-   The `residual deviance` is the deviance of our fitted model.
+    -   It is always greater than zero unless it is the saturated model
+        / explains the data perfectly.
 
 $$
 \text{Residual Deviance}= -2 \text{log}(L(\hat{\beta}|y_1,..., y_n))
 $$
 
-- Therefore, how much better (smaller) our residual deviance is compared to the null deviance and how close it is to zero is a measure of model fit.
+-   Therefore, how much better (smaller) our residual deviance is
+    compared to the null deviance and how close it is to zero is a
+    measure of model fit.
 
-- Sometimes people will compute an $R^2$ for logistic regression using $1-\frac{\text{Residual Deviance}}{\text{Null Deviance}}$ since it is bounded between 0 (residual deviance = null deviance) and 1 (residual deviance = saturated model = 0).
+-   Sometimes people will compute an $R^2$ for logistic regression using
+    $1-\frac{\text{Residual Deviance}}{\text{Null Deviance}}$ since it
+    is bounded between 0 (residual deviance = null deviance) and 1
+    (residual deviance = saturated model = 0).
 
-- Note that we can compute deviance of two separate models by substracting the null model residual deviance and the alternative model residual deviance from separate logistic regression fits. (Why is this?)
+-   Note that we can compute deviance of two separate models by
+    substracting the null model residual deviance and the alternative
+    model residual deviance from separate logistic regression fits. (Why
+    is this?)
 
-- Using deviance, test whether ($obesity$) is associated with heart disease.
+-   Using deviance, test whether ($obesity$) is associated with heart
+    disease.
 
-  - $H_0: \beta_{obesity} = 0$
+    -   $H_0: \beta_{obesity} = 0$
 
-  - $H_a: \beta_{obesity} \ne 0$
+    -   $H_a: \beta_{obesity} \ne 0$
 
 ```{r message = FALSE ,error = TRUE}
 #degree_freedom <- # uncomment and replace with your code
@@ -489,12 +648,12 @@ test_stat <- mod.logit.h0$deviance - mod.logit.ha$deviance
 pvalue <- 1-pchisq(test_stat, df = degree_freedom)
 ```
 
+> **We get a p-value of 0.29, the same as what we got from both anova()
+> and Anova() functions, and again we fail to reject the null hypothesis
+> that obesity is not correlated with heart disease given this data
+> set.**
 
-> **We get a p-value of 0.29, the same as what we got from both anova() and Anova() functions, and again we fail to reject the null hypothesis that obesity is not correlated with heart disease given this data set.** 
-
-
-
-##  Confidence Interval
+## Confidence Interval
 
 ### Confidence Interval for odds ratio
 
@@ -508,7 +667,8 @@ $$
 exp \left(c*\hat{\beta_k} \pm c*Z_{1-\alpha/2} \sqrt{\widehat{Var}(\hat{\beta}_k)} \right)
 $$
 
-- Calculate Wald CI for odds ratio of 10-unit increase in LDL cholesterol  based on the above formula:
+-   Calculate Wald CI for odds ratio of 10-unit increase in LDL
+    cholesterol based on the above formula:
 
 ```{r}
 # Replace with your code
@@ -518,17 +678,18 @@ round(exp(10*mod.logit.h0$coefficients[2] +10*qnorm(p=c(0.025, 0.975))*
             sqrt(vcov(mod.logit.h0)[2,2])),2)
 ```
 
+> **With 95% confidence, the odds of having a heart disease change
+> between 2.20 to 18.4 times for every 10-unit increase in LDL or 'bad'
+> cholesterol.**
 
-> **With 95% confidence, the odds of having a  heart disease change between 2.20 to 18.4 times for every 10-unit increase in LDL or 'bad' cholesterol.**
+-   What is the main concern with Wald CI?
 
+> **Wald confidence interval has a true confidence level close to the
+> 95% only when we have large samples. When the sample size is not
+> large, profile LR confidence intervals generally perform better.**
 
-- What is the main concern with Wald CI?
-
-
-> **Wald confidence interval has a true confidence level close to the 95% only when we have large samples. When the sample size is not large, profile LR confidence intervals generally perform better.**
-
-
-- Now calculate the *profile likelihood ratio (LR)* confidence interval using the confint function.
+-   Now calculate the *profile likelihood ratio (LR)* confidence
+    interval using the confint function.
 
 ```{r}
 #| echo: true
@@ -540,17 +701,19 @@ odds_ci <- exp(10*beta_ci)
 round(cbind(odds_ci ),2)
 ```
 
-
-> **Since we have a large sample, 462 observations, the profile likelihood ratio (LR) confidence interval is pretty close to the Wald CI.**
+> **Since we have a large sample, 462 observations, the profile
+> likelihood ratio (LR) confidence interval is pretty close to the Wald
+> CI.**
 
 ### Confidence Interval for the Probability of Success
 
-- Recall that the estimated probability of success is
-$$
-\hat{\pi} = \frac{exp \left( \hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_k \right)}{1+exp \left(\hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_k \right)}
-$$
+-   Recall that the estimated probability of success is $$
+    \hat{\pi} = \frac{exp \left( \hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_k \right)}{1+exp \left(\hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_k \right)}
+    $$
 
-While backing out the estimated probability of success is straightforward, obtaining its confidence interval is not, as it involves many parameters.
+While backing out the estimated probability of success is
+straightforward, obtaining its confidence interval is not, as it
+involves many parameters.
 
 **Wald Confidence Interval**
 
@@ -558,7 +721,7 @@ $$
 \hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_K \pm Z_{1-\alpha/2} \sqrt{\widehat{Var}(\hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_K)} 
 $$
 
-where 
+where
 
 $$
 \widehat{Var}(\hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_K) = \sum_{i=0}^K x_i^2 \widehat{Var}(\hat{\beta_i}) + 2 \sum_{i=0}^{K-1} \sum_{j=i+1}^{K} x_i x_j \widehat{Cov}(\hat{\beta}_i,\hat{\beta}_j)
@@ -570,7 +733,9 @@ $$
 \frac{exp \left( \hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_k \pm \sqrt{\sum_{i=0}^K x_i^2 \widehat{Var}(\hat{\beta_i}) + 2 \sum_{i=0}^{K-1} \sum_{j=i+1}^{K} x_i x_j \widehat{Cov}(\hat{\beta}_i,\hat{\beta}_j)}  \right)}{1+exp \left(\hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_k \right)  \pm \sqrt{\sum_{i=0}^K x_i^2 \widehat{Var}(\hat{\beta_i}) + 2 \sum_{i=0}^{K-1} \sum_{j=i+1}^{K} x_i x_j \widehat{Cov}(\hat{\beta}_i,\hat{\beta}_j)}}
 $$
 
-- For an average value of all explanatory variables, compute the Confidence Interval for the Probability of Success given the formula above
+-   For an average value of all explanatory variables, compute the
+    Confidence Interval for the Probability of Success given the formula
+    above
 
 ```{r message = FALSE ,error = TRUE}
 alpha = 0.5
@@ -599,12 +764,14 @@ CI.pi = exp(CI.lin.pred)/(1+exp(CI.lin.pred))
 round(data.frame(pi.hat, lower=CI.pi[1], upper=CI.pi[2]),4)
 ```
 
-
 ### Final Visualization
 
-- Using both the linear probability and logistic regression models, plot the estimated probability of heart disease for different values of cholesterol, holding other variables constant at their average level.
+-   Using both the linear probability and logistic regression models,
+    plot the estimated probability of heart disease for different values
+    of cholesterol, holding other variables constant at their average
+    level.
 
-- Discuss which one can better explain this relationship.
+-   Discuss which one can better explain this relationship.
 
 ```{r message = FALSE ,error = TRUE}
 coef <- mod.logit.h0$coefficients
@@ -633,12 +800,12 @@ lines(df$ldl, lm.z + lm.coef[2]*x,col="green")
 
 ```
 
-
 \newpage
 
 ### Final Report
 
-- Display both estimated linear and logistic models in a regression table. Is there any significant difference between their results?
+-   Display both estimated linear and logistic models in a regression
+    table. Is there any significant difference between their results?
 
 ```{r message = FALSE ,error = TRUE}
 # uncomment and run the code
@@ -649,8 +816,10 @@ stargazer(mod.linear, mod.logit.h0, type = "text", omit.stat = "f",
 
 ```
 
-> **In both models, all the coefficients except blood pressure are statistically significant and positively associated with the probability of having heart disease. Also, LDL is the most correlated variable with the probability of heart disease in both models.**    
-
+> **In both models, all the coefficients except blood pressure are
+> statistically significant and positively associated with the
+> probability of having heart disease. Also, LDL is the most correlated
+> variable with the probability of heart disease in both models.**
 
 # Terms
 
@@ -659,7 +828,6 @@ stargazer(mod.linear, mod.logit.h0, type = "text", omit.stat = "f",
 # library(readxl)
 df <- read_excel(here("def.xlsx"), sheet = "wk1")
 ```
-
 
 ```{r echo=FALSE}
 #| label: tbl-penguins-top10

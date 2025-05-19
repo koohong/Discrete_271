@@ -220,6 +220,17 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#functional-form" id="toc-functional-form" class="nav-link" data-scroll-target="#functional-form">Functional form</a></li>
   <li><a href="#parameter-estimation-in-r" id="toc-parameter-estimation-in-r" class="nav-link" data-scroll-target="#parameter-estimation-in-r">parameter estimation in R</a></li>
+  <li><a href="#hypothesis-tests-for-regression-parameters" id="toc-hypothesis-tests-for-regression-parameters" class="nav-link" data-scroll-target="#hypothesis-tests-for-regression-parameters">Hypothesis tests for regression parameters</a>
+  <ul class="collapse">
+  <li><a href="#lrt" id="toc-lrt" class="nav-link" data-scroll-target="#lrt">LRT</a></li>
+  <li><a href="#transformed-lrt" id="toc-transformed-lrt" class="nav-link" data-scroll-target="#transformed-lrt">Transformed LRT</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#deviance" id="toc-deviance" class="nav-link" data-scroll-target="#deviance">Deviance</a>
+  <ul class="collapse">
+  <li><a href="#saturated-model" id="toc-saturated-model" class="nav-link" data-scroll-target="#saturated-model">Saturated model</a></li>
+  <li><a href="#null-deviance" id="toc-null-deviance" class="nav-link" data-scroll-target="#null-deviance">Null deviance</a></li>
+  <li><a href="#residual-deviance" id="toc-residual-deviance" class="nav-link" data-scroll-target="#residual-deviance">Residual deviance</a></li>
   </ul></li>
   <li><a href="#odds" id="toc-odds" class="nav-link" data-scroll-target="#odds">ODDS</a></li>
   <li><a href="#log-odds-to-probability" id="toc-log-odds-to-probability" class="nav-link" data-scroll-target="#log-odds-to-probability">Log odds to probability</a></li>
@@ -244,7 +255,7 @@ window.Quarto = {
   <li><a href="#statistical-inference" id="toc-statistical-inference" class="nav-link" data-scroll-target="#statistical-inference">Statistical Inference</a>
   <ul class="collapse">
   <li><a href="#hypothesis-test" id="toc-hypothesis-test" class="nav-link" data-scroll-target="#hypothesis-test">Hypothesis Test</a></li>
-  <li><a href="#deviance" id="toc-deviance" class="nav-link" data-scroll-target="#deviance">Deviance</a></li>
+  <li><a href="#deviance-1" id="toc-deviance-1" class="nav-link" data-scroll-target="#deviance-1">Deviance</a></li>
   <li><a href="#confidence-interval" id="toc-confidence-interval" class="nav-link" data-scroll-target="#confidence-interval">Confidence Interval</a>
   <ul class="collapse">
   <li><a href="#confidence-interval-for-odds-ratio" id="toc-confidence-interval-for-odds-ratio" class="nav-link" data-scroll-target="#confidence-interval-for-odds-ratio">Confidence Interval for odds ratio</a></li>
@@ -402,14 +413,154 @@ window.Quarto = {
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>mod.fit <span class="ot">&lt;-</span> <span class="fu">glm</span>(<span class="at">formula =</span> good <span class="sc">~</span> distance , <span class="at">family =</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">binomial</span>(<span class="at">link =</span> logit), <span class="at">data =</span> placekick)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>latex_equation <span class="ot">&lt;-</span> <span class="fu">extract_eq</span>(mod.fit)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(latex_equation)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>mod.fit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>$$
-\log\left[ \frac { P( \operatorname{good} = \operatorname{1} ) }{ 1 - P( \operatorname{good} = \operatorname{1} ) } \right] = \alpha + \beta_{1}(\operatorname{distance})
-$$</code></pre>
+<pre><code>
+Call:  glm(formula = good ~ distance, family = binomial(link = logit), 
+    data = placekick)
+
+Coefficients:
+(Intercept)     distance  
+      5.812       -0.115  
+
+Degrees of Freedom: 1424 Total (i.e. Null);  1423 Residual
+Null Deviance:      1013 
+Residual Deviance: 775.7    AIC: 779.7</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># latex_equation &lt;- extract_eq(mod.fit)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># print(latex_equation)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><span class="math display">
+\log\left[ \frac { P( \operatorname{good} = \operatorname{1} ) }{ 1 - P( \operatorname{good} = \operatorname{1} ) } \right] = 5.812 +- 0.115\cdot(\operatorname{distance})
+</span></p>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>Waiting for profiling to be done...</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 2.5 %      97.5 %
+(Intercept)  5.1958841  6.47715198
+distance    -0.1318144 -0.09907103</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = good ~ distance, family = binomial(link = logit), 
+    data = placekick)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.7441   0.2425   0.2425   0.3801   1.6092  
+
+Coefficients:
+             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)  5.812080   0.326277   17.81   &lt;2e-16 ***
+distance    -0.115027   0.008339  -13.79   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1013.43  on 1424  degrees of freedom
+Residual deviance:  775.75  on 1423  degrees of freedom
+AIC: 779.75
+
+Number of Fisher Scoring iterations: 6</code></pre>
 </div>
 </div>
+<p>page74</p>
+</section>
+<section id="hypothesis-tests-for-regression-parameters" class="level2">
+<h2 class="anchored" data-anchor-id="hypothesis-tests-for-regression-parameters">Hypothesis tests for regression parameters</h2>
+<ul>
+<li>(see page 56)</li>
+<li>Wald test, which involves calculating <span class="math inline">\Z_0</span> and using standard normal distribution often suffer from bias.</li>
+<li>LRT typically performs better than the Wald Test</li>
+</ul>
+<p><span class="math display">H_0: \text{logit}(\pi) =
+\log\left[ \frac { P( \operatorname{good} = \operatorname{1} ) }{ 1 - P( \operatorname{good} = \operatorname{1} ) } \right] = \alpha + \beta_{1}\cdot\operatorname{distance}
+</span></p>
+<p><span class="math display">H_A: \text{logit}(\pi) =
+\log\left[ \frac { P( \operatorname{good} = \operatorname{1} ) }{ 1 - P( \operatorname{good} = \operatorname{1} ) } \right] = \alpha + \beta_{1}\cdot\operatorname{distance} + \beta_2\cdot\text{another_feature}
+</span></p>
+<section id="lrt" class="level3">
+<h3 class="anchored" data-anchor-id="lrt">LRT</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="image/LRT.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="400"></p>
+</figure>
+</div>
+<p><span class="math display">\Lambda = \frac{\text{ML under }H_0 }{\text{ML under }H_A}</span></p>
+</section>
+<section id="transformed-lrt" class="level3">
+<h3 class="anchored" data-anchor-id="transformed-lrt">Transformed LRT</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="image/transformed LRT.webp" class="img-fluid quarto-figure quarto-figure-center figure-img" width="400"></p>
+</figure>
+</div>
+<p><span class="math display">-2\text{log}{(\Lambda)} \approx \chi^2</span></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Deviance Table (Type II tests)
+
+Response: good
+         LR Chisq Df Pr(&gt;Chisq)    
+change      5.246  1      0.022 *  
+distance  218.650  1     &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Deviance Table
+
+Model 1: good ~ distance
+Model 2: good ~ change + distance
+  Resid. Df Resid. Dev Df Deviance Pr(&gt;Chi)  
+1      1423     775.75                       
+2      1422     770.50  1   5.2455    0.022 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="deviance" class="level1">
+<h1>Deviance</h1>
+<ul>
+<li><code>deviance</code> refers to the amount that a particular model deviates from another model as measured by <span class="math inline">-2\text{log}(\Lambda)</span>.</li>
+</ul>
+<section id="saturated-model" class="level2">
+<h2 class="anchored" data-anchor-id="saturated-model">Saturated model</h2>
+<ul>
+<li><code>saturated model</code>, which has a different coefficent for each data point, leading to perfect prediction, a likelihood of one, and a log likelihood of zero.</li>
+</ul>
+</section>
+<section id="null-deviance" class="level2">
+<h2 class="anchored" data-anchor-id="null-deviance">Null deviance</h2>
+<ul>
+<li>The <code>null deviance</code> measures the performance of the worst model using only <code>an intercept</code>, providing a benchmark.</li>
+</ul>
+<p><span class="math display">
+\text{Null Deviance}= -2 \text{log}(L(\hat{\beta_0}|y_1,..., y_n))
+</span></p>
+</section>
+<section id="residual-deviance" class="level2">
+<h2 class="anchored" data-anchor-id="residual-deviance">Residual deviance</h2>
+<ul>
+<li>The <code>residual deviance</code> is the deviance of our fitted model.</li>
+<li>It is always greater than zero unless it is the saturated model which explains the data perfectly.</li>
+</ul>
+<p><span class="math display">
+\text{Residual Deviance}= -2 \text{log}(L(\hat{\beta}|y_1,..., y_n))
+</span></p>
+<ul>
+<li><p>Therefore, how much better (smaller) our <code>residual deviance</code> is compared to the <code>null deviance</code> and how close it is to zero is a measure of model fit.</p></li>
+<li><p>Sometimes people will compute an <span class="math inline">R^2</span> for logistic regression using <span class="math inline">1-\frac{\text{Residual Deviance}}{\text{Null Deviance}}</span> since it is bounded between 0 (residual deviance = null deviance) and 1 (residual deviance = saturated model = 0).</p></li>
+<li><p>Note that we can compute deviance of two separate models by substracting the null model residual deviance and the alternative model residual deviance from separate logistic regression fits.</p></li>
+<li><p>See page 81 for more information</p></li>
+</ul>
 </section>
 </section>
 <section id="odds" class="level1">
@@ -491,7 +642,7 @@ $$</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="wk2_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="wk2_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -647,7 +798,7 @@ $$</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="wk2_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="wk2_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -660,7 +811,7 @@ $$</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="wk2_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="960"></p>
+<p><img src="wk2_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="960"></p>
 </figure>
 </div>
 </div>
@@ -680,7 +831,7 @@ $$</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="wk2_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="wk2_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -783,7 +934,7 @@ F-statistic: 25.98 on 4 and 457 DF,  p-value: &lt; 2.2e-16</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="wk2_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="wk2_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -874,8 +1025,8 @@ Number of Fisher Scoring iterations: 4</code></pre>
 <li>Compute and interpret the estimated odds ratio for a 10-unit increase in each explanatory variable.</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace with your code</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">exp</span>(<span class="dv">10</span><span class="sc">*</span><span class="fu">coef</span>(mod.logit.h0)),<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace with your code</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">exp</span>(<span class="dv">10</span><span class="sc">*</span><span class="fu">coef</span>(mod.logit.h0)),<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(Intercept)         ldl         sbp     tobacco         age 
        0.00        6.37        1.04        2.14        1.59 </code></pre>
@@ -904,11 +1055,11 @@ Number of Fisher Scoring iterations: 4</code></pre>
 </ul>
 <p>Use both <em>Anova()</em> or <em>anova()</em> functions.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#mod.logit.ha &lt;- # uncomment and replace with your code</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>mod.logit.ha <span class="ot">&lt;-</span> <span class="fu">glm</span>(chd <span class="sc">~</span> ldl <span class="sc">+</span> sbp <span class="sc">+</span>tobacco <span class="sc">+</span> age <span class="sc">+</span> obesity, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> logit), <span class="at">data =</span> df)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#anova()</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(mod.logit.h0, mod.logit.ha, <span class="at">test =</span> <span class="st">"Chisq"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#mod.logit.ha &lt;- # uncomment and replace with your code</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>mod.logit.ha <span class="ot">&lt;-</span> <span class="fu">glm</span>(chd <span class="sc">~</span> ldl <span class="sc">+</span> sbp <span class="sc">+</span>tobacco <span class="sc">+</span> age <span class="sc">+</span> obesity, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> logit), <span class="at">data =</span> df)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">#anova()</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(mod.logit.h0, mod.logit.ha, <span class="at">test =</span> <span class="st">"Chisq"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Analysis of Deviance Table
 
@@ -918,8 +1069,8 @@ Model 2: chd ~ ldl + sbp + tobacco + age + obesity
 1       457     502.19                     
 2       456     501.07  1   1.1191   0.2901</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Anova()</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Anova</span>(mod.logit.ha, <span class="at">test =</span> <span class="st">"LR"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Anova()</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Anova</span>(mod.logit.ha, <span class="at">test =</span> <span class="st">"LR"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Analysis of Deviance Table (Type II tests)
 
@@ -935,8 +1086,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 </section>
-<section id="deviance" class="level2">
-<h2 class="anchored" data-anchor-id="deviance">Deviance</h2>
+<section id="deviance-1" class="level2">
+<h2 class="anchored" data-anchor-id="deviance-1">Deviance</h2>
 <ul>
 <li><p><code>deviance</code> refers to the amount that a particular model deviates from another model as measured by <span class="math inline">-2\text{log}(\Lambda)</span>.</p></li>
 <li><p>What are the null deviance and residual deviance in the model summary?</p>
@@ -1017,14 +1168,14 @@ age          9.706566e-05</code></pre>
 <li>Now calculate the <em>profile likelihood ratio (LR)</em> confidence interval using the confint function.</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace with your code</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>beta_ci <span class="ot">&lt;-</span> <span class="fu">confint</span>(mod.logit.h0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace with your code</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>beta_ci <span class="ot">&lt;-</span> <span class="fu">confint</span>(mod.logit.h0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Waiting for profiling to be done...</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>odds_ci <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="dv">10</span><span class="sc">*</span>beta_ci)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">cbind</span>(odds_ci ),<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>odds_ci <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="dv">10</span><span class="sc">*</span>beta_ci)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">cbind</span>(odds_ci ),<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>            2.5 % 97.5 %
 (Intercept)  0.00   0.00
@@ -1078,7 +1229,7 @@ age          1.31   1.93</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="wk2_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="wk2_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
