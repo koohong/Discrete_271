@@ -1,0 +1,289 @@
+[
+  {
+    "objectID": "wk5.html",
+    "href": "wk5.html",
+    "title": "Logistic regression",
+    "section": "",
+    "text": "Reading - Ch 4.1,4.2.1 - 4.2.3,5.2 - Skim sections 5.1, 5.2.3,5.3,.5.4\n\nGeneralized linear models (GLM)\n\nGLMs have three different parts (see page 121:\n\nRandom Component:\n\nY, for logistic regression, Y has a Bernoulli distribution\n\nSystematic Component:\n\nThis specifies a linear combination of the regression parameters with features, and this part is referred to as the linear predictor\n\\beta_0 + \\beta_1x_1 + .... + \\beta_px_p\n\nLINK FUNCTION:\n\nSpecifies how the expected value of the random component E[Y] is linked to the sysmatic component.\n\\text{logit}(\\pi) = \\beta_0 + \\beta_1x_1 + .... + \\beta_px_p\nwhere E[Y] = \\pi"
+  },
+  {
+    "objectID": "wk4P2.html",
+    "href": "wk4P2.html",
+    "title": "Nominal Response",
+    "section": "",
+    "text": "Reading\n\nCh.3.3"
+  },
+  {
+    "objectID": "wk4P2.html#functional-form",
+    "href": "wk4P2.html#functional-form",
+    "title": "Nominal Response",
+    "section": "Functional form",
+    "text": "Functional form\n\\text{log}(\\frac{\\text{probility of getting some color}}{\\text{probability of getting blue}}) = \\beta_{\\text{some color }0} + \\beta_{\\text{some color }1}x_1 .. + \\beta_{\\text{some color }p}x_p\n\\text{log}(\\frac{\\pi_j}{\\pi_1}) = \\beta_{j0} + \\beta_{j1}x_1 .. + \\beta_{jp}x_p\n\nusing the multinomial regression model, we can estimate \\pi_1..\\pi_J based on sample, but finding their confidence interval is hard such that we only focus on Wald Confidence interval here."
+  },
+  {
+    "objectID": "wk4P2.html#eda",
+    "href": "wk4P2.html#eda",
+    "title": "Nominal Response",
+    "section": "EDA",
+    "text": "EDA\n\nwheat &lt;- read.csv(here(\"data\",\"Wheat.csv\"), stringsAsFactors = TRUE)\n\nhrw &lt;- wheat %&gt;% filter(class == \"hrw\")\n\np &lt;- ggparcoord(data = hrw, \n                columns = c(2:6),\n                groupColumn = 7,\n                showPoints = TRUE, \n                title = \"Parallel Coordinate Plot for the Iris Data\",\n                alphaLines = 0.9)\n\nggplotly(p)"
+  },
+  {
+    "objectID": "wk4P2.html#fit-the-model",
+    "href": "wk4P2.html#fit-the-model",
+    "title": "Nominal Response",
+    "section": "Fit the model",
+    "text": "Fit the model\n\n\n[1] \"Healthy\" \"Scab\"    \"Sprout\" \n\n\n# weights:  24 (14 variable)\ninitial  value 302.118379 \niter  10 value 234.991271\niter  20 value 192.127549\nfinal  value 192.112352 \nconverged"
+  },
+  {
+    "objectID": "wk4P2.html#evaluation",
+    "href": "wk4P2.html#evaluation",
+    "title": "Nominal Response",
+    "section": "Evaluation",
+    "text": "Evaluation\n\n\nCall:\nmultinom(formula = type ~ class + density + hardness + size + \n    weight + moisture, data = wheat)\n\nCoefficients:\n       (Intercept)   classsrw   density    hardness      size     weight\nScab      30.54650 -0.6481277 -21.59715 -0.01590741 1.0691139 -0.2896482\nSprout    19.16857 -0.2247384 -15.11667 -0.02102047 0.8756135 -0.0473169\n          moisture\nScab    0.10956505\nSprout -0.04299695\n\nStd. Errors:\n       (Intercept)  classsrw  density    hardness      size     weight\nScab      4.289865 0.6630948 3.116174 0.010274587 0.7722862 0.06170252\nSprout    3.767214 0.5009199 2.764306 0.008105748 0.5409317 0.03697493\n        moisture\nScab   0.1548407\nSprout 0.1127188\n\nResidual Deviance: 384.2247 \nAIC: 412.2247 \n\n\n\nThe first parameter class has two values hrw and srw\nThis model output is hard to see.\n\n\nThe estimated coefficient for classrw, -0.648 is part of the following equation\n\n\n\\operatorname{log\\frac{\\hat{\\pi}_{scab}}{\\hat{\\pi}_{Healthy}}} = 30.55 -0.65\\cdot(\\operatorname{class}_{\\operatorname{srw}}) + \\beta_{2}(\\operatorname{density}) + \\beta_{3}(\\operatorname{hardness}) + \\beta_{4}(\\operatorname{size}) + \\beta_{5}(\\operatorname{weight}) + \\beta_{6}(\\operatorname{moisture}) + \\hat{\\epsilon}\n\n\ntest statistic is -0.978 and its corresponding p-value is 0.32 - there is not sufficient evidence that hard and soft red winter wheat have different effects on the scab or healthy status of the kernels given the other explanatory variables are in the model\nLet’s print the output again.\n\n\n\n\nScab\n\n\nParameter\nCoefficient\nSE\nCI\nCI_low\nCI_high\nz\np\nResponse\n\n\n\n\n(Intercept)\n30.5464951\n4.2898646\n0.95\n22.1385150\n38.9544752\n7.1206199\n0.0000000\nScab\n\n\nclasssrw\n-0.6481277\n0.6630948\n0.95\n-1.9477696\n0.6515141\n-0.9774285\n0.3283570\nScab\n\n\ndensity\n-21.5971549\n3.1161741\n0.95\n-27.7047438\n-15.4895660\n-6.9306639\n0.0000000\nScab\n\n\nhardness\n-0.0159074\n0.0102746\n0.95\n-0.0360452\n0.0042304\n-1.5482286\n0.1215673\nScab\n\n\nsize\n1.0691139\n0.7722862\n0.95\n-0.4445393\n2.5827670\n1.3843493\n0.1662515\nScab\n\n\nweight\n-0.2896482\n0.0617025\n0.95\n-0.4105829\n-0.1687135\n-4.6942690\n0.0000027\nScab\n\n\nmoisture\n0.1095650\n0.1548407\n0.95\n-0.1939172\n0.4130473\n0.7075983\n0.4791947\nScab\n\n\n\n\n\n\n\n\nSprout\n\n\n\nParameter\nCoefficient\nSE\nCI\nCI_low\nCI_high\nz\np\nResponse\n\n\n\n\n8\n(Intercept)\n19.1685687\n3.7672143\n0.95\n11.7849643\n26.5521732\n5.0882607\n0.0000004\nSprout\n\n\n9\nclasssrw\n-0.2247384\n0.5009199\n0.95\n-1.2065233\n0.7570465\n-0.4486513\n0.6536832\nSprout\n\n\n10\ndensity\n-15.1166714\n2.7643059\n0.95\n-20.5346114\n-9.6987314\n-5.4685234\n0.0000000\nSprout\n\n\n11\nhardness\n-0.0210205\n0.0081057\n0.95\n-0.0369074\n-0.0051335\n-2.5932793\n0.0095066\nSprout\n\n\n12\nsize\n0.8756135\n0.5409317\n0.95\n-0.1845931\n1.9358201\n1.6187138\n0.1055089\nSprout\n\n\n13\nweight\n-0.0473169\n0.0369749\n0.95\n-0.1197864\n0.0251526\n-1.2797020\n0.2006500\nSprout\n\n\n14\nmoisture\n-0.0429970\n0.1127188\n0.95\n-0.2639218\n0.1779279\n-0.3814532\n0.7028670\nSprout\n\n\n\n\n\n\n\n\nDoes anything have any predictive power?\n\nSo many numbers to keep track of…\n\n\n\n\n\n\nH_0: \\beta_{21} = \\beta_{31} = 0 H_0: \\beta_{21} \\not = 0 \\text{ and/or } \\beta_{31} \\not= 0\n\n\nAnova()\nAnova() test performs LR test. - LR Chisq is the transformed test statistic related to class variable,-2\\text{log}(\\lambda)=0.964 - Because of the large p-value, there is not sufficient evidence to indicate that the class of wheat is important given that the other variables are in the model.\n\n\n\nAnova()\n\n\n\nLR Chisq\nDf\nPr(&gt;Chisq)\n\n\n\n\nclass\n0.9641189\n2\n0.6175104\n\n\ndensity\n90.5551631\n2\n0.0000000\n\n\nhardness\n7.0736934\n2\n0.0291050\n\n\nsize\n3.2106326\n2\n0.2008260\n\n\nweight\n28.2302354\n2\n0.0000007\n\n\nmoisture\n1.1933402\n2\n0.5506422\n\n\n\n\n\n\n\n\nSeparate tests for density, hardness, and weight in the output all indicate at least marginal evidence of importance for these explanatory variables.\n\n\n\n[1] 0.72\n\n\n\n\n# weights:  9 (4 variable)\ninitial  value 302.118379 \niter  10 value 229.769334\niter  20 value 229.712304\nfinal  value 229.712290 \nconverged"
+  },
+  {
+    "objectID": "wk4P2.html#or",
+    "href": "wk4P2.html#or",
+    "title": "Nominal Response",
+    "section": "OR",
+    "text": "OR\n\nThe log-odds are modeled directly in a multinomial regression model, odds ratios are useful for interpreting an explanatory variable’s relationship with the response"
+  },
+  {
+    "objectID": "wk3.html",
+    "href": "wk3.html",
+    "title": "Logistic regression Part 2",
+    "section": "",
+    "text": "BL2015: Christopher R. Bilder and Thomas M. Loughin. Analysis of Categorical Data with R. CRC Press. 2015. - Ch. 2.2.5 – 2.2.8, 2.3 (page 94)\n\nGeneralized linear models (GLM)\n\nGLMs have three different parts (see page 121:\n\nRandom Component:\n\nY, for logistic regression, Y has a Bernoulli distribution\n\nSystematic Component:\n\nThis specifies a linear combination of the regression parameters with features, and this part is referred to as the linear predictor\n\\beta_0 + \\beta_1x_1 + .... + \\beta_px_p\n\nLINK FUNCTION:\n\nSpecifies how the expected value of the random component E[Y] is linked to the sysmatic component.\n\\text{logit}(\\pi) = \\beta_0 + \\beta_1x_1 + .... + \\beta_px_p\nwhere E[Y] = \\pi"
+  },
+  {
+    "objectID": "wk1.html",
+    "href": "wk1.html",
+    "title": "One and Two binary groups",
+    "section": "",
+    "text": "Source"
+  },
+  {
+    "objectID": "wk1.html#bernoulli-distribution",
+    "href": "wk1.html#bernoulli-distribution",
+    "title": "One and Two binary groups",
+    "section": "Bernoulli distribution",
+    "text": "Bernoulli distribution\n\nparameters\n\nY is 0 or 1. Has one parameter \\pi\nE[Y] = \\pi, \\text{V}[Y]=\\pi(1-\\pi)\n\n\n\nPMF\nP(Y=y) = \\pi^y(1-\\pi)^{1-y}"
+  },
+  {
+    "objectID": "wk1.html#binomial-distribution",
+    "href": "wk1.html#binomial-distribution",
+    "title": "One and Two binary groups",
+    "section": "Binomial distribution",
+    "text": "Binomial distribution\n\nparameters\n\nMultiple bernoulli trials. Suppose we have n trials\nE[Y] = n\\pi, \\text{V}[Y]= n\\pi(1-\\pi)\n\n\n\nPMF\nP(W=w) = {n \\choose w} \\pi^w(1-\\pi)^{1-w}\n\n\nLikelihood Function\n\nWhat is Likelihood function?\n\n\\begin{align}\nL(\\pi|y_1,y_2,....y_n) &= P(Y_1 = y_1)\\cdot ... P(Y_n=y_n)\\\\\n&=\\pi^w(1-\\pi)^{n-w}\n\\end{align}\n\n\nMLE\n\nMaximum Likelihood Estimation\nSuppose your aunt sends you an unfair coin, but you forgot what your order was.\n\nTo figure out the probability of success, you flip the coin three times and collect the following data (we are defining heads as success here):\n\n\n\nHTH\n\n\nFor a hypothesized Bernoulli parameter \\pi, what is the likelihood of the data? Your answer should be a function of \\pi.\nlikelihood function is:\n\n\n\\begin{aligned}\n  L(\\pi|x_1,x_2,x_3) &= P(X_1 = x_1,X_1 = x_2, X_3 =  x_{3}) \\\\\n       &= \\prod_{i=1}^{3} P({X=x_i}) \\\\\n       &= \\prod_{i=1}^{3} \\pi^{x_i}(1-\\pi)^{1-x_i} \\\\\n       &= \\pi^{\\sum_{i=1}^{3} x_i} (1-\\pi)^{\\sum_{i=1}^{3}(1- x_i)} \\\\\n\\end{aligned}\n\n\nlog of the likelihood function\n\n\n\\begin{aligned}\n  Log[L(\\pi|x_1,x_2,x_3)] &= \\\\\n       & \\left( {\\sum_{i=1}^{3} x_i} \\right)log(\\pi) + \\left({\\sum_{i=1}^{3}(1- x_i)} \\right) log(1-\\pi)\\\\\n\\end{aligned}\n\n\nWhat is the natural log of the likelihood of the data? Write an R function that computes the log likelihood.\n\n\nGraph your function and visually estimate what the maximum likelihood estimate for \\pi is.\n\n\n\n\n\n\n\n\n\n\n\nWe know that MLE of \\pi is: \\hat{\\pi} =\\frac{\\sum x_i}{N} = \\frac{2}{3} \nand in this question, it’s:\n\n\\hat{\\pi} = \\frac{2}{3} \n\nIn the plot, we can see that log-likelihood has a single peak at 2/3."
+  },
+  {
+    "objectID": "wk1.html#interval-vs-hypothesis-test",
+    "href": "wk1.html#interval-vs-hypothesis-test",
+    "title": "One and Two binary groups",
+    "section": "Interval vs Hypothesis test",
+    "text": "Interval vs Hypothesis test\n\nGiven observation, knowing distribution, we are estimating the parameter of the function.\nSince this is an estimator, it will change each time we collect sample.\nWe talked about Wald confidence interval, similar to what we talked about in W203.\n\nIt rely on the underlying normal distribution approximation for the maximum likelihood estimator. (see page 11)\n\nWhen only one simple parameter is of interest, such as \\pi here, we generally prefer confidence intervals over hypothesis tests, because the interval gives a range of possible parameter values.\nWe can typically infer that a hypothesized value for a parameter can be rejected if it does not lie within the confidence interval for the parameter.\nHowever, there are situations where a fixed known value of \\pi, say \\pi_0 , is of special interest, leading to a formal hypothesis test of\n\nH_0 : \\pi = \\pi_0 H_a : \\pi  \\not= \\pi_0"
+  },
+  {
+    "objectID": "wk1.html#interval-test",
+    "href": "wk1.html#interval-test",
+    "title": "One and Two binary groups",
+    "section": "Interval test",
+    "text": "Interval test\n\nSee page 11 and 12"
+  },
+  {
+    "objectID": "wk1.html#hypothesis-test",
+    "href": "wk1.html#hypothesis-test",
+    "title": "One and Two binary groups",
+    "section": "Hypothesis test",
+    "text": "Hypothesis test\n\nSituations where a fixed known value of \\pi, say \\pi_0 , is of special interest, leading to a formal hypothesis test of\n\nH_0 : \\pi = \\pi_0 H_a : \\pi  \\not= \\pi_0\n\nHypothesis testing using Wilson interval, score test statistic\n\n\n\n\n\nThis statistic is called the score test statistic\nZ_0 = \\frac{\\hat{\\pi}-\\pi_0}{\\sqrt{\\pi_0(1-\\pi_0)/n}}\n\nWhen H_0 is true, Z_0 should have approximately standard normal distribution.\nThe book recommend using the score test when performing a test for \\pi (see page 17)\n\n\n\nHypothesis testing using likelihood ratio test (LRT)\n\n\n\n\n\n\nLRT statistics look like this.\n\n\\Lambda = \\frac{\\text{Maximum of likelihood function udner } H_0}{\\text{Maximum of likelihood function udner } H_A}\n\nLRT is used to calculate confidence intervals in some more complicated contexts where better intervals are not available.\nThis interval is better than the wald interval in most problems. (see page 10)\n\n\n\nHypothesis testing using Transformed LRT\n\n\n\n\n\n-2\\text{log}(\\Lambda)\n\nAbove statistic is called transformed LRT statistisc and have an approximate \\chi^2 distribution."
+  },
+  {
+    "objectID": "wk1.html#interval-test-1",
+    "href": "wk1.html#interval-test-1",
+    "title": "One and Two binary groups",
+    "section": "Interval test",
+    "text": "Interval test\n\nWald Confidence interval using normal approximation.\nBook recommend using the Agresti-Caffo method\n\n\nLarry Bird’s free throw shooting\n\nc.table &lt;- array(data = c(251, 48, 34, 5), dim = c(2,2),\ndimnames = list(First = c(\"made\", \"missed\"), Second = c(\"made\", \"missed\")))\nc.table\n\n        Second\nFirst    made missed\n  made    251     34\n  missed   48      5\n\n#conditional probabilities\npi.hat.table &lt;- c.table/rowSums(c.table)\n\n#get the pi estimates\npi.hat1 &lt;- pi.hat.table[1,1] \npi.hat2 &lt;- pi.hat.table[2,1]\n\n#set type I error\nalpha &lt;- 0.05\n\n\nWald Confidence interval\n\n\n\n[1] -0.11218742  0.06227017\n\n\n\nAgresti-Caffo confidence interval\n\n\n\n[1] -0.10353254  0.07781192\n\n\n\nBecause these interval contains 0, we cannot reject H_0"
+  },
+  {
+    "objectID": "wk1.html#hypothesis-test-1",
+    "href": "wk1.html#hypothesis-test-1",
+    "title": "One and Two binary groups",
+    "section": "Hypothesis test",
+    "text": "Hypothesis test\nH_0: \\pi_1 - \\pi_2 = 0 H_0: \\pi_1 - \\pi_2 \\not= 0\n\nPerson chi-square test\n\nSo, this is the test for TWO BINARY VARIABLES.\nCreate a statistic comparing the difference between what was observed and what was predicted under H_0 that there is no difference.\nThis statistic following \\Chi^2 with n_1 and n_2 degress of freedom.\n\n\\chi^2 = \\sum_{j=1}^2\\frac{(w_j-n_j\\bar{\\pi})^2}{n_j\\bar{\\pi}(1-\\bar{\\pi})}\n\n\nLRT test\n-2\\text{log}({\\Lambda})= ...  - if -2\\text{log}({\\Lambda}) &gt; \\chi^2_{..}^{..}, Reject H_0\n\n\nScore test\n\nUse score statistic to perform test. Score test performs the best when the same size is small.\n\n\nprop.test(x = c.table , conf.level = 0.95, correct = FALSE)\n\n\n    2-sample test for equality of proportions without continuity correction\n\ndata:  c.table\nX-squared = 0.27274, df = 1, p-value = 0.6015\nalternative hypothesis: two.sided\n95 percent confidence interval:\n -0.11218742  0.06227017\nsample estimates:\n   prop 1    prop 2 \n0.8807018 0.9056604 \n\n\n\ncorrect = FALSE argument value guarantees that the test statistic is calculated as shown Z_0.\nThe prevalence of a disease is the proportion of a population that is afflicted with that disease"
+  },
+  {
+    "objectID": "wk1.html#relative-risk",
+    "href": "wk1.html#relative-risk",
+    "title": "One and Two binary groups",
+    "section": "Relative Risk",
+    "text": "Relative Risk\n\nThe problem with basing inferences on \\pi_1 - \\pi_2 is that it measures a quantity whose meaning changes depending on the value of \\pi_1,\\pi_2\n\n\n\\pi_1 = 0.51 \\text{ and }  \\pi_2 = 0.5\n\\pi_1 = 0.011 \\text{ and }  \\pi_2 = 0.001\n\n\nIn both cases, 1. \\pi_1 - \\pi_2 = 0.01.\nIn case (1), this change is small compare to 1. $_1 _2 $\nIn case (2), this change is 11 times the chance of $_2 $. Suppose \\pi_2 is the chance of nonsmoking population getting a disease, then, the chance is 11 times the chance of nonsmoking population getting a disease.\nTo capture this information, we use another statistic called relative risk\n\n\\text{RR} = \\frac{\\pi_1}{\\pi_2}=\\frac{0.011}{0.001} - Smokers are 11 times as likely to have the disease than nonsmokers - Smokers are 10 times more likely to have that disease than nonsmokers. (see page 38)\n\n\\hat{RR} is MLE and using normal approximation is rather poor for MLE and not recommended. Use normal approximation on \\text{log}(\\hat{RR})\n\n\nRR of Salk vaccine clinical trial\n\nc.table &lt;- array(data = c(57, 142, 200688, 201087), dim =\nc(2,2), dimnames = list(Treatment = c(\"vaccine\", \"placebo\"), Result = c(\"polio\", \"polio free\")))\n\nc.table\n\n         Result\nTreatment polio polio free\n  vaccine    57     200688\n  placebo   142     201087\n\n#calculate conditional probability\npi.hat.table &lt;- c.table/rowSums(c.table) \npi.hat.table\n\n         Result\nTreatment        polio polio free\n  vaccine 0.0002839423  0.9997161\n  placebo 0.0007056637  0.9992943\n\n#estimated parameters to be compared\npi.hat1 &lt;- pi.hat.table[1,1] \npi.hat2 &lt;- pi.hat.table[2,1]\n\nRR &lt;- pi.hat1/pi.hat2\nRR\n\n[1] 0.4023763\n\n\n\nThe estimated probability of contracting polio is 0.4 times as likely for the vaccine group that for teh placebo group.\n\n\n#set type 1 error\nalpha &lt;- 0.05\nn1 &lt;- sum(c.table[1,]) \nn2 &lt;- sum(c.table[2,])\n\nvar.log.rr &lt;- (1-pi.hat1)/(n1*pi.hat1) + (1-pi.hat2)/(n2*pi.hat2)\n\nci &lt;- exp(log(pi.hat1/pi.hat2) + qnorm(p = c(alpha/2,\n1-alpha/2)) * sqrt(var.log.rr))\n\n\nci\n\n[1] 0.2959316 0.5471084"
+  },
+  {
+    "objectID": "wk1.html#odds-1",
+    "href": "wk1.html#odds-1",
+    "title": "One and Two binary groups",
+    "section": "Odds",
+    "text": "Odds\n\nOdds can also be used as a similar measure as relative risk.\nOdds are defined as the probability of a success divided by the probability of a failure.\n\n\\text{Odds} = \\frac{\\pi}{1-\\pi} = \\frac{0.1}{1-0.1}= \\frac{0.1}{0.9} - This will be referred to as 9-to-1 odds against.\n\nOdds have no upper limit unlike probabilities.\nLike RR, odds are estimated with MLE."
+  },
+  {
+    "objectID": "wk1.html#odds-ratios",
+    "href": "wk1.html#odds-ratios",
+    "title": "One and Two binary groups",
+    "section": "Odds ratios",
+    "text": "Odds ratios\n\nDetermining whether or not an odds ratio is equal to 1, greater than 1 or less than 1 is often of interest.\n\n\\text{OR} = \\frac{\\text{Odds}_1}{\\text{Odds}_2}\n\nThe estimated odds of a success is \\hat{\\text{OR}} times as larag as in group 1 than in group 2\nSince OR is a statistic, each time you get a sample and estimate, you will get difference value. You can calculate CI of this estimate.\n\n\n\n\n\nTable 1: First 10 Penguins\n\n\n\n\n\n\nOdd ratio\nMeanining (page 40)\n\n\n\n\n1\nOdds are not dependent on the group (i.e., the odds of success are independent of the group designation)\n\n\n&gt;1\nThe odds of a success are higher for group 1\n\n\n1&lt;\nThe odds of a success are higher for group 2\n\n\n\n\n\n\n\n\n\n\n\nOR of Salk vaccine clinical trial\n\n\n[1] 0.4022\n\n\n[1] 4.972972e-06\n\n\n[1] 0.30 0.55"
+  },
+  {
+    "objectID": "wk1.html#prostate-cancer-diagnosis-procedures",
+    "href": "wk1.html#prostate-cancer-diagnosis-procedures",
+    "title": "One and Two binary groups",
+    "section": "Prostate cancer diagnosis procedures",
+    "text": "Prostate cancer diagnosis procedures\n\n(P44) Zhou and Qin (2005) discuss a study that was used to compare the diagnostic accuracy of magnetic resonance imaging (MRI) and ultrasound in patients who had been established as having localized prostate cancer by a gold standard test.\n\n\nHypothesis testing\n\nThis is comparing marginal probabilities\n\nH_0: \\pi_{+1}=\\pi_{1+}  H_a: \\pi_{+1}\\not= \\pi_{1+} \n\nWe can use wald test statistic (the book uses Z_0 notation which was used for score statistic) or McNemar's test statistic, M which has approximately \\chi_^2 distribution for large samples.\n\nReject H_0 when M &gt; \\chi^2_{..}\n\n\n\n#get marginal distribution \nn &lt;- sum(c.table) \npi.hat.plus1 &lt;- sum(c.table[,1])/n \npi.hat.1plus &lt;- sum(c.table[1,])/n\n\n#evaluate the difference by \n#subtracting the sample statistics\ndata.frame(pi.hat.plus1 , pi.hat.1plus , \n           diff = pi.hat.plus1 - pi.hat.1plus)\n\n  pi.hat.plus1 pi.hat.1plus       diff\n1 0.0004950569     0.499398 -0.4989029\n\n\n\nc.table &lt;- array(data = c(4, 3, 6, 3), dim = c(2,2), dimnames =\nlist(MRI = c(\"Localized\", \"Advanced\"), Ultrasound =\nc(\"Localized\", \"Advanced\"))) \n\nc.table\n\n           Ultrasound\nMRI         Localized Advanced\n  Localized         4        6\n  Advanced          3        3\n\nmcnemar.test(x = c.table , correct = FALSE)\n\n\n    McNemar's Chi-squared test\n\ndata:  c.table\nMcNemar's chi-squared = 1, df = 1, p-value = 0.3173\n\n\n\n\nInterval\n\nWald confidence interval\n\n\n\n\n\n\ndata:  \n\n95 percent confidence interval:\n -0.5433238  0.1683238\nsample estimates:\n[1] -0.1875\n\n\n\nAgresti-Min confidence interval\n\nYou also get difference sample esitmate.\n\n\n\n\n\n\n\ndata:  \n\n95 percent confidence interval:\n -0.5022786  0.1689453\nsample estimates:\n[1] -0.1666667"
+  },
+  {
+    "objectID": "terms.html",
+    "href": "terms.html",
+    "title": "terms",
+    "section": "",
+    "text": "Terms\n\n\n\n\nTable 1: First 10 Penguins\n\n\n\n\n\n\nwk\nTerm\nDescription\n$$\\text{equals to}$$\n\n\n\n\nwk1\nodd\nFor a Bernoulli random variable with parameter $p$, the odds are defined as the ratio of the probability of success to the probability of failure,\n$$\\text{Odd}=\\frac{p}{1-p}$$\n\n\nwk1\nlogit\nThis is log of odd\n$$\\text{logit}(p)=\\text{log}\\frac{p}{1-p}$$\n\n\nwk1\nodd\nfrom logit, you can get odd. This expression will be used a lot later.\n$$\\text{exp}(x) =\\frac{p}{1-p}$$\n\n\nwk1\nprobability\nthis is probability of success in binary respose case\n$$p = \\frac{exp(x)}{1+exp(x)}$$\n\n\nwk2\nsaturated model\nThis model is frequently referred as the `saturated model` because the number of parameters is equal to the number of observations, so that no additional parameters can be estimated. It refers to observed proportions of success. See p81\n$$\\text{logit}(\\pi_i) = \\gamma_i$$\n\n\nwk2\nlikelihood\nAlso known as likelihood function. It measures how well a statistical model explains observed data by calculating the probability of seeing that data under different parameter values of the model.\n\n\n\nwk2\nlikelihood ratio test\nLikelihood ratio test (LRT) is a statistic. P17. Note that this is $\\Lambda$\n$$\\Lambda = \\frac{\\text{MLR under} H_0}{\\text{MLR under} H_0 \\text{ or } H_a}$$\n\n\nwk2\ndeviance\nthe amount that a particular model deviates from another model measured by the transformed LRT,$-2log(\\Lambda)$, see p 81\n$$-2\\text{log}(\\Lambda)$$\n\n\nwk2\nnull deviance\nThe null deviance denotes how much the probabilities estimated from the model logit$(\\pi_i)=\\beta_0$ for all observation. Measured in transformed LRT, $-2log(\\Lambda)$\nThe $\\pi_i$ is estaimted to be the same value for this particular model. See p81\n\n\nwk2\nresidual deviance\nmeasures how much probabilities estimated from a model of interest deviatesfrom the `observed proportions of success`. Residual deviance statistics are often calculated as an intermediate step for performing a LRT to compare two models. Measured in transformed LRT, $-2log(\\Lambda)$\nIt is a measure of overall goodness of fit for a model. When you have two different models $H_0$ and $H_a$, you can estimate `the transformed LRT` of $H_0$ by comparing the logit($\\pi^{(0)}$ with `saturated model` and also that of $H_a$. When you subtract the transformed LRT of $H_0$ from that of $H_a$, it measures the probability of success under the $H_0$ and $H_a$. p77 and 81\n\n\nwk2\ntransformed likelihood ratio test statistic\ntransformed likelihood ratio test (LRT) statistic follows chi-square degress of freedom. Recommend using it. Better than the Wald Interval\n$$ -2log(\\Lambda) = -2log( \\frac{L(\\hat{{\\beta}}^{(0)} | y_1,..., y_n)}{L(\\hat{{\\beta}}^{(a)} | y_1,..., y_n)}) = -2\\sum y_i log( \\frac{\\hat{\\pi}_i^{(0)}}{\\hat{\\pi}_i^{(a)}}) + (1 - y_i ) log( \\frac{1- \\hat{\\pi}_i^{(0)}}{1- \\hat{\\pi}_i^{(a)}}) $$\n\n\nwk2\n$\\text{Odds}_x$\nThe odds of a success at a particular value of x. p83\n$$\\text{Odds}_x = exp(\\beta_0 + \\beta_1x) $$\n\n\nwk2\n$\\text{Odds}_{x+c}$\nThe odds of a success when x is changed by c. p83\n$$\\text{Odds}_{x+c} = exp(\\beta_0 + \\beta_1(x+c)) $$\n\n\nwk2\nodd ratio\nOR is operator. See the bottom of page 82. It should be E[X]. The odds of a success change by exp($c\\beta_1$ ) times for every c-unit increase in x.\n$$\\frac{\\text{Odds}_{x+c}}{\\text{Odds}_x}=\\frac{exp(\\beta_0 + \\beta_1(x+c))}{exp(\\beta_0 + \\beta_1x)}=exp(c\\beta_1)$$\n\n\nwk2\n$\\hat{\\text{OR}}$\nthe estimated odd ratio, and its confidence interval can be found by `confint()`\n$$\\hat{\\text{OR}} =\\text{exp}(c\\hat{\\beta})$$\n\n\nwk3\n$\\hat{\\pi}$\nprobability of succuss in logistic regression. P86"
+  },
+  {
+    "objectID": "wk2.html",
+    "href": "wk2.html",
+    "title": "Logistic regression",
+    "section": "",
+    "text": "Reading CH 2.1, 2.2.1-2.2.4 (page 61- 94)"
+  },
+  {
+    "objectID": "wk2.html#functional-form",
+    "href": "wk2.html#functional-form",
+    "title": "Logistic regression",
+    "section": "Functional form",
+    "text": "Functional form\n\\pi_i = \\frac{\\text{exp}(\\beta_0 + \\beta_1x_{i,1}+...++ \\beta_px_{i,p})}{1+\\text{exp}(\\beta_0 + \\beta_1x_{i,1}+...++ \\beta_px_{i,p})}\n\\text{logit}(\\pi_i)=\\text{log}(\\frac{\\pi_i}{1-\\pi_i}) = \\beta_0 + \\beta_1x_{i,1}+...++ \\beta_px_{i,p} - Unfortunately, there are only a few simple cases where these parameter estimates have closed-form solutions; i.e., we cannot generally write out the parameter estimates in terms of the observed data like we could for the single probability estimate \\pi in Section 1.1.2.\n\nInstead, we use iterative numerical procedures, as described in Appendix B.3.2, to successively find estimates of the regression parameters that increase the log-likelihood function"
+  },
+  {
+    "objectID": "wk2.html#parameter-estimation-in-r",
+    "href": "wk2.html#parameter-estimation-in-r",
+    "title": "Logistic regression",
+    "section": "parameter estimation in R",
+    "text": "parameter estimation in R\n\n#get data\nplacekick &lt;- read.table(here(\"data\",\"Placekick.csv\"),header = T, sep = \",\")\n\nplacekick %&gt;% head %&gt;% kable(\"html\") %&gt;% \n  kable_styling(bootstrap_options = c(\"striped\", \"hover\"))\n\n\n\n\nweek\ndistance\nchange\nelap30\nPAT\ntype\nfield\nwind\ngood\n\n\n\n\n1\n21\n1\n24.7167\n0\n1\n1\n0\n1\n\n\n1\n21\n0\n15.8500\n0\n1\n1\n0\n1\n\n\n1\n20\n0\n0.4500\n1\n1\n1\n0\n1\n\n\n1\n28\n0\n13.5500\n0\n1\n1\n0\n1\n\n\n1\n20\n0\n21.8667\n1\n0\n0\n0\n1\n\n\n1\n25\n0\n17.6833\n0\n0\n0\n0\n1\n\n\n\n\n\n\n#fit the model\nmod.fit &lt;- glm(formula = good ~ distance , family =\nbinomial(link = logit), data = placekick)\n\nlatex_equation &lt;- extract_eq(mod.fit)\nprint(latex_equation)\n\n$$\n\\log\\left[ \\frac { P( \\operatorname{good} = \\operatorname{1} ) }{ 1 - P( \\operatorname{good} = \\operatorname{1} ) } \\right] = \\alpha + \\beta_{1}(\\operatorname{distance})\n$$"
+  },
+  {
+    "objectID": "wk2.html#introduction",
+    "href": "wk2.html#introduction",
+    "title": "Logistic regression",
+    "section": "Introduction",
+    "text": "Introduction\n\nTarget: Probability of getting coronary heart disease, chd\nFeature:\n\nHigh blood pressure, high LDL cholesterol, diabetes, smoking, secondhand smoke exposure, obesity, an unhealthy diet, and physical inactivity are among the leading risk factors for heart disease.\n\nData Source: Source: Rousseauw, J., du Plessis, J., Benade, A., Jordaan, P., Kotze, J. and Ferreira, J. (1983). Coronary risk factor screening in three rural communities, South African Medical Journal 64: 430–436."
+  },
+  {
+    "objectID": "wk2.html#data-description",
+    "href": "wk2.html#data-description",
+    "title": "Logistic regression",
+    "section": "Data Description",
+    "text": "Data Description\n\nsbp: systolic blood pressure\ntobacco: cumulative tobacco use (kg)\nldl: low density lipoprotein cholesterol (‘bad’ cholestrol)\nadiposity: Body adiposity index determines body fat percentage(calculated as (HC / (HM)1.5) - 18, where HC = Hip Circumference in Centimetres and HM = Height in meters)\nfamhist: family history of heart disease\ntypea: A personality type that could raise one’s chances of developing coronary heart disease\nobesity: Body Mass Index (BMI) (kg/m^2)\nalcohol: current alcohol consumption\nage: age at onset\nchd: coronary heart disease"
+  },
+  {
+    "objectID": "wk2.html#univariate-analysis",
+    "href": "wk2.html#univariate-analysis",
+    "title": "Logistic regression",
+    "section": "Univariate Analysis",
+    "text": "Univariate Analysis\n\nThe response (or dependent) variable of interest, Heart disease, is a binary variable taking the type factor.\nUse a bar chart to explore the distribution of the response variable (chd). What do you learn?\n\n\n\n\n\n\nHeart disease\nN\nProportion\n\n\n\n\n0\n302\n0.65\n\n\n1\n160\n0.35\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nFor metric variables, a density plot or histogram allows us to determine the shape of the distribution and look for outliers.\n\nUse a density plot to explore the distribution of explanatory variables. What do you discover?"
+  },
+  {
+    "objectID": "wk2.html#bivariate-analysis",
+    "href": "wk2.html#bivariate-analysis",
+    "title": "Logistic regression",
+    "section": "Bivariate Analysis",
+    "text": "Bivariate Analysis\n\nPrior to moving on to the fully specified model, it is advisable to first examine the simple associations between the response and each explanatory variable.\nBox plots are useful for exploring the association between a categorical variable and a variable measured on an interval scale.\nUse a boxplot to examine how the explanatory variables are correlated with the response variable (chd)?\n\nThe coord_flip() function is used to keep the dependent variable on the y-axis.\n\n\n\n\n\n\n\n\n\n\n\n\n\nUse the convenient summary_factorlist() function from the finalfit package to tabulate data.\n\n\n\n\n\n\nDependent: chd\n\n0\n1\np\n\n\n\n\nldl\nMean (SD)\n4.3 (1.9)\n5.5 (2.2)\n&lt;0.001\n\n\nsbp\nMean (SD)\n135.5 (18.0)\n143.7 (23.7)\n&lt;0.001\n\n\ntobacco\nMean (SD)\n2.6 (3.6)\n5.5 (5.6)\n&lt;0.001\n\n\nage\nMean (SD)\n38.9 (14.9)\n50.3 (10.6)\n&lt;0.001\n\n\n\n\n\n\n\n\nAccording to the plots and the tables, What variable is most important for explaining heart disease? How is that variable correlated with heart disease?"
+  },
+  {
+    "objectID": "wk2.html#linear-probability-model",
+    "href": "wk2.html#linear-probability-model",
+    "title": "Logistic regression",
+    "section": "Linear probability model",
+    "text": "Linear probability model\n\nIs the linear probability model an appropriate choice to study the relationship between heart disease and risk factors?\nEstimate the following linear probability model and interpret the model results.\n\n chd = \\beta_0 + \\beta_1 ldl + \\beta_2 sbp + + \\beta_3 tobacco + \\beta_4 age + u\n\n\n\nCall:\nlm(formula = chd ~ ldl + sbp + tobacco + age, data = df)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-0.8439 -0.3405 -0.1250  0.4365  1.0172 \n\nCoefficients:\n              Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept) -0.3493578  0.1405912  -2.485 0.013315 *  \nldl          0.0362419  0.0102322   3.542 0.000438 ***\nsbp          0.0009739  0.0010670   0.913 0.361839    \ntobacco      0.0165577  0.0049101   3.372 0.000809 ***\nage          0.0076831  0.0016886   4.550 6.89e-06 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 0.4318 on 457 degrees of freedom\nMultiple R-squared:  0.1853,    Adjusted R-squared:  0.1781 \nF-statistic: 25.98 on 4 and 457 DF,  p-value: &lt; 2.2e-16\n\n\n\nWhat are the advantages and disadvantages of the linear probability model?"
+  },
+  {
+    "objectID": "wk2.html#generalized-linear-model",
+    "href": "wk2.html#generalized-linear-model",
+    "title": "Logistic regression",
+    "section": "Generalized linear model",
+    "text": "Generalized linear model\n\nEstimate the following logistic regression model and interpret the model results.\n\n logit(\\pi_i) =\\beta_0 + \\beta_1 ldl + \\beta_2 sbp + + \\beta_3 tobacco + \\beta_4 age +  u\n\n\n\nCall:\nglm(formula = chd ~ ldl + sbp + tobacco + age, family = binomial(link = logit), \n    data = df)\n\nDeviance Residuals: \n    Min       1Q   Median       3Q      Max  \n-1.9457  -0.8595  -0.4999   1.0238   2.3906  \n\nCoefficients:\n             Estimate Std. Error z value Pr(&gt;|z|)    \n(Intercept) -4.535524   0.781360  -5.805 6.45e-09 ***\nldl          0.185131   0.054121   3.421 0.000625 ***\nsbp          0.004307   0.005394   0.798 0.424623    \ntobacco      0.075982   0.025616   2.966 0.003016 ** \nage          0.046264   0.009852   4.696 2.66e-06 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n(Dispersion parameter for binomial family taken to be 1)\n\n    Null deviance: 596.11  on 461  degrees of freedom\nResidual deviance: 502.19  on 457  degrees of freedom\nAIC: 512.19\n\nNumber of Fisher Scoring iterations: 4\n\n\n\nInterpretation of model results\n\nDo the raw coefficient estimates directionally make sense?\n\n\n\n\nCall:\nglm(formula = chd ~ ldl + sbp + tobacco + age, family = binomial(link = logit), \n    data = df)\n\nDeviance Residuals: \n    Min       1Q   Median       3Q      Max  \n-1.9457  -0.8595  -0.4999   1.0238   2.3906  \n\nCoefficients:\n             Estimate Std. Error z value Pr(&gt;|z|)    \n(Intercept) -4.535524   0.781360  -5.805 6.45e-09 ***\nldl          0.185131   0.054121   3.421 0.000625 ***\nsbp          0.004307   0.005394   0.798 0.424623    \ntobacco      0.075982   0.025616   2.966 0.003016 ** \nage          0.046264   0.009852   4.696 2.66e-06 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n(Dispersion parameter for binomial family taken to be 1)\n\n    Null deviance: 596.11  on 461  degrees of freedom\nResidual deviance: 502.19  on 457  degrees of freedom\nAIC: 512.19\n\nNumber of Fisher Scoring iterations: 4\n\n\n\n\nAgain, all of the explanatory variables except blood pressure are statistically significant and positively correlated with the probability of heart disease, same as the linear probability model.\n\nRecall that (page 83)\n\n\n\\text{OR} = \\frac{\\text{Odds}_{x_k+c}}{\\text{Odds}_{x_k}}=exp(c \\beta_k)\n - The odd of a success change by exp(c\\beta_k) times for every c-unit increase in x\n\nCompute and interpret the estimated odds ratio for a 10-unit increase in each explanatory variable.\n\n\n# Replace with your code\nround(exp(10*coef(mod.logit.h0)),2)\n\n(Intercept)         ldl         sbp     tobacco         age \n       0.00        6.37        1.04        2.14        1.59 \n\n\n\nThe estimated odds of success or having a heart disease change by 6.37 times for every 10-unit increase in LDL or ‘bad’ cholesterol.\n\n\nInterestingly, the odds of having a heart disease is almost 1 for every 10-unit increase in blood pressure, which means an increase in blood pressure doesn’t change the odds of having heart disease, and it’s consistent with its insignificant coefficient."
+  },
+  {
+    "objectID": "wk2.html#hypothesis-test",
+    "href": "wk2.html#hypothesis-test",
+    "title": "Logistic regression",
+    "section": "Hypothesis Test",
+    "text": "Hypothesis Test\n\nUsing the likelihood ratio test (LRT) for hypothesis testing is a common practice in a logistic regression model.\nUse LRT to test whether (obesity) is associated with heart disease.\n\nH_0: \\beta_{obesity} = 0\nH_a: \\beta_{obesity} \\ne 0\n\n\nUse both Anova() or anova() functions.\n\n#mod.logit.ha &lt;- # uncomment and replace with your code\nmod.logit.ha &lt;- glm(chd ~ ldl + sbp +tobacco + age + obesity, family = binomial(link = logit), data = df)\n\n#anova()\nanova(mod.logit.h0, mod.logit.ha, test = \"Chisq\")\n\nAnalysis of Deviance Table\n\nModel 1: chd ~ ldl + sbp + tobacco + age\nModel 2: chd ~ ldl + sbp + tobacco + age + obesity\n  Resid. Df Resid. Dev Df Deviance Pr(&gt;Chi)\n1       457     502.19                     \n2       456     501.07  1   1.1191   0.2901\n\n#Anova()\nAnova(mod.logit.ha, test = \"LR\")\n\nAnalysis of Deviance Table (Type II tests)\n\nResponse: chd\n        LR Chisq Df Pr(&gt;Chisq)    \nldl      13.3932  1  0.0002525 ***\nsbp       0.8640  1  0.3526279    \ntobacco   9.4670  1  0.0020920 ** \nage      24.3447  1  8.055e-07 ***\nobesity   1.1191  1  0.2901078    \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
+  },
+  {
+    "objectID": "wk2.html#deviance",
+    "href": "wk2.html#deviance",
+    "title": "Logistic regression",
+    "section": "Deviance",
+    "text": "Deviance\n\ndeviance refers to the amount that a particular model deviates from another model as measured by -2\\text{log}(\\Lambda).\nWhat are the null deviance and residual deviance in the model summary?\n\nFor null and residual deviance, the alternative model we use is the saturated model, which has a different coefficent for each data point, leading to perfect prediction, a likelihood of one, and a log likelihood of zero.\n\nThe null deviance measures the performance of the worst model using only an intercept, providing a benchmark.\n\n\n\\text{Null Deviance}= -2 \\text{log}(L(\\hat{\\beta_0}|y_1,..., y_n))\n\n\nThe residual deviance is the deviance of our fitted model.\n\nIt is always greater than zero unless it is the saturated model / explains the data perfectly.\n\n\n\n\\text{Residual Deviance}= -2 \\text{log}(L(\\hat{\\beta}|y_1,..., y_n))\n\n\nTherefore, how much better (smaller) our residual deviance is compared to the null deviance and how close it is to zero is a measure of model fit.\nSometimes people will compute an R^2 for logistic regression using 1-\\frac{\\text{Residual Deviance}}{\\text{Null Deviance}} since it is bounded between 0 (residual deviance = null deviance) and 1 (residual deviance = saturated model = 0).\nNote that we can compute deviance of two separate models by substracting the null model residual deviance and the alternative model residual deviance from separate logistic regression fits. (Why is this?)\nUsing deviance, test whether (obesity) is associated with heart disease.\n\nH_0: \\beta_{obesity} = 0\nH_a: \\beta_{obesity} \\ne 0\n\n\n\nWe get a p-value of 0.29, the same as what we got from both anova() and Anova() functions, and again we fail to reject the null hypothesis that obesity is not correlated with heart disease given this data set."
+  },
+  {
+    "objectID": "wk2.html#confidence-interval",
+    "href": "wk2.html#confidence-interval",
+    "title": "Logistic regression",
+    "section": "Confidence Interval",
+    "text": "Confidence Interval\n\nConfidence Interval for odds ratio\nWald Confidence:\n\nc*\\hat{\\beta_k} \\pm c*Z_{1-\\alpha/2} \\sqrt{\\widehat{Var}(\\hat{\\beta}_k)}\n\n\nexp \\left(c*\\hat{\\beta_k} \\pm c*Z_{1-\\alpha/2} \\sqrt{\\widehat{Var}(\\hat{\\beta}_k)} \\right)\n\n\nCalculate Wald CI for odds ratio of 10-unit increase in LDL cholesterol based on the above formula:\n\n\n\n             (Intercept)           ldl           sbp       tobacco\n(Intercept)  0.610523787 -9.955527e-03 -3.315082e-03  1.122271e-03\nldl         -0.009955527  2.929029e-03 -1.336470e-05 -4.923675e-06\nsbp         -0.003315082 -1.336470e-05  2.909849e-05 -1.506782e-06\ntobacco      0.001122271 -4.923675e-06 -1.506782e-06  6.562050e-04\nage         -0.001828353 -6.178475e-05 -1.503794e-05 -7.699037e-05\n                      age\n(Intercept) -1.828353e-03\nldl         -6.178475e-05\nsbp         -1.503794e-05\ntobacco     -7.699037e-05\nage          9.706566e-05\n\n\n[1]  2.20 18.39\n\n\n\nWith 95% confidence, the odds of having a heart disease change between 2.20 to 18.4 times for every 10-unit increase in LDL or ‘bad’ cholesterol.\n\n\nWhat is the main concern with Wald CI?\n\n\nWald confidence interval has a true confidence level close to the 95% only when we have large samples. When the sample size is not large, profile LR confidence intervals generally perform better.\n\n\nNow calculate the profile likelihood ratio (LR) confidence interval using the confint function.\n\n\n# Replace with your code\nbeta_ci &lt;- confint(mod.logit.h0)\n\nWaiting for profiling to be done...\n\nodds_ci &lt;- exp(10*beta_ci)\n\nround(cbind(odds_ci ),2)\n\n            2.5 % 97.5 %\n(Intercept)  0.00   0.00\nldl          2.24  18.84\nsbp          0.94   1.16\ntobacco      1.31   3.59\nage          1.31   1.93\n\n\n\nSince we have a large sample, 462 observations, the profile likelihood ratio (LR) confidence interval is pretty close to the Wald CI.\n\n\n\nConfidence Interval for the Probability of Success\n\nRecall that the estimated probability of success is \n\\hat{\\pi} = \\frac{exp \\left( \\hat{\\beta}_0 + \\hat{\\beta}_1 x_1 + \\dots + \\hat{\\beta}_K x_k \\right)}{1+exp \\left(\\hat{\\beta}_0 + \\hat{\\beta}_1 x_1 + \\dots + \\hat{\\beta}_K x_k \\right)}\n\n\nWhile backing out the estimated probability of success is straightforward, obtaining its confidence interval is not, as it involves many parameters.\nWald Confidence Interval\n\n\\hat{\\beta}_0 + \\hat{\\beta}_1 x_1 + \\dots + \\hat{\\beta}_K x_K \\pm Z_{1-\\alpha/2} \\sqrt{\\widehat{Var}(\\hat{\\beta}_0 + \\hat{\\beta}_1 x_1 + \\dots + \\hat{\\beta}_K x_K)}\n\nwhere\n\n\\widehat{Var}(\\hat{\\beta}_0 + \\hat{\\beta}_1 x_1 + \\dots + \\hat{\\beta}_K x_K) = \\sum_{i=0}^K x_i^2 \\widehat{Var}(\\hat{\\beta_i}) + 2 \\sum_{i=0}^{K-1} \\sum_{j=i+1}^{K} x_i x_j \\widehat{Cov}(\\hat{\\beta}_i,\\hat{\\beta}_j)\n\nSo, the Wald Interval for \\pi is\n\n\\frac{exp \\left( \\hat{\\beta}_0 + \\hat{\\beta}_1 x_1 + \\dots + \\hat{\\beta}_K x_k \\pm \\sqrt{\\sum_{i=0}^K x_i^2 \\widehat{Var}(\\hat{\\beta_i}) + 2 \\sum_{i=0}^{K-1} \\sum_{j=i+1}^{K} x_i x_j \\widehat{Cov}(\\hat{\\beta}_i,\\hat{\\beta}_j)}  \\right)}{1+exp \\left(\\hat{\\beta}_0 + \\hat{\\beta}_1 x_1 + \\dots + \\hat{\\beta}_K x_k \\right)  \\pm \\sqrt{\\sum_{i=0}^K x_i^2 \\widehat{Var}(\\hat{\\beta_i}) + 2 \\sum_{i=0}^{K-1} \\sum_{j=i+1}^{K} x_i x_j \\widehat{Cov}(\\hat{\\beta}_i,\\hat{\\beta}_j)}}\n\n\nFor an average value of all explanatory variables, compute the Confidence Interval for the Probability of Success given the formula above\n\n\n\n  pi.hat  lower  upper\n1 0.3089 0.2925 0.3259\n\n\n\n\nFinal Visualization\n\nUsing both the linear probability and logistic regression models, plot the estimated probability of heart disease for different values of cholesterol, holding other variables constant at their average level.\nDiscuss which one can better explain this relationship.\n\n\n\n\n\n\n\n\n\n\n\n\n\nFinal Report\n\nDisplay both estimated linear and logistic models in a regression table. Is there any significant difference between their results?\n\n\n\n\nTable 1: The estimated relationship between heart disease and risk factors\n==================================================\n                         Dependent variable:      \n                    ------------------------------\n                                 chd              \n                           OLS          logistic  \n                           (1)             (2)    \n--------------------------------------------------\nldl                      0.036***       0.185***  \n                         (0.010)         (0.054)  \n                                                  \nsbp                       0.001           0.004   \n                         (0.001)         (0.005)  \n                                                  \ntobacco                  0.017***        0.076**  \n                         (0.005)         (0.026)  \n                                                  \nage                      0.008***       0.046***  \n                         (0.002)         (0.010)  \n                                                  \nConstant                 -0.349*        -4.536*** \n                         (0.141)         (0.781)  \n                                                  \n--------------------------------------------------\nObservations               462             462    \nR2                        0.185                   \nAdjusted R2               0.178                   \nLog Likelihood                          -251.093  \nAkaike Inf. Crit.                        512.187  \nResidual Std. Error  0.432 (df = 457)             \n==================================================\nNote:                *p&lt;0.05; **p&lt;0.01; ***p&lt;0.001\n\n\n\nIn both models, all the coefficients except blood pressure are statistically significant and positively associated with the probability of having heart disease. Also, LDL is the most correlated variable with the probability of heart disease in both models."
+  },
+  {
+    "objectID": "wk4P1.html",
+    "href": "wk4P1.html",
+    "title": "Multinomial Probability",
+    "section": "",
+    "text": "Reading\n\nCh.3\n\nskip 3.4.3, 3.5 (page )"
+  },
+  {
+    "objectID": "wk4P1.html#this-part-is-preparing-the-data-set-part",
+    "href": "wk4P1.html#this-part-is-preparing-the-data-set-part",
+    "title": "Multinomial Probability",
+    "section": "This part is preparing the data set part",
+    "text": "This part is preparing the data set part\n\n#calculate conditional probability \npi.cond &lt;- pi.table/rowSums(pi.table)\npi.cond\n\n   Y\nX     1   2   3\n  1 0.4 0.4 0.2\n  2 0.6 0.2 0.2\n\n#simulate based on the conditional probability\n#notice the sample size is different from c.table1\n#suppose that we sampled 400 and 600.  This is just what was \n#observed or we selected this\nset.seed(8111) \nsave1 &lt;- rmultinom(n = 1, size = 400, prob = pi.cond[1,]) \nsave2 &lt;- rmultinom(n = 1, size = 600, prob = pi.cond[2,])\n\nc.table2 &lt;- array(data = c(save1[1], save2[1], save1[2],\nsave2[2], save1[3], save2 [3]), dim = c(2,3), dimnames = list(X = 1:2, Y = 1:3))\n\nc.table2\n\n   Y\nX     1   2   3\n  1 162 159  79\n  2 351 126 123\n\n\n\nCan we estimate the joint from this table? is the question.\n\nAnswer is, yes\n\n\n\n\n   Y\nX       1      2      3\n  1 0.405 0.3975 0.1975\n  2 0.585 0.2100 0.2050\n\n\n\nNow, we have joint and marginal, can we test independence?"
+  },
+  {
+    "objectID": "wk4P3.html",
+    "href": "wk4P3.html",
+    "title": "Ordinal response regression models",
+    "section": "",
+    "text": "Reading\n\nCh.3.4\n\nskip 3.4.3, 3.5"
+  },
+  {
+    "objectID": "wk4P3.html#functional-form",
+    "href": "wk4P3.html#functional-form",
+    "title": "Ordinal response regression models",
+    "section": "Functional form",
+    "text": "Functional form\n\\text{log}(\\frac{\\text{probility of getting some color}}{\\text{probability of getting blue}}) = \\beta_{\\text{some color }0} + \\beta_{\\text{some color }1}x_1 .. + \\beta_{\\text{some color }p}x_p\n\\text{log}(\\frac{\\pi_j}{\\pi_1}) = \\beta_{j0} + \\beta_{j1}x_1 .. + \\beta_{jp}x_p\n\nusing the multinomial regression model, we can estimate \\pi_1..\\pi_J based on sample, but finding their confidence interval is hard such that we only focus on Wald Confidence interval here."
+  },
+  {
+    "objectID": "wk4P3.html#eda",
+    "href": "wk4P3.html#eda",
+    "title": "Ordinal response regression models",
+    "section": "EDA",
+    "text": "EDA\n\nwheat &lt;- read.csv(here(\"data\",\"Wheat.csv\"), stringsAsFactors = TRUE)\n\nhrw &lt;- wheat %&gt;% filter(class == \"hrw\")\n\np &lt;- ggparcoord(data = hrw, \n                columns = c(2:6),\n                groupColumn = 7,\n                showPoints = TRUE, \n                title = \"Parallel Coordinate Plot for the Iris Data\",\n                alphaLines = 0.9)\n\nggplotly(p)"
+  },
+  {
+    "objectID": "wk4P3.html#fit-the-model",
+    "href": "wk4P3.html#fit-the-model",
+    "title": "Ordinal response regression models",
+    "section": "Fit the model",
+    "text": "Fit the model\n\n\n[1] \"Healthy\" \"Scab\"    \"Sprout\" \n\n\n# weights:  24 (14 variable)\ninitial  value 302.118379 \niter  10 value 234.991271\niter  20 value 192.127549\nfinal  value 192.112352 \nconverged"
+  },
+  {
+    "objectID": "wk4P3.html#evaluation",
+    "href": "wk4P3.html#evaluation",
+    "title": "Ordinal response regression models",
+    "section": "Evaluation",
+    "text": "Evaluation\n\n\nCall:\nmultinom(formula = type ~ class + density + hardness + size + \n    weight + moisture, data = wheat)\n\nCoefficients:\n       (Intercept)   classsrw   density    hardness      size     weight\nScab      30.54650 -0.6481277 -21.59715 -0.01590741 1.0691139 -0.2896482\nSprout    19.16857 -0.2247384 -15.11667 -0.02102047 0.8756135 -0.0473169\n          moisture\nScab    0.10956505\nSprout -0.04299695\n\nStd. Errors:\n       (Intercept)  classsrw  density    hardness      size     weight\nScab      4.289865 0.6630948 3.116174 0.010274587 0.7722862 0.06170252\nSprout    3.767214 0.5009199 2.764306 0.008105748 0.5409317 0.03697493\n        moisture\nScab   0.1548407\nSprout 0.1127188\n\nResidual Deviance: 384.2247 \nAIC: 412.2247 \n\n\n\nThe first parameter class has two values hrw and srw\nThis model output is hard to see.\n\n\nThe estimated coefficient for classrw, -0.648 is part of the following equation\n\n\n\\operatorname{log\\frac{\\hat{\\pi}_{scab}}{\\hat{\\pi}_{Healthy}}} = 30.55 -0.65\\cdot(\\operatorname{class}_{\\operatorname{srw}}) + \\beta_{2}(\\operatorname{density}) + \\beta_{3}(\\operatorname{hardness}) + \\beta_{4}(\\operatorname{size}) + \\beta_{5}(\\operatorname{weight}) + \\beta_{6}(\\operatorname{moisture}) + \\hat{\\epsilon}\n\n\ntest statistic is -0.978 and its corresponding p-value is 0.32 - there is not sufficient evidence that hard and soft red winter wheat have different effects on the scab or healthy status of the kernels given the other explanatory variables are in the model\nLet’s print the output again.\n\n\n\n\nScab\n\n\nParameter\nCoefficient\nSE\nCI\nCI_low\nCI_high\nz\np\nResponse\n\n\n\n\n(Intercept)\n30.5464951\n4.2898646\n0.95\n22.1385150\n38.9544752\n7.1206199\n0.0000000\nScab\n\n\nclasssrw\n-0.6481277\n0.6630948\n0.95\n-1.9477696\n0.6515141\n-0.9774285\n0.3283570\nScab\n\n\ndensity\n-21.5971549\n3.1161741\n0.95\n-27.7047438\n-15.4895660\n-6.9306639\n0.0000000\nScab\n\n\nhardness\n-0.0159074\n0.0102746\n0.95\n-0.0360452\n0.0042304\n-1.5482286\n0.1215673\nScab\n\n\nsize\n1.0691139\n0.7722862\n0.95\n-0.4445393\n2.5827670\n1.3843493\n0.1662515\nScab\n\n\nweight\n-0.2896482\n0.0617025\n0.95\n-0.4105829\n-0.1687135\n-4.6942690\n0.0000027\nScab\n\n\nmoisture\n0.1095650\n0.1548407\n0.95\n-0.1939172\n0.4130473\n0.7075983\n0.4791947\nScab\n\n\n\n\n\n\n\n\nSprout\n\n\n\nParameter\nCoefficient\nSE\nCI\nCI_low\nCI_high\nz\np\nResponse\n\n\n\n\n8\n(Intercept)\n19.1685687\n3.7672143\n0.95\n11.7849643\n26.5521732\n5.0882607\n0.0000004\nSprout\n\n\n9\nclasssrw\n-0.2247384\n0.5009199\n0.95\n-1.2065233\n0.7570465\n-0.4486513\n0.6536832\nSprout\n\n\n10\ndensity\n-15.1166714\n2.7643059\n0.95\n-20.5346114\n-9.6987314\n-5.4685234\n0.0000000\nSprout\n\n\n11\nhardness\n-0.0210205\n0.0081057\n0.95\n-0.0369074\n-0.0051335\n-2.5932793\n0.0095066\nSprout\n\n\n12\nsize\n0.8756135\n0.5409317\n0.95\n-0.1845931\n1.9358201\n1.6187138\n0.1055089\nSprout\n\n\n13\nweight\n-0.0473169\n0.0369749\n0.95\n-0.1197864\n0.0251526\n-1.2797020\n0.2006500\nSprout\n\n\n14\nmoisture\n-0.0429970\n0.1127188\n0.95\n-0.2639218\n0.1779279\n-0.3814532\n0.7028670\nSprout\n\n\n\n\n\n\n\n\nDoes anything have any predictive power?\n\nSo many numbers to keep track of…\n\n\n\n\n\n\nH_0: \\beta_{21} = \\beta_{31} = 0 H_0: \\beta_{21} \\not = 0 \\text{ and/or } \\beta_{31} \\not= 0\n\n\nAnova()\nAnova() test performs LR test. - LR Chisq is the transformed test statistic related to class variable,-2\\text{log}(\\lambda)=0.964 - Because of the large p-value, there is not sufficient evidence to indicate that the class of wheat is important given that the other variables are in the model.\n\n\n\nAnova()\n\n\n\nLR Chisq\nDf\nPr(&gt;Chisq)\n\n\n\n\nclass\n0.9641189\n2\n0.6175104\n\n\ndensity\n90.5551631\n2\n0.0000000\n\n\nhardness\n7.0736934\n2\n0.0291050\n\n\nsize\n3.2106326\n2\n0.2008260\n\n\nweight\n28.2302354\n2\n0.0000007\n\n\nmoisture\n1.1933402\n2\n0.5506422\n\n\n\n\n\n\n\n\nSeparate tests for density, hardness, and weight in the output all indicate at least marginal evidence of importance for these explanatory variables.\n\n\n\n[1] 0.72\n\n\n\n\n# weights:  9 (4 variable)\ninitial  value 302.118379 \niter  10 value 229.769334\niter  20 value 229.712304\nfinal  value 229.712290 \nconverged"
+  },
+  {
+    "objectID": "wk4P3.html#or",
+    "href": "wk4P3.html#or",
+    "title": "Ordinal response regression models",
+    "section": "OR",
+    "text": "OR\n\nThe log-odds are modeled directly in a multinomial regression model, odds ratios are useful for interpreting an explanatory variable’s relationship with the response"
+  }
+]

@@ -1,0 +1,7 @@
+{
+    "installOptions": {
+        "installFromRepository": true,
+        "libraryPath": "/srv/r",
+        "installDependencies": true
+    }
+}

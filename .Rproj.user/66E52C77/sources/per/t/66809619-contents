@@ -1,0 +1,37 @@
+---
+title: "terms"
+author: "2024 FALL"
+date: "2025-05-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<style>
+.table-hover > tbody > tr:hover { 
+  background-color: #f4f442;
+}
+</style>
+
+# Terms
+
+```{r include=FALSE}
+library(here)
+library(readxl)
+library(kableExtra)
+df <- read_excel(here("def.xlsx"), sheet = "wk1")
+```
+
+
+```{r echo=FALSE}
+#| label: tbl-penguins-top10
+#| tbl-cap: First 10 Penguins
+
+#replacing NA with white space
+df[is.na(df)] <- "" 
+
+df %>% kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```

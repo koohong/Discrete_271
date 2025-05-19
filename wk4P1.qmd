@@ -1,0 +1,185 @@
+---
+title: "Multinomial Probability"
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: style.css  
+    theme:
+      light: cosmo
+      dark: [cosmo, theme-dark.scss]
+execute: 
+   echo: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{=html}
+<style>
+.table-hover > tbody > tr:hover { 
+  background-color: #f4f442;
+}
+</style>
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(here)
+source(here("source","get_lib.R"))
+```
+
+-   Reading
+    -   Ch.3
+        -   skip 3.4.3, 3.5 (page )
+
+
+# Multinomial probability distribution
+
+-   Suppose `Y` is categorical response random variable and we have `n` trials, $Y_1..Y_n$
+-   $N_j$ counts the number of trials responding with category `j`.
+    -   $N_j = \sum_{i=1}^n I(Y_i=j)$
+-   parameters:
+    -   number of category, `j=1,...J`
+    -   probability associated with each category $\pi_j = P(Y=j)$
+-   It is distribution, so
+
+$$\sum_{j=1}^J \pi_j = 1$$
+
+-   Then, PMF of observing a particular set of counts $n_1,...n_j$ is
+
+$$P(N_1 = n_1,....N_j = J) = \frac{n!}{\prod_{j=1}^{J}n_j!}\prod_{j=1}^{J}\pi_j^{n_j}$$
+
+This is known as the `multinomial probability distribution`
+
+-   We use MLE to obtain estimates of $\pi_1,...\pi_J$ which is $\hat{\pi} = \frac{n_j}{n}$, which is the observed proportion for each category.
+
+
+# One Multinomial distribution
+
+-   This is different from `multinomial distribution`.
+-   Well... here is an example [LINK](https://docs.google.com/spreadsheets/d/1YyO_sX1hIn7siATwF7L-mE8OfHktGX2w/edit?gid=139180726#gid=139180726)
+
+```{r}
+#| echo: true
+pi.ij <- c(0.2, 0.3, 0.2, 0.1, 0.1, 0.1)
+pi.table <- array(data = pi.ij , dim = c(2,3), dimnames = list(X
+= 1:2, Y = 1:3))
+
+pi.table %>% kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+```{r}
+#| echo: true
+set.seed(9812)  
+
+save <- rmultinom(n = 1, size = 1000, prob = pi.ij)  
+
+c.table1 <- array(data = save , dim = c(2,3), dimnames = list(X
+= 1:2, Y = 1:3))
+
+c.table1/sum(c.table1)
+
+rowSums(c.table1)
+```
+
+# Product Multinomial distribution
+
+-   For the I multinomial (i.e., product multinomial) setting, we again simulate a sample for a 2 × 3 contingency table (thus, I = 2).
+-   With this model, we need to draw samples of fixed size separately for each row.
+- Here is an example from book
+
+## This part is preparing the data set part
+
+```{r}
+#| echo: true
+#calculate conditional probability 
+pi.cond <- pi.table/rowSums(pi.table)
+pi.cond
+
+#simulate based on the conditional probability
+#notice the sample size is different from c.table1
+#suppose that we sampled 400 and 600.  This is just what was 
+#observed or we selected this
+set.seed(8111) 
+save1 <- rmultinom(n = 1, size = 400, prob = pi.cond[1,]) 
+save2 <- rmultinom(n = 1, size = 600, prob = pi.cond[2,])
+
+c.table2 <- array(data = c(save1[1], save2[1], save1[2],
+save2[2], save1[3], save2 [3]), dim = c(2,3), dimnames = list(X = 1:2, Y = 1:3))
+
+c.table2
+```
+
+-   `Can we estimate the joint from this table?` is the question.
+
+    -   Answer is, `yes`
+
+```{r}
+    c.table2/rowSums(c.table2)
+```
+
+-   Now, we have joint and marginal, can we test independence?
+
+# Testing for independence
+
+$$H_0: P(X=x_i,Y=y_j) = P(x_i)\cdot P(y_j)$$ $$H_a: P(X=x_i,Y=y_j) \not= P(x_i)\cdot P(y_j)$$ Using the book notation in p147,
+
+$$H_0: \pi_{ij}=\pi_{i+}\pi_{+j} \text{  for each i,j}$$ $$H_0: \pi_{ij}\not=\pi_{i+}\pi_{+j} \text{  for some i,j}$$
+
+### Compare test statistic and $\chi^2$
+
+-   This is called `Pearson Chi-square test`
+-   Under product multinomial model (see page 147), this is how you compute the test statistics
+
+$$\text{X}^2 = \frac{\text{difference between joint and product of marginal}}{\text{product of marginal}}$$
+
+-   Above statistic has an approximate $\chi^2$ distribution with certain degrees of freedom
+
+-   After you set your type I error, $\alpha$, you get your crtical value and compare that critical value with your observed test statistic $\text{X}^2$
+
+### LR test
+
+-   This is called LRT test
+-   The likelihood ratio test can also be conducted.
+    -   The joint probability can be computed in two different ways
+        -   From contingency table, just calculate it.
+        -   And using the marginal probabilities, multiply them.
+    -   Then, using equation 3.2 in page 143, you can calculate the likelihood of both and form `the likelihood ratio`
+
+$$\lambda = \frac{\text{the MLF estimated using joint probabilites}}{\text{the MLF estimated using joint probabilities estimated as the product of marginal}}$$
+
+And $-2\text{log}(\lambda)$, also follows $\chi^2$ distribution with certain degrees of freedom. (this sounds like a magic.. to me..)
+
+### Note
+
+-   Both LRT and the Pearson chi-square test generally give similiar result in large samples. (see page 147)
+    -   common criteria $\frac{\text{product of marginal counts}}{\text{total count}} > 1$ or $>5$ for all cells of the contingency table
+
+# Example of Testing Independnece 
+
+-   We would like to determine if `bloating severity` is related to the `type of fiber`.
+
+```{r}
+diet <- read.csv(here("data","Fiber.csv"), stringsAsFactors = TRUE)
+
+# Match order given in table
+diet$fiber <- factor(x = diet$fiber, levels = c("none", "bran", "gum", "both"))
+diet$bloat <- factor(x = diet$bloat, levels = c("none", "low", "medium", "high"))
+
+diet.table <- xtabs(formula = count ~ fiber + bloat, data = diet)
+diet.table
+```
+
+```{r}
+# Hypothesis tests for independence
+ind.test <- chisq.test(x = diet.table, correct = FALSE)
+ind.test
+```
+
+-   Note that we include the `correct = FALSE` argument value in `chisq.test()` to prevent a continuity correction from being applied.
+    -   Please see Section 1.2.3 for why we avoid these corrections.
+
+```{r}
+ind.test$expected
+```
+

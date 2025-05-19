@@ -1,0 +1,557 @@
+---
+title: "Logistic regression"
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: style.css  
+    theme:
+      light: cosmo
+      dark: [cosmo, theme-dark.scss]
+execute: 
+   echo: false
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+```{=html}
+<style>
+.table-hover > tbody > tr:hover { 
+  background-color: #f4f442;
+}
+</style>
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(here)
+source(here("source","get_lib.R"))
+```
+
+# Case Study: South African Heart Disease
+
+## Introduction 
+
+- Target: `Probability of getting coronary heart disease`, `chd` 
+- Feature:
+  - High blood pressure, high LDL cholesterol, diabetes, smoking, secondhand smoke exposure, obesity, an unhealthy diet, and physical inactivity are among the leading risk factors for heart disease.
+
+- Data Source:
+  Source: Rousseauw, J., du Plessis, J., Benade, A., Jordaan, P., Kotze, J. and Ferreira, J. (1983). Coronary risk factor screening in three rural communities, South African   Medical Journal 64: 430–436.
+
+## Data Description 
+
+  - sbp: systolic blood pressure
+  - tobacco: cumulative tobacco use (kg)
+  - ldl: low density lipoprotein cholesterol ('bad' cholestrol)
+  - adiposity: Body adiposity index determines body fat percentage(calculated as (HC / (HM)1.5) - 18,
+    where HC = Hip Circumference in Centimetres and HM = Height in meters)
+  - famhist: family history of heart disease
+  - typea: A personality type that could raise one's chances of developing coronary heart disease
+  - obesity: Body Mass Index (BMI) ($kg/m^2$)
+  - alcohol: current alcohol consumption
+  - age: age at onset
+  - `chd`: coronary heart disease
+
+\newpage
+
+# Exploratory Analysis
+
+For this case study, we focus on blood pressure, smoking, cholesterol, and age.
+
+- Load the data and answer the following questions:
+
+  - What are the number of variables and number of observations?
+  - What is the type of each variable? Do we need to change it? 
+  - Are there any missing values (in each of the variables)?
+  - Are there any abnormal values in each of the variables in the raw data?
+
+```{r}
+df <- SAheart %>%
+   dplyr::select(tobacco, ldl, sbp, age, chd, obesity) 
+
+head(df)%>%
+   kable("html") %>% 
+   kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+## Univariate Analysis
+
+- The response (or dependent) variable of interest, Heart disease, is a binary variable taking the type factor.  
+
+- Use a bar chart to explore the distribution of the response variable (chd). What do you learn?
+
+```{r echo=FALSE, warning=FALSE}
+
+df %>%
+  count(chd) %>%
+  mutate(prop = round(prop.table(n),2)) %>%
+  kable(col.names = c('Heart disease', 'N', "Proportion")) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+
+df %>%
+  ggplot(aes(x= chd, y = ..prop.., group = 1)) + 
+  geom_bar(fill = 'DarkBlue', color = 'black') +
+  geom_text(stat='count', aes(label=..count..), vjust=-1) + 
+  xlab("Heart disease") +
+  ylab("Proportion") +
+  scale_y_continuous(label=percent,limits=c(0,1))
+
+```
+
+For metric variables, a density plot or histogram allows us to determine the shape of the distribution and look for outliers.
+
+- Use a density plot to explore the distribution of explanatory variables. What do you discover? 
+
+
+```{r echo=FALSE, fig.width=10, fig.height=11}
+
+p1 <- df %>% 
+  mutate(chd=factor(chd)) %>%
+  ggplot(aes(x = age)) +
+  geom_density(aes(y = ..density..,  color = chd, fill = chd), alpha = 0.2) +
+  ggtitle("Distribution of Subjects' Age") + 
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  xlab("Age") +
+  ylab("Density")
+
+
+p2 <- df %>% 
+  mutate(chd=factor(chd)) %>%
+  ggplot(aes(x = ldl)) +
+  geom_density(aes(y = ..density..,  color = chd, fill = chd), alpha = 0.2) +
+  ggtitle("Distribution of Subjects' bad cholesterol") + 
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  xlab("Low Density Lipoprotein Cholesterol ") +
+  ylab("Density")
+
+p3 <-df %>% 
+  mutate(chd=factor(chd)) %>%
+  ggplot(aes(x = sbp)) +
+  geom_density(aes(y = ..density..,  color = chd, fill = chd), alpha = 0.2) +
+  ggtitle("Distribution of Subjects' Blood Pressure") + 
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  xlab("Systolic Blood Pressure") +
+  ylab("Density")
+
+p4 <-df %>% 
+  mutate(chd=factor(chd)) %>%
+  ggplot(aes(x = tobacco)) +
+  geom_density(aes(y = ..density..,  color = chd, fill = chd), alpha = 0.2) +
+  ggtitle("Distribution of Subjects' Tobacco usage") + 
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  xlab("Cumulative Tobacco usage") +
+  ylab("Density")
+
+grid.arrange(p1, p2,p3,p4, nrow = 2, ncol = 2)
+
+```
+
+
+## Bivariate Analysis
+
+- Prior to moving on to the fully specified model, it is advisable to first examine the simple associations between the response and each explanatory variable.
+
+- `Box plots` are useful for exploring the association between a categorical variable and a variable measured on an interval scale.
+
+- Use a `boxplot` to examine how the explanatory variables are correlated with the response variable (chd)?
+
+  - The `coord_flip()` function is used to keep the dependent variable on the y-axis.
+
+```{r echo=FALSE, fig.height=11}
+p5 <- df %>%
+  mutate(chd=factor(chd)) %>%
+  ggplot(aes(chd, age)) +
+  geom_boxplot(aes(fill = chd)) + 
+  coord_flip() +
+  ggtitle("Subjects' Age by Heart Disease") + 
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  ylab("Age") +
+  xlab("Heart Disease") 
+
+p6 <- df %>%
+  mutate(chd=factor(chd)) %>%
+  ggplot(aes(chd, ldl)) +
+  geom_boxplot(aes(fill = chd)) + 
+  coord_flip() +
+  ggtitle("Subjects' LDL Cholesterol by Heart Disease") + 
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  ylab("LDL Cholesterol") +
+  xlab(" Heart Disease") 
+
+p7 <- df %>%
+  mutate(chd=factor(chd)) %>%
+  ggplot(aes(chd, sbp)) +
+  geom_boxplot(aes(fill = chd)) + 
+  coord_flip() +
+  ggtitle("Subjects' Blood Pressure by Heart Disease") + 
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  ylab("Systolic Blood Pressure") +
+  xlab(" Heart Disease") 
+
+p8 <- df %>%
+  mutate(chd=factor(chd)) %>%
+  ggplot(aes(chd, tobacco)) +
+  geom_boxplot(aes(fill = chd)) + 
+  coord_flip() +
+  ggtitle(" Tobacco Usage by Heart Disease") + 
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  ylab("Tobacco Usage ") +
+  xlab(" Heart Disease") 
+
+p5/p6/p7/p8
+```
+
+
+\newpage
+
+- Use the convenient summary_factorlist() function from the finalfit package to tabulate data. 
+
+```{r}
+dependent <- "chd"
+explanatory <- c("ldl","sbp","tobacco","age")
+
+df %>% 
+  mutate(chd=as.factor(chd)) %>%
+  summary_factorlist(dependent, explanatory, add_dependent_label = TRUE, p = TRUE) %>%
+  kable("html") %>% 
+   kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+
+- According to the plots and the tables, What variable is most important for explaining heart disease? How is that variable correlated with heart disease?
+
+
+\newpage
+
+# Model Development
+
+## Linear probability model
+
+- Is the linear probability model an appropriate choice to study the relationship between heart disease and risk factors?
+
+- Estimate the following linear probability model and interpret the model results.
+
+$$ chd = \beta_0 + \beta_1 ldl + \beta_2 sbp + + \beta_3 tobacco + \beta_4 age + u$$
+```{r error = TRUE}
+#mod.linear <-  # uncomment and replace with your code
+mod.linear <- lm(chd ~ ldl + sbp + tobacco + age, data = df)
+
+summary(mod.linear)
+```
+
+- What are the advantages and disadvantages of the linear probability model?
+
+```{r}
+fitted_values <- data.frame(mod.linear$fitted.values)
+ 
+fitted_values %>%
+  ggplot(aes(x= 1:length(mod.linear.fitted.values), y = mod.linear.fitted.values)) +
+  geom_line() +
+  geom_hline(aes(yintercept = 0), color = "red") +
+  geom_hline(aes(yintercept = 1), color = "red")
+```
+
+
+\newpage
+
+##  Generalized linear model
+
+- Estimate the following logistic regression model and interpret the model results.
+
+$$ logit(\pi_i) =\beta_0 + \beta_1 ldl + \beta_2 sbp + + \beta_3 tobacco + \beta_4 age +  u$$
+
+```{r ,error = TRUE}
+#mod.logit.h0 <-   # uncomment and replace with your code
+mod.logit.h0 <- glm(chd ~ ldl + sbp + tobacco + age, family = binomial(link = logit), data = df)
+
+summary(mod.logit.h0)
+```
+
+###  Interpretation of model results
+
+- Do the `raw` coefficient estimates `directionally make sense`?
+
+```{r}
+# Replace with your code
+summary(mod.logit.h0)
+```
+
+- > **Again, all of the explanatory variables except blood pressure are statistically significant and positively correlated with the probability of heart disease, same as the linear probability model.**
+
+- Recall that 
+
+$$
+\text{OR} = \frac{\text{Odds}_{x_k+c}}{\text{Odds}_{x_k}}=exp(c \beta_k)
+$$
+
+- Compute and interpret the estimated odds ratio for a 10-unit increase in each explanatory variable.
+
+```{r}
+#| echo: true
+# Replace with your code
+round(exp(10*coef(mod.logit.h0)),2)
+```
+
+
+> **The estimated odds of success or having a heart disease change by 6.37 times for every 10-unit increase in LDL or 'bad' cholesterol.** 
+    
+> **Interestingly, the odds of having a heart disease is almost 1 for every 10-unit increase in blood pressure, which means an increase in blood pressure doesn't change the odds of having heart disease, and it's consistent with its insignificant coefficient.**
+
+
+# Statistical Inference
+
+
+## Hypothesis Test
+
+- Using the likelihood ratio test (LRT) for hypothesis testing is a common practice in a logistic regression model. 
+
+- Use LRT to test whether ($obesity$) is associated with heart disease.
+
+  - $H_0: \beta_{obesity} = 0$
+
+  - $H_a: \beta_{obesity} \ne 0$
+
+Use both *Anova()* or *anova()* functions.
+
+```{r}
+#| echo: true
+#| 
+#mod.logit.ha <- # uncomment and replace with your code
+mod.logit.ha <- glm(chd ~ ldl + sbp +tobacco + age + obesity, family = binomial(link = logit), data = df)
+
+#anova()
+anova(mod.logit.h0, mod.logit.ha, test = "Chisq")
+
+#Anova()
+Anova(mod.logit.ha, test = "LR")
+```
+
+## Deviance 
+
+- `deviance` refers to the amount that a particular model deviates from another model as measured by $-2\text{log}(\Lambda)$. 
+
+- What are the null deviance and residual deviance in the model summary?
+  - For `null` and `residual deviance`, the alternative model we use is the `saturated model`, which has a different coefficent for each data point, leading to perfect prediction, a likelihood of one, and a log likelihood of zero.
+
+- The `null deviance` measures the performance of the worst model using only `an intercept`, providing a benchmark.
+
+$$
+\text{Null Deviance}= -2 \text{log}(L(\hat{\beta_0}|y_1,..., y_n))
+$$
+
+- The `residual deviance` is the deviance of our fitted model. 
+  - It is always greater than zero unless it is the saturated model / explains the data perfectly.
+
+$$
+\text{Residual Deviance}= -2 \text{log}(L(\hat{\beta}|y_1,..., y_n))
+$$
+
+- Therefore, how much better (smaller) our residual deviance is compared to the null deviance and how close it is to zero is a measure of model fit.
+
+- Sometimes people will compute an $R^2$ for logistic regression using $1-\frac{\text{Residual Deviance}}{\text{Null Deviance}}$ since it is bounded between 0 (residual deviance = null deviance) and 1 (residual deviance = saturated model = 0).
+
+- Note that we can compute deviance of two separate models by substracting the null model residual deviance and the alternative model residual deviance from separate logistic regression fits. (Why is this?)
+
+- Using deviance, test whether ($obesity$) is associated with heart disease.
+
+  - $H_0: \beta_{obesity} = 0$
+
+  - $H_a: \beta_{obesity} \ne 0$
+
+```{r message = FALSE ,error = TRUE}
+#degree_freedom <- # uncomment and replace with your code
+degree_freedom <- mod.logit.h0$df.residual - mod.logit.ha$df.residual
+
+#test_stat <- # uncomment and replace with your code
+test_stat <- mod.logit.h0$deviance - mod.logit.ha$deviance
+
+#pvalue <- # uncomment and replace with your code
+pvalue <- 1-pchisq(test_stat, df = degree_freedom)
+```
+
+
+> **We get a p-value of 0.29, the same as what we got from both anova() and Anova() functions, and again we fail to reject the null hypothesis that obesity is not correlated with heart disease given this data set.** 
+
+
+
+##  Confidence Interval
+
+### Confidence Interval for odds ratio
+
+**Wald Confidence:**
+
+$$
+c*\hat{\beta_k} \pm c*Z_{1-\alpha/2} \sqrt{\widehat{Var}(\hat{\beta}_k)}
+$$
+
+$$
+exp \left(c*\hat{\beta_k} \pm c*Z_{1-\alpha/2} \sqrt{\widehat{Var}(\hat{\beta}_k)} \right)
+$$
+
+- Calculate Wald CI for odds ratio of 10-unit increase in LDL cholesterol  based on the above formula:
+
+```{r}
+# Replace with your code
+vcov(mod.logit.h0)
+
+round(exp(10*mod.logit.h0$coefficients[2] +10*qnorm(p=c(0.025, 0.975))*
+            sqrt(vcov(mod.logit.h0)[2,2])),2)
+```
+
+
+> **With 95% confidence, the odds of having a  heart disease change between 2.20 to 18.4 times for every 10-unit increase in LDL or 'bad' cholesterol.**
+
+
+- What is the main concern with Wald CI?
+
+
+> **Wald confidence interval has a true confidence level close to the 95% only when we have large samples. When the sample size is not large, profile LR confidence intervals generally perform better.**
+
+
+- Now calculate the *profile likelihood ratio (LR)* confidence interval using the confint function.
+
+```{r}
+#| echo: true
+# Replace with your code
+beta_ci <- confint(mod.logit.h0)
+
+odds_ci <- exp(10*beta_ci)
+
+round(cbind(odds_ci ),2)
+```
+
+
+> **Since we have a large sample, 462 observations, the profile likelihood ratio (LR) confidence interval is pretty close to the Wald CI.**
+
+### Confidence Interval for the Probability of Success
+
+- Recall that the estimated probability of success is
+$$
+\hat{\pi} = \frac{exp \left( \hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_k \right)}{1+exp \left(\hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_k \right)}
+$$
+
+While backing out the estimated probability of success is straightforward, obtaining its confidence interval is not, as it involves many parameters.
+
+**Wald Confidence Interval**
+
+$$
+\hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_K \pm Z_{1-\alpha/2} \sqrt{\widehat{Var}(\hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_K)} 
+$$
+
+where 
+
+$$
+\widehat{Var}(\hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_K) = \sum_{i=0}^K x_i^2 \widehat{Var}(\hat{\beta_i}) + 2 \sum_{i=0}^{K-1} \sum_{j=i+1}^{K} x_i x_j \widehat{Cov}(\hat{\beta}_i,\hat{\beta}_j)
+$$
+
+So, the Wald Interval for $\pi$ is
+
+$$
+\frac{exp \left( \hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_k \pm \sqrt{\sum_{i=0}^K x_i^2 \widehat{Var}(\hat{\beta_i}) + 2 \sum_{i=0}^{K-1} \sum_{j=i+1}^{K} x_i x_j \widehat{Cov}(\hat{\beta}_i,\hat{\beta}_j)}  \right)}{1+exp \left(\hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_k \right)  \pm \sqrt{\sum_{i=0}^K x_i^2 \widehat{Var}(\hat{\beta_i}) + 2 \sum_{i=0}^{K-1} \sum_{j=i+1}^{K} x_i x_j \widehat{Cov}(\hat{\beta}_i,\hat{\beta}_j)}}
+$$
+
+- For an average value of all explanatory variables, compute the Confidence Interval for the Probability of Success given the formula above
+
+```{r message = FALSE ,error = TRUE}
+alpha = 0.5
+
+predict.data <- data.frame(ldl = mean(df$ldl),
+                           sbp = mean(df$sbp),
+                           tobacco = mean(df$tobacco),
+                           age = mean(df$age))
+# Obtain the linear predictor
+linear.pred = predict(object = mod.logit.h0, newdata = predict.data, type = "link", se = TRUE)
+
+# Then, compute pi.hat
+pi.hat = exp(linear.pred$fit)/(1+exp(linear.pred$fit))
+
+# Compute Wald Confidence Interval (in 2 steps)
+# Step 1
+CI.lin.pred = linear.pred$fit + qnorm(p = c(alpha/2, 1-alpha/2))*linear.pred$se.fit
+#CI.lin.pred
+
+# Step 2
+CI.pi = exp(CI.lin.pred)/(1+exp(CI.lin.pred))
+#CI.pi
+
+# Store all the components in a data frame
+#str(predict.data)
+round(data.frame(pi.hat, lower=CI.pi[1], upper=CI.pi[2]),4)
+```
+
+
+### Final Visualization
+
+- Using both the linear probability and logistic regression models, plot the estimated probability of heart disease for different values of cholesterol, holding other variables constant at their average level.
+
+- Discuss which one can better explain this relationship.
+
+```{r message = FALSE ,error = TRUE}
+coef <- mod.logit.h0$coefficients
+
+# Effect of income on LDL for a person's average age, sbp, and tobacco usage
+
+xx = c(1, mean(df$ldl), mean(df$sbp), mean(df$tobacco), mean(df$age))
+
+z = coef[1]*xx[1]+ coef[3]*xx[3] + coef[4]*xx[4] + coef[5]*xx[5]
+
+x <- df$ldl
+
+# Reproduce the graph overlaying the same result from the linear model as a comparison
+curve(expr = exp(z + coef[2]*x)/(1+exp(z + coef[2]*x)), 
+    xlim = c(min(df$ldl), max(df$ldl)), 
+    ylim = c(0,2),
+    col = "blue", main = expression(pi == frac(e^{z + coef[inc]*ldl}, 1+e^{z+coef[inc]*ldl})),
+      xlab =  expression(cholesterol), ylab = expression(pi))
+
+# par(new=TRUE)
+
+
+lm.coef <- mod.linear$coefficients
+lm.z <- lm.coef[1]*xx[1] + lm.coef[3]*xx[3] + lm.coef[4]*xx[4] + lm.coef[5]*xx[5] 
+lines(df$ldl, lm.z + lm.coef[2]*x,col="green")
+
+```
+
+
+\newpage
+
+### Final Report
+
+- Display both estimated linear and logistic models in a regression table. Is there any significant difference between their results?
+
+```{r message = FALSE ,error = TRUE}
+# uncomment and run the code
+
+stargazer(mod.linear, mod.logit.h0, type = "text", omit.stat = "f",
+                   star.cutoffs = c(0.05, 0.01, 0.001), title = "Table 1: The estimated relationship between heart disease and  risk factors")
+
+
+```
+
+> **In both models, all the coefficients except blood pressure are statistically significant and positively associated with the probability of having heart disease. Also, LDL is the most correlated variable with the probability of heart disease in both models.**    
+
+
+# Terms
+
+```{r include=FALSE}
+# library(here)
+# library(readxl)
+df <- read_excel(here("def.xlsx"), sheet = "wk1")
+```
+
+
+```{r echo=FALSE}
+#| label: tbl-penguins-top10
+#| tbl-cap: First 10 Penguins
+
+#replacing NA with white space
+df[is.na(df)] <- "" 
+
+df %>% kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```

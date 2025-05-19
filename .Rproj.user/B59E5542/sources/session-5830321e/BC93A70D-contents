@@ -1,0 +1,179 @@
+---
+title: "Binary"
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: style.css  
+    theme:
+      light: cosmo
+      dark: [cosmo, theme-dark.scss]
+execute: 
+   echo: false
+editor_options: 
+  chunk_output_type: console
+---
+
+[Source](https://quarto.org/docs/get-started/hello/rstudio.html)
+
+```{=html}
+<style>
+.table-hover > tbody > tr:hover { 
+  background-color: #f4f442;
+}
+</style>
+```
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+library(here)
+source(here("source","get_lib.R"))
+```
+
+# Log odds to probability 
+
+- Your aunt offers a service in which she weights coins to make them unfair. 
+
+- You give her a coin and tell her how much you want the `log-odds` to change. She returns the modified coin.
+
+- For each of the following orders, use your function to compute the resulting probability of heads:
+
+  - fair coin, increase log-odds by 1.
+  - fair coin, increase log-odds by 2.
+  - fair coin, increase log-odds by 10.
+  - fair coin, decrease log-odds by 1.
+  - fair coin, decrease log-odds by 2.
+  - fair coin, decrease log-odds by 10.
+  
+
+- Write an R function that computes the `probability of heads`, given log-odds.
+
+```{r, error = TRUE}
+log.odds.to.prob <- function(x){
+    p = exp(x)/(1+exp(x))
+    return(p)
+}
+
+log.odds.to.prob(0)
+```
+
+
+```{r echo=FALSE}
+log_odds <- c(10,2,1, 0, -1, -2, -10 )
+
+data.frame(log_odds = log_odds,  probability = round(log.odds.to.prob(log_odds),3)) %>% kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+- In you own words, describe how changes in log-odds translate to changes in probability
+
+```{r echo=FALSE}
+log_odds_vector = seq(from = -10, to = 10, by = 0.25)
+p = log.odds.to.prob(log_odds_vector)
+d = data.frame(log_odds_vector, p)
+ggplot(d, aes(x = log_odds_vector, y = p)) +
+geom_line() +
+geom_vline(aes(xintercept = c(-5)), color = "red", linetype = "dashed")+
+geom_vline(aes(xintercept = c(5)), color = "red", linetype = "dashed")+
+scale_x_continuous(breaks = seq(-10, 10, by = 1)) +
+labs(title = "probability versus odds") 
+
+```
+
+- You can see in this plot, As log-odds increase, the probability of success increases relative to the probability of failure, and it approaches one. As log-odds decrease probability of success decrease and converges to zero.
+
+        
+- If you get log-odds values that are very very small like -10 the probability of success is almost zero, and if you get log-odds values that are very big like 10 or the probability of success is almost one.
+
+- The relationship between log-odd and probability is not linear, but of s-curve type, and  log odds ratios ranging from -5 to +5 create probabilities that range from just above 0 to very close to 1. 
+
+# MLE
+
+- Maximum Likelihood Estimation
+
+- Suppose your aunt sends you an `unfair coin`, but you forgot what your order was. 
+  - To figure out the probability of success, you flip the coin three times and collect the following data (we are defining heads as success here):
+
+> HTH
+
+- For a hypothesized Bernoulli parameter $\pi$, what is the likelihood of the data? Your answer should be a function of $\pi$.
+
+- likelihood function is:
+
+$$
+\begin{aligned}
+  L(\pi|x_1,x_2,x_3) &= P(X_1 = x_1,X_1 = x_2, X_3 =  x_{3}) \\
+       &= \prod_{i=1}^{3} P({X=x_i}) \\
+       &= \prod_{i=1}^{3} \pi^{x_i}(1-\pi)^{1-x_i} \\
+       &= \pi^{\sum_{i=1}^{3} x_i} (1-\pi)^{\sum_{i=1}^{3}(1- x_i)} \\
+\end{aligned}
+$$
+
+- log of the likelihood function
+
+$$
+\begin{aligned}
+  Log[L(\pi|x_1,x_2,x_3)] &= \\
+       & \left( {\sum_{i=1}^{3} x_i} \right)log(\pi) + \left({\sum_{i=1}^{3}(1- x_i)} \right) log(1-\pi)\\
+\end{aligned}
+$$
+
+- What is the natural log of the likelihood of the data? Write an R function that computes the log likelihood.
+
+```{r}
+loglikelihood <- function(pi) {
+    data <- c(1, 0, 1)
+    return(sum(data==1)*log(pi) + (sum(data==0)*log(1-pi)))}
+```
+
+- Graph your function and visually estimate what the maximum likelihood estimate for $\pi$ is.
+
+```{r}
+prob = seq(0, 1, by=.001)
+d1 <- data.frame(probability = prob, log_likelihood = loglikelihood(prob))
+ggplot(d1, aes(x = probability, y = log_likelihood)) +
+geom_line() +
+geom_vline(aes(xintercept = c(2/3)), color = "red", linetype = "dashed")+
+scale_x_continuous(breaks = seq(0, 1, by = 0.1)) +
+labs(title = "Computed Log-Likelihood for Bernoulli Parameter",
+     x = quote(pi), 
+     y = 'log likelihood'
+     ) 
+
+```
+
+
+
+- We know that MLE of $\pi$ is:
+$$\hat{\pi} =\frac{\sum x_i}{N} = \frac{2}{3} $$
+
+- and in this question, it's:
+
+$$\hat{\pi} = \frac{2}{3} $$
+
+- In the plot, we can see that log-likelihood has a single peak at 2/3.
+
+
+
+# Terms
+
+```{r include=FALSE}
+# library(here)
+# library(readxl)
+df <- read_excel(here("def.xlsx"), sheet = "wk1")
+```
+
+
+```{r echo=FALSE}
+#| label: tbl-penguins-top10
+#| tbl-cap: First 10 Penguins
+
+#replacing NA with white space
+df[is.na(df)] <- "" 
+
+df %>% kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+

@@ -1,0 +1,620 @@
+---
+title: "One and Two binary groups "
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: style.css  
+    theme:
+      light: cosmo
+      dark: [cosmo, theme-dark.scss]
+execute: 
+   echo: false
+editor_options: 
+  chunk_output_type: console
+---
+
+[Source](https://quarto.org/docs/get-started/hello/rstudio.html)
+
+```{=html}
+<style>
+.table-hover > tbody > tr:hover { 
+  background-color: #f4f442;
+}
+</style>
+```
+
+```{r}
+#| message: false
+#| warning: false
+#| include: false
+library(here)
+source(here("source","get_lib.R"))
+```
+
+# Distributions
+
+- Reading `CB` CH1 (skip 1.2.6 and 1.2.7)
+
+## Bernoulli distribution
+
+### parameters
+
+-   Y is 0 or 1. Has one parameter $\pi$
+-   $E[Y] = \pi$, $\text{V}[Y]=\pi(1-\pi)$
+
+### PMF
+
+$$P(Y=y) = \pi^y(1-\pi)^{1-y}$$ \
+
+## Binomial distribution
+
+### parameters
+
+-   Multiple bernoulli trials. Suppose we have `n` trials
+-   $E[Y] = n\pi$, $\text{V}[Y]= n\pi(1-\pi)$
+
+### PMF
+
+$$P(W=w) = {n \choose w} \pi^w(1-\pi)^{1-w}$$
+
+### Likelihood Function
+
+- What is Likelihood function?
+
+$$\begin{align}
+L(\pi|y_1,y_2,....y_n) &= P(Y_1 = y_1)\cdot ... P(Y_n=y_n)\\
+&=\pi^w(1-\pi)^{n-w}
+\end{align}$$
+
+### MLE
+
+-   Maximum Likelihood Estimation
+
+-   Suppose your aunt sends you an `unfair coin`, but you forgot what your order was.
+
+    -   To figure out the probability of success, you flip the coin three times and collect the following data (we are defining heads as success here):
+
+> HTH
+
+-   For a hypothesized Bernoulli parameter $\pi$, what is the likelihood of the data? Your answer should be a function of $\pi$.
+
+-   likelihood function is:
+
+$$
+\begin{aligned}
+  L(\pi|x_1,x_2,x_3) &= P(X_1 = x_1,X_1 = x_2, X_3 =  x_{3}) \\
+       &= \prod_{i=1}^{3} P({X=x_i}) \\
+       &= \prod_{i=1}^{3} \pi^{x_i}(1-\pi)^{1-x_i} \\
+       &= \pi^{\sum_{i=1}^{3} x_i} (1-\pi)^{\sum_{i=1}^{3}(1- x_i)} \\
+\end{aligned}
+$$
+
+-   log of the likelihood function
+
+$$
+\begin{aligned}
+  Log[L(\pi|x_1,x_2,x_3)] &= \\
+       & \left( {\sum_{i=1}^{3} x_i} \right)log(\pi) + \left({\sum_{i=1}^{3}(1- x_i)} \right) log(1-\pi)\\
+\end{aligned}
+$$
+
+-   What is the natural log of the likelihood of the data? Write an R function that computes the log likelihood.
+
+```{r}
+loglikelihood <- function(pi) {
+    data <- c(1, 0, 1)
+    return(sum(data==1)*log(pi) + (sum(data==0)*log(1-pi)))}
+```
+
+-   Graph your function and visually estimate what the maximum likelihood estimate for $\pi$ is.
+
+```{r}
+prob = seq(0, 1, by=.001)
+d1 <- data.frame(probability = prob, log_likelihood = loglikelihood(prob))
+ggplot(d1, aes(x = probability, y = log_likelihood)) +
+geom_line() +
+geom_vline(aes(xintercept = c(2/3)), color = "red", linetype = "dashed")+
+scale_x_continuous(breaks = seq(0, 1, by = 0.1)) +
+labs(title = "Computed Log-Likelihood for Bernoulli Parameter",
+     x = quote(pi), 
+     y = 'log likelihood'
+     ) 
+
+```
+
+-   We know that MLE of $\pi$ is: $$\hat{\pi} =\frac{\sum x_i}{N} = \frac{2}{3} $$
+
+-   and in this question, it's:
+
+$$\hat{\pi} = \frac{2}{3} $$
+
+-   In the plot, we can see that log-likelihood has a single peak at 2/3.
+
+# One binary group
+
+## Interval vs Hypothesis test
+
+-   Given observation, knowing distribution, we are estimating the parameter of the function.
+
+-   Since this is an estimator, it will change each time we collect sample.
+
+-   We talked about Wald confidence interval, similar to what we talked about in W203.
+
+    -   It rely on the underlying normal distribution approximation for the maximum likelihood estimator. (see page 11)
+
+-   When only one simple parameter is of interest, such as $\pi$ here, we generally prefer confidence intervals over hypothesis tests, because the interval gives a range of possible parameter values.
+
+-   We can typically infer that a hypothesized value for a parameter can be rejected if it does not lie within the confidence interval for the parameter.
+
+-   However, there are situations where a `fixed known value` of $\pi$, say $\pi_0$ , is of special interest, leading to a formal hypothesis test of
+
+$$H_0 : \pi = \pi_0$$ $$H_a : \pi  \not= \pi_0$$
+
+## Interval test
+
+- See page 11 and 12
+
+```{r}
+
+# Initial settings and calculations
+alpha <- 0.05
+n <- 40
+w <- 0:n
+pi.hat <- w/n
+pi.tilde <- (w + qnorm(p = 1-alpha/2)^2 /2) / (n+qnorm(1-alpha/2)^2)
+
+# Wald
+var.wald <- pi.hat*(1-pi.hat)/n
+lower.wald <- pi.hat - qnorm(p = 1-alpha/2) * sqrt(var.wald)
+upper.wald <- pi.hat + qnorm(p = 1-alpha/2) * sqrt(var.wald)
+
+# Agresti-Coull
+lower.AC <- pi.tilde - qnorm(p = 1-alpha/2) * sqrt(pi.tilde*(1-pi.tilde) / (n+qnorm(1-alpha/2)^2))
+upper.AC <- pi.tilde + qnorm(p = 1-alpha/2) * sqrt(pi.tilde*(1-pi.tilde) / (n+qnorm(1-alpha/2)^2))
+
+# Wilson
+lower.wilson <- pi.tilde - qnorm(p = 1-alpha/2) * sqrt(n) / (n+qnorm(1-alpha/2)^2) * sqrt(pi.hat*(1-pi.hat) + qnorm(1-alpha/2)^2/(4*n))
+upper.wilson <- pi.tilde + qnorm(p = 1-alpha/2) * sqrt(n) / (n+qnorm(1-alpha/2)^2) * sqrt(pi.hat*(1-pi.hat) + qnorm(1-alpha/2)^2/(4*n))
+
+# Clopper-Pearson - This is a little more complicated due to the y = 0 and n cases
+  lower.CP <- numeric(n+1)  # This initializes a vector to save the lower bounds into
+  upper.CP <- numeric(n+1)  # This initializes a vector to save the upper bounds into
+
+  # y = 0
+  w0<-0  # Set here for emphasis
+  lower.CP[1] <- 0
+  upper.CP[1] <- qbeta(p = 1-alpha/2, shape1 = w0+1, shape2 = n-w0)
+
+  # y = n
+  wn <-n  # Set here for emphasis
+  lower.CP[n+1] <- qbeta(p = alpha/2, shape1 = wn, shape2 = n-wn+1)
+  upper.CP[n+1] <- 1
+  
+  # y = 1, ..., n-1
+  w.new <- 1:(n-1)
+  lower.CP[2:n] <- qbeta(p = alpha/2, shape1 = w.new, shape2 = n-w.new+1)
+  upper.CP[2:n] <- qbeta(p = 1-alpha/2, shape1 = w.new+1, shape2 = n-w.new)
+
+
+# All pi's
+pi.seq <- seq(from = 0.001, to = 0.999, by = 0.0005)
+# pi.seq<-0.16 #Testing
+# pi.seq<-seq(from = 0.1, to = 0.9, by = 0.1) #Testing
+
+# Save true confidence levels in a matrix
+save.true.conf <- matrix(data = NA, nrow = length(pi.seq), ncol = 5)
+
+# Create counter for the loop
+counter <- 1
+
+# Loop over each pi that the true confidence level is calculated on
+for(pi in pi.seq) {
+
+  pmf <- dbinom(x = w, size = n, prob = pi)
+
+  # Wald
+  save.wald <- pi>lower.wald & pi<upper.wald  # Check if pi is within interval
+  # Could use ifelse() too:
+  # save.wald <- ifelse(test = pi>lower.wald, yes = ifelse(test = pi<upper.wald, yes = 1, no = 0), no = 0)
+  wald <- sum(save.wald*pmf)
+
+  # Agresti-Coull
+  save.AC <- pi>lower.AC & pi<upper.AC
+  # ifelse(test = pi>lower.AC, yes = ifelse(test = pi<upper.AC, yes = 1, no = 0), no = 0)
+  AC <- sum(save.AC*pmf)
+
+  # Wilson
+  save.wilson <- pi>lower.wilson & pi<upper.wilson
+  # save.wilson <- ifelse(test = pi>lower.wilson, yes = ifelse(test = pi<upper.wilson, yes = 1, no = 0), no = 0)
+  wilson <- sum(save.wilson*pmf)
+
+  # Clopper-Pearson
+  save.CP <- pi>lower.CP & pi<upper.CP
+  # save.CP <- ifelse(test = pi>lower.CP, yes = ifelse(test = pi<upper.CP, yes = 1, no = 0), no = 0)
+  CP <- sum(save.CP*pmf)
+
+  save.true.conf[counter,] <- c(pi, wald, AC, wilson, CP)
+  counter <- counter+1
+  
+}
+  
+
+# Plots
+# dev.new(width = 7, height = 6, pointsize = 12)
+# pdf(file = "c:\\figures\\Figure1.3.pdf", width = 7, height = 6, colormodel = "cmyk")   # Create plot for book
+par(mfrow = c(2,2))  # 2x2 plotting grid
+plot(x = save.true.conf[,1], y = save.true.conf[,2], main = "Wald", xlab = expression(pi),
+  ylab = "True confidence level", type = "l", ylim = c(0.85,1))
+abline(h = 1-alpha, lty = "dotted")
+segments(x0 = 0.157, y0 = 0, x1 = 0.157,
+  y1 = save.true.conf[save.true.conf[,1]==0.157,2], lty = "dotdash")
+segments(x0 = -1, y0 = save.true.conf[save.true.conf[,1]==0.157,2], x1 = 0.157,
+  y1 = save.true.conf[save.true.conf[,1]==0.157,2], lty = "dotdash")
+
+plot(x = save.true.conf[,1], y = save.true.conf[,3], main = "Agresti-Coull", xlab = expression(pi),
+  ylab = "True confidence level", type = "l", ylim = c(0.85,1))
+abline(h = 1-alpha, lty = "dotted")
+plot(x = save.true.conf[,1], y = save.true.conf[,4], main = "Wilson", xlab = expression(pi),
+  ylab = "True confidence level", type = "l", ylim = c(0.85,1))
+abline(h = 1-alpha, lty = "dotted")
+plot(x = save.true.conf[,1], y = save.true.conf[,5], main = "Clopper-Pearson", xlab = expression(pi),
+  ylab = "True confidence level", type = "l", ylim = c(0.85,1))
+abline(h = 1-alpha, lty = "dotted")
+# dev.off()  # Create plot for book
+
+# Pi = 0.157
+# save.true.conf[save.true.conf[,1]==0.157, ]
+# While AC and Wilson have same true confidence levels at pi=0.157, this will not always be the case
+# sum(save.true.conf[,3] != save.true.conf[,4])  # Number of differences
+# length(pi.seq)  # Number of true confidence levels
+
+```
+
+
+## Hypothesis test
+
+-   Situations where a `fixed known value` of $\pi$, say $\pi_0$ , is of special interest, leading to a formal hypothesis test of
+
+$$H_0 : \pi = \pi_0$$ $$H_a : \pi  \not= \pi_0$$
+
+### Hypothesis testing using Wilson interval, score test statistic
+
+![](image/wilson.PNG){fig-align="center" width="400"}
+
+This statistic is called the `score test statistic`
+
+$$Z_0 = \frac{\hat{\pi}-\pi_0}{\sqrt{\pi_0(1-\pi_0)/n}}$$ 
+
+- When $H_0$ is true, $Z_0$ should have approximately standard normal distribution.
+
+-   The book recommend using the `score test` when performing a test for $\pi$ (see page 17)
+
+
+
+### Hypothesis testing using likelihood ratio test (LRT)
+
+![](image/LRT.png){fig-align="center" width="400"}
+
+-   LRT statistics look like this.
+
+$$\Lambda = \frac{\text{Maximum of likelihood function udner } H_0}{\text{Maximum of likelihood function udner } H_A}$$
+
+- LRT is used to calculate confidence intervals in some more complicated contexts where better intervals are not available. 
+
+- This interval is better than the wald interval in most problems. (see page 10)
+
+### Hypothesis testing using Transformed LRT
+
+![](image/transformed LRT.webp){fig-align="center" width="400"}
+
+$$-2\text{log}(\Lambda)$$
+
+- Above statistic is called `transformed LRT` statistisc and have an approximate $\chi^2$ distribution.
+
+# Two binary groups
+
+- Consider Bernoulli trial is measured on units that can be classified into groups.
+  - Female and male
+  - Fresh and Salt-Water fish
+  - Larry birds free throw [LINK](https://docs.google.com/spreadsheets/d/1YyO_sX1hIn7siATwF7L-mE8OfHktGX2w/edit?gid=50379254#gid=50379254)
+    - Basketball fans and commentators often speculate that the result of a second free throw might depend on the result of the first.
+  - Salk vaccine clinical trial. [LINK](https://docs.google.com/spreadsheets/d/1YyO_sX1hIn7siATwF7L-mE8OfHktGX2w/edit?gid=50379254#gid=50379254)
+    - Randomized experiment. 
+    - 57 out of 200,745 developed polio during the study period
+    - 142 out of 201,220 developed polio during the placebo group.
+    - `Does the vaccine help to prevent polio?`
+
+- We have two random variables $Y_1$ and $Y_2$ and their outcome is independent of each other.
+
+- We have `TWO BINARY VARIABLES`
+
+## Interval test
+
+- Wald Confidence interval using normal approximation.
+- Book recommend using the Agresti-Caffo method
+
+### Larry Bird’s free throw shooting
+
+```{r}
+#| echo: true
+c.table <- array(data = c(251, 48, 34, 5), dim = c(2,2),
+dimnames = list(First = c("made", "missed"), Second = c("made", "missed")))
+c.table
+
+#conditional probabilities
+pi.hat.table <- c.table/rowSums(c.table)
+
+#get the pi estimates
+pi.hat1 <- pi.hat.table[1,1] 
+pi.hat2 <- pi.hat.table[2,1]
+
+#set type I error
+alpha <- 0.05
+```
+
+- `Wald Confidence interval`
+
+```{r}
+#########################
+#wald CI
+#########################
+var.wald <- pi.hat1*(1-pi.hat1) / sum(c.table[1,]) +
+pi.hat2*(1-pi.hat2) / sum(c.table[2,])
+
+pi.hat1 - pi.hat2 + qnorm(p = c(alpha/2, 1-alpha /2)) *
+sqrt(var.wald)
+
+```
+
+- `Agresti-Caffo confidence interval`
+
+```{r}
+#########################
+# Agresti-Caffo
+#########################
+pi.tilde1 <- (c.table[1,1] + 1) / (sum(c.table[1,]) + 2) 
+pi.tilde2 <- (c.table[2,1] + 1) / (sum(c.table[2,]) + 2) 
+var.AC <- pi.tilde1*(1-pi.tilde1) / (sum(c.table[1,]) + 2) +
+
+pi.tilde2*(1-pi.tilde2) / (sum(c.table[2,]) + 2)
+pi.tilde1 - pi.tilde2 + qnorm(p = c(alpha/2, 1-alpha /2)) *sqrt(var.AC)
+```
+
+- Because these interval contains 0, we cannot reject $H_0$
+
+
+## Hypothesis test
+
+$$H_0: \pi_1 - \pi_2 = 0$$
+$$H_0: \pi_1 - \pi_2 \not= 0$$
+
+
+### Person chi-square test 
+
+- So, this is the test for TWO BINARY VARIABLES.
+
+- Create a statistic comparing the difference between what was observed and what was predicted under $H_0$ that there is no difference.
+
+- This statistic following $\Chi^2$ with $n_1$ and $n_2$ degress of freedom.
+
+$$\chi^2 = \sum_{j=1}^2\frac{(w_j-n_j\bar{\pi})^2}{n_j\bar{\pi}(1-\bar{\pi})}$$
+
+### LRT test
+
+$$-2\text{log}({\Lambda})= ... $$
+- if $-2\text{log}({\Lambda}) > \chi^2_{..}^{..}$, Reject $H_0$
+
+### Score test
+
+- Use score statistic to perform test.  Score test performs the best when the same size is small.
+
+```{r}
+#| echo: true
+prop.test(x = c.table , conf.level = 0.95, correct = FALSE)
+```
+
+- `correct = FALSE` argument value guarantees that the test statistic is calculated as shown $Z_0$.
+
+-   The `prevalence of a disease` is the proportion of a population that is afflicted with that disease
+
+
+## Relative Risk
+
+- The problem with basing inferences on $\pi_1 - \pi_2$ is that it measures a quantity whose meaning changes depending on the value of $\pi_1,\pi_2$
+
+1. $\pi_1 = 0.51 \text{ and }  \pi_2 = 0.5$
+2. $\pi_1 = 0.011 \text{ and }  \pi_2 = 0.001$
+
+- In both cases, 1. $\pi_1 - \pi_2 = 0.01$. 
+- In case (1), this change is small compare to 1. $\pi_1 \text{ and }  \pi_2 $
+- In case (2), this change is 11 times the chance of $\pi_2 $.  Suppose $\pi_2$ is the chance of nonsmoking population getting a disease, then, the chance is 11 times the chance of nonsmoking population getting a disease.
+
+- To capture this information, we use another statistic called `relative risk`
+
+$$\text{RR} = \frac{\pi_1}{\pi_2}=\frac{0.011}{0.001}$$
+- Smokers are 11 times `as likely` to have the disease than nonsmokers
+- Smokers are 10 times `more likely` to have that disease than nonsmokers. (see page 38)
+
+- $\hat{RR}$ is MLE and using normal approximation is rather poor for MLE and not recommended.  Use normal approximation on $\text{log}(\hat{RR})$
+
+
+### RR of Salk vaccine clinical trial
+
+```{r}
+#| echo: true
+c.table <- array(data = c(57, 142, 200688, 201087), dim =
+c(2,2), dimnames = list(Treatment = c("vaccine", "placebo"), Result = c("polio", "polio free")))
+
+c.table
+
+#calculate conditional probability
+pi.hat.table <- c.table/rowSums(c.table) 
+pi.hat.table
+
+#estimated parameters to be compared
+pi.hat1 <- pi.hat.table[1,1] 
+pi.hat2 <- pi.hat.table[2,1]
+
+RR <- pi.hat1/pi.hat2
+RR
+```
+
+- The `estimated` probability of contracting polio is 0.4 times `as likely` for the vaccine group that for teh placebo group.
+
+```{r}
+#| echo: true
+#set type 1 error
+alpha <- 0.05
+n1 <- sum(c.table[1,]) 
+n2 <- sum(c.table[2,])
+
+var.log.rr <- (1-pi.hat1)/(n1*pi.hat1) + (1-pi.hat2)/(n2*pi.hat2)
+
+ci <- exp(log(pi.hat1/pi.hat2) + qnorm(p = c(alpha/2,
+1-alpha/2)) * sqrt(var.log.rr))
+
+
+ci
+```
+
+# Odds 
+
+## Odds
+
+- Odds can also be used as a similar measure as relative risk.
+- Odds are defined as the probability of a success divided by the probability of a failure.
+
+$$\text{Odds} = \frac{\pi}{1-\pi} = \frac{0.1}{1-0.1}= \frac{0.1}{0.9}$$
+- This will be referred to as `9-to-1` odds against.
+
+- Odds have no upper limit unlike probabilities.
+- Like RR, odds are estimated with MLE.
+
+
+## Odds ratios
+
+- Determining whether or not an `odds ratio` is equal to 1, greater than 1 or less than 1 is often of interest. 
+
+$$\text{OR} = \frac{\text{Odds}_1}{\text{Odds}_2}$$
+
+- The estimated odds of a success is $\hat{\text{OR}}$ times as larag as `in group 1` than in `group 2`
+
+- Since OR is a statistic, each time you get a sample and estimate, you will get difference value. You can calculate CI of this estimate.
+
+
+```{r include=FALSE}
+# library(here)
+# library(readxl)
+df <- read_excel(here("def.xlsx"), sheet = "or")
+```
+
+```{r echo=FALSE}
+#| label: tbl-penguins-top10
+#| tbl-cap: First 10 Penguins
+
+#replacing NA with white space
+df[is.na(df)] <- "" 
+
+df %>% kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+### OR of Salk vaccine clinical trial
+
+```{r}
+OR.hat <- c.table[1,1] * c.table[2,2] / (c.table[2,1] *
+c.table[1,2])
+round(OR.hat , 4)
+
+#get confidence interval
+alpha <- 0.05 
+
+var.log.or <- 1/c.table[1,1] + 1/c.table[1,2] + 1/c.table[2,1]
++ 1/c.table[2,2]
+
+OR.CI <- exp(log(OR.hat) + qnorm(p = c(alpha/2, 1-alpha /2)) *
+sqrt(var.log.or))
+
+round(OR.CI , 2)
+
+```
+
+
+# Matched pair data
+
+- $w_1$ and $w_2$ were independent random variables in the examples shown before. [LINK](https://docs.google.com/spreadsheets/d/1YyO_sX1hIn7siATwF7L-mE8OfHktGX2w/edit?gid=50379254#gid=50379254)
+
+- There are other situations where the two probabilities being compared are `dependent` random variables.
+
+- This occurs with `matched pair` data, where two binary response observations, $X$ and $Y$ are made on each `sample unit`
+
+- The desired comparision between success probabilities for X and Y involves two correlated statistics.
+
+## Prostate cancer diagnosis procedures
+
+- (P44) Zhou and Qin (2005) discuss a study that was used to compare the diagnostic accuracy of magnetic resonance imaging (`MRI`) and `ultrasound` in patients who had been established as having `localized prostate cancer` by a gold standard test.
+
+### Hypothesis testing 
+
+- This is comparing marginal probabilities
+
+$$H_0: \pi_{+1}=\pi_{1+} $$
+$$H_a: \pi_{+1}\not= \pi_{1+} $$
+
+- We can use `wald test statistic` (the book uses $Z_0$ notation which was used for score statistic) or `McNemar's test statistic`, `M` which has approximately $\chi_^2$ distribution for large samples. 
+  - Reject $H_0$ when `M` > $\chi^2_{..}$
+
+
+```{r}
+#| echo: true
+#get marginal distribution 
+n <- sum(c.table) 
+pi.hat.plus1 <- sum(c.table[,1])/n 
+pi.hat.1plus <- sum(c.table[1,])/n
+
+#evaluate the difference by 
+#subtracting the sample statistics
+data.frame(pi.hat.plus1 , pi.hat.1plus , 
+           diff = pi.hat.plus1 - pi.hat.1plus)
+```
+
+```{r}
+#| echo: true
+c.table <- array(data = c(4, 3, 6, 3), dim = c(2,2), dimnames =
+list(MRI = c("Localized", "Advanced"), Ultrasound =
+c("Localized", "Advanced"))) 
+
+c.table
+
+mcnemar.test(x = c.table , correct = FALSE)
+
+```
+
+
+### Interval 
+
+- `Wald confidence interval`
+
+```{r}
+##library(PropCIs)
+## wald confidence interval
+diffpropci.Wald.mp(b = c.table[1,2], c = c.table[2,1], n =
+sum(c.table), conf.level = 0.95)
+```
+
+- `Agresti-Min confidence interval`
+  - You also get difference sample esitmate.
+
+```{r}
+diffpropci.mp(b = c.table[1,2], c = c.table[2,1], n =
+sum(c.table), conf.level = 0.95)
+```
+
+
+# Larger contingency tables
+
+- There are many instances where more than two groups exist (i.e., there are more than two rows within a contingency table)
+
+- Once more rows are added to a contingency table, it is often easier to perform the analysis with a binary regression models as covered in Chapter 2. 
+

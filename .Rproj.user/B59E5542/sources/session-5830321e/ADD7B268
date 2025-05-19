@@ -1,0 +1,26 @@
+{
+    "id": "ADD7B268",
+    "path": "~/w271 Discrete Response/source/get_lib.R",
+    "project_path": "source/get_lib.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1747280255586.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "4,53",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1747280554,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1747280554519,
+    "read_only": false,
+    "read_only_alternatives": []
+}

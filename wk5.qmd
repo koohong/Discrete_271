@@ -1,0 +1,51 @@
+---
+title: "Logistic regression"
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: style.css  
+    theme:
+      light: cosmo
+      dark: [cosmo, theme-dark.scss]
+execute: 
+   echo: false
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+```{=html}
+<style>
+.table-hover > tbody > tr:hover { 
+  background-color: #f4f442;
+}
+</style>
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(here)
+source(here("source","get_lib.R"))
+```
+
+
+Reading
+- Ch 4.1,4.2.1 - 4.2.3,5.2
+- Skim sections 5.1, 5.2.3,5.3,.5.4
+  
+# Generalized linear models (GLM)
+
+- GLMs have three different parts (see page 121:
+  
+  1. Random Component:
+      - $Y$, for logistic regression, $Y$ has a Bernoulli distribution
+  
+  2. Systematic Component:
+      - This specifies a linear combination of the regression parameters with `features`, and this part is referred to as the `linear predictor`
+      - $\beta_0 + \beta_1x_1 + .... + \beta_px_p$
+      
+  3. LINK FUNCTION:
+      - Specifies how the expected value of the `random component` $E[Y]$ is linked to the `sysmatic` component.
+      - $\text{logit}(\pi) = \beta_0 + \beta_1x_1 + .... + \beta_px_p$
+      - where $E[Y] = \pi$

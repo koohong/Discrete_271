@@ -1,0 +1,38 @@
+{
+  "about.qmd": {
+    "about.html": "57525423"
+  },
+  "index.qmd": {
+    "index.html": "48186f16"
+  },
+  "wk1.qmd": {
+    "wk1.html": "f6123b4e"
+  },
+  "wk2.qmd": {
+    "wk2.html": "0003ba85"
+  },
+  "wk3.qmd": {
+    "wk3.html": "44e8b6e3"
+  },
+  "wk4.qmd": {
+    "wk4.html": "690165b0"
+  },
+  "wk5.qmd": {
+    "wk5.html": "f64790ee"
+  },
+  "wk4_table.Rmd": {
+    "wk4_table.html": "abaa49d8"
+  },
+  "terms.Rmd": {
+    "terms.html": "703f71b1"
+  },
+  "wk4P1.qmd": {
+    "wk4P1.html": "6b78b574"
+  },
+  "wk4P2.qmd": {
+    "wk4P2.html": "16ad4038"
+  },
+  "wk4P3.qmd": {
+    "wk4P3.html": "57255476"
+  }
+}

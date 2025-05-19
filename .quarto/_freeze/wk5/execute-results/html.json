@@ -1,0 +1,15 @@
+{
+  "hash": "1d136e098d495a24f629542e2256a8bd",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Logistic regression\"\nformat:\n  html:\n    toc: true\n    html-math-method: katex\n    css: style.css  \n    theme:\n      light: cosmo\n      dark: [cosmo, theme-dark.scss]\nexecute: \n   echo: false\neditor_options: \n  chunk_output_type: console\n---\n\n```{=html}\n<style>\n.table-hover > tbody > tr:hover { \n  background-color: #f4f442;\n}\n</style>\n```\n\n\n\n\n\n\n\nReading\n- Ch 4.1,4.2.1 - 4.2.3,5.2\n- Skim sections 5.1, 5.2.3,5.3,.5.4\n  \n# Generalized linear models (GLM)\n\n- GLMs have three different parts (see page 121:\n  \n  1. Random Component:\n      - $Y$, for logistic regression, $Y$ has a Bernoulli distribution\n  \n  2. Systematic Component:\n      - This specifies a linear combination of the regression parameters with `features`, and this part is referred to as the `linear predictor`\n      - $\\beta_0 + \\beta_1x_1 + .... + \\beta_px_p$\n      \n  3. LINK FUNCTION:\n      - Specifies how the expected value of the `random component` $E[Y]$ is linked to the `sysmatic` component.\n      - $\\text{logit}(\\pi) = \\beta_0 + \\beta_1x_1 + .... + \\beta_px_p$\n      - where $E[Y] = \\pi$\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
