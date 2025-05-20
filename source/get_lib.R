@@ -59,6 +59,9 @@ library(bestglm)
 ## To assemble multiple plots
 library(gridExtra)
 
+## to load glow500 from "Applied Logistic Regression" by D.W. Hosmer, S. Lemeshow, and R.X. Sturdivant (3rd ed., 2013) 
+library(aplore3)
+
 ## To generate regression results tables
 library(finalfit)
 

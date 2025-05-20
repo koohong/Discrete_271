@@ -45,16 +45,17 @@ Reading CH 2.1, 2.2.1-2.2.4 (page 61- 94)
 
 $$\pi_i = \frac{\text{exp}(\beta_0 + \beta_1x_{i,1}+...++ \beta_px_{i,p})}{1+\text{exp}(\beta_0 + \beta_1x_{i,1}+...++ \beta_px_{i,p})}$$
 
-$$\text{logit}(\pi_i)=\text{log}(\frac{\pi_i}{1-\pi_i}) = \beta_0 + \beta_1x_{i,1}+...++ \beta_px_{i,p}$$ 
+$$\text{logit}(\pi_i)=\text{log}(\frac{\pi_i}{1-\pi_i}) = \beta_0 + \beta_1x_{i,1}+...++ \beta_px_{i,p}$$
 
-- Unfortunately, there are only a few simple cases where these parameter
-estimates have `closed-form solutions`; i.e., we cannot generally write
-out the parameter estimates in terms of the observed data like we could
-for the single probability estimate $\pi$ in Section 1.1.2.
+-   Unfortunately, there are only a few simple cases where these
+    parameter estimates have `closed-form solutions`; i.e., we cannot
+    generally write out the parameter estimates in terms of the observed
+    data like we could for the single probability estimate $\pi$ in
+    Section 1.1.2.
 
-- Instead, we use iterative numerical procedures, as described in
-  Appendix B.3.2, to successively find estimates of the regression
-  parameters that increase the log-likelihood function
+-   Instead, we use iterative numerical procedures, as described in
+    Appendix B.3.2, to successively find estimates of the regression
+    parameters that increase the log-likelihood function
 
 ## parameter estimation in R
 
@@ -79,14 +80,14 @@ $$
 \log\left[ \frac { P( \operatorname{good} = \operatorname{1} ) }{ 1 - P( \operatorname{good} = \operatorname{1} ) } \right] = 5.812 +- 0.115\cdot(\operatorname{distance})
 $$
 
-- You can get confidence interval this way
+-   You can get confidence interval this way
 
 ```{r}
 #| echo: true
 confint(mod.fit)
 ```
 
-- also this way
+-   also this way
 
 ```{r}
 summary(mod.fit)
@@ -101,56 +102,38 @@ page74
     normal distribution often suffer from bias.
 -   LRT typically performs better than the Wald Test
 
-
 $$H_0: \text{logit}(\pi) =
 \log\left[ \frac { P( \operatorname{good} = \operatorname{1} ) }{ 1 - P( \operatorname{good} = \operatorname{1} ) } \right] = \alpha + \beta_{1}\cdot\operatorname{distance}
 $$
-
-
 
 $$H_A: \text{logit}(\pi) =
 \log\left[ \frac { P( \operatorname{good} = \operatorname{1} ) }{ 1 - P( \operatorname{good} = \operatorname{1} ) } \right] = \alpha + \beta_{1}\cdot\operatorname{distance} + \beta_2\cdot\text{another_feature}
 $$
 
-
 ### LRT
 
 ![](image/LRT.png){fig-align="center" width="400"}
 
-
-$$\Lambda = \frac{\text{ML under }H_0 }{\text{ML under }H_A}$$ 
-
+$$\Lambda = \frac{\text{ML under }H_0 }{\text{ML under }H_A}$$
 
 ### Transformed LRT
 
-![](image/transformed LRT.webp){fig-align="center" width="400"}
+![](image/transformed%20LRT.webp){fig-align="center" width="400"}
 
 $$-2\text{log}{(\Lambda)} \approx \chi^2$$
 
-```{r}
-#| echo: true
-mod.fit2 <- glm(formula = good ~ change + distance , family =
-binomial(link = logit), data = placekick)
-
-#one at a time test
-Anova(mod.fit2, test = "LR")
-
-
-anova(mod.fit, mod.fit2, test = "LR")
-
-```
-
-# Deviance 
+# Deviance
 
 -   `deviance` refers to the amount that a particular model deviates
     from another model as measured by $-2\text{log}(\Lambda)$.
 
-## Saturated model 
+## Saturated model
 
-- `saturated model`, which has a different coefficent for each data point, 
-leading to perfect prediction, a likelihood of one, and a log likelihood of zero.
+-   `saturated model`, which has a different coefficent for each data
+    point, leading to perfect prediction, a likelihood of one, and a log
+    likelihood of zero.
 
-## Null deviance 
+## Null deviance
 
 -   The `null deviance` measures the performance of the worst model
     using only `an intercept`, providing a benchmark.
@@ -159,11 +142,11 @@ $$
 \text{Null Deviance}= -2 \text{log}(L(\hat{\beta_0}|y_1,..., y_n))
 $$
 
-
 ## Residual deviance
 
 -   The `residual deviance` is the deviance of our fitted model.
--   It is always greater than zero unless it is the saturated model which explains the data perfectly.
+-   It is always greater than zero unless it is the saturated model
+    which explains the data perfectly.
 
 $$
 \text{Residual Deviance}= -2 \text{log}(L(\hat{\beta}|y_1,..., y_n))
@@ -180,16 +163,136 @@ $$
 
 -   Note that we can compute deviance of two separate models by
     substracting the null model residual deviance and the alternative
-    model residual deviance from separate logistic regression fits. 
+    model residual deviance from separate logistic regression fits.
 
--  See page 81 for more information
+-   See page 81 for more information
 
+```{r}
+#| echo: true
+mod.fit2 <- glm(formula = good ~ change + distance , family =
+binomial(link = logit), data = placekick)
+
+#one at a time test
+Anova(mod.fit2, test = "LR")
+
+
+anova(mod.fit, mod.fit2, test = "LR")
+
+```
 
 # ODDS
 
 -   see page 83, the odd of success at a particular value of `x`
 
+-   The following model can be used to estimate the odd at specific
+    value of `x`
+
 $$\text{Odds}_x = \text{exp}(\beta_0 + \beta_1x)$$
+
+-   The following model can be used to estimate the odd at specific
+    value of `x + c`
+
+$$\text{Odds}_{x+c} = \text{exp}(\beta_0 + \beta_1(x+c)$$ \## ODD Ratio
+
+$$\text{OR} = \frac{\text{Odds}_{x+c}}{\text{Odds}_{x}}= \text{exp}(c\beta_1)$$ -
+Increase in odd is `OR` \> 1, - decrease in odd if `OR` \< 1,
+
+$$\hat{\text{OR}} = \text{exp}(c\hat{\beta}_1)$$ - So, it will have
+estimated variance. - As you have guessed by now, Wald CI does not work
+well when sample size small.
+
+-   use `transformed LRT` statistic.
+
+```{r}
+#| echo: true
+#finds LR confidence interval
+mod.fit
+beta.ci <- confint(mod.fit, parm = "distance", level = 0.95)
+beta.ci
+```
+
+### understanding the changes in odd
+
+-   `10-yard` decrease in `distance` increases the odds of a successful
+    placekick.
+
+```{r}
+rev(exp(-10*beta.ci))
+```
+
+```{r}
+beta.ci <- confint.default(object = mod.fit , parm = "distance",
+level = 0.95)
+
+rev(1/exp(beta.ci*10))
+```
+
+-   Has similar interval due to large sample size
+
+# Probability
+
+```{r}
+linear.pred <- mod.fit$coefficients[1] +
+mod.fit$coefficients[2] * 20
+
+#value of the logit function based on given value of distance at 20
+linear.pred
+
+
+new_data <- data.frame(distance = 20)
+predict(mod.fit, newdata = new_data, type = "link")
+
+predict(mod.fit, newdata = new_data, type = "response")
+```
+
+## confidence interval of the $\pi$ estimate
+
+-   see page 90
+-   We can get the $\hat{\pi}$
+
+```{r}
+predict(mod.fit, newdata = new_data, type = "response", se = TRUE)
+```
+
+```{r}
+#create a function to get the confidence interval of pi
+ci.pi <- function(newdata , mod.fit.obj , alpha){
+  linear.pred <- predict(object = mod.fit.obj , 
+                         newdata =newdata , 
+                         type = "link", se = TRUE)
+  
+  CI.lin.pred.lower <- linear.pred$fit - qnorm(p =1-alpha/2)*linear.pred$se
+  CI.lin.pred.upper <- linear.pred$fit + qnorm(p =1-alpha/2)*linear.pred$se
+  
+  #get pi
+  CI.pi.lower <- exp(CI.lin.pred.lower) / (1 +exp(CI.lin.pred.lower))
+  CI.pi.upper <- exp(CI.lin.pred.upper) / (1 +exp(CI.lin.pred.upper))
+
+  list(lower = CI.pi.lower , upper = CI.pi.upper)
+}
+```
+
+```{r}
+ci.pi(newdata = data.frame(distance = 20), mod.fit.obj = mod.fit , alpha = 0.05)
+```
+
+```{r}
+curve(expr = predict(object = mod.fit , newdata =
+data.frame(distance = x), type = "response"), col = "red", add = TRUE , xlim = c(18, 66))
+
+curve(expr = ci.pi(newdata = data.frame(distance = x),
+mod.fit.obj = mod.fit , alpha = 0.05) $lower , col = "blue", lty = "dotdash", add = TRUE , xlim = c(18, 66))
+
+curve(expr = ci.pi(newdata = data.frame(distance = x),
+mod.fit.obj = mod.fit , alpha = 0.05) $upper , col = "blue", lty = "dotdash", add = TRUE , xlim = c(18, 66))
+
+legend(locator (1), legend = c("Logistic regression model", "95%
+individual C.I."), lty = c("solid", "dotdash"), col = c("red", "blue"), bty = "n")
+```
+
+## Interaction
+
+-   
 
 # Log odds to probability
 
@@ -821,21 +924,251 @@ stargazer(mod.linear, mod.logit.h0, type = "text", omit.stat = "f",
 > probability of having heart disease. Also, LDL is the most correlated
 > variable with the probability of heart disease in both models.**
 
-# Terms
+# Example
 
-```{r include=FALSE}
-# library(here)
-# library(readxl)
-df <- read_excel(here("def.xlsx"), sheet = "wk1")
-```
+-   In `osteoporosis`, bones become weak and brittle, so weak that even
+    bending over or coughing can fracture them. Hip, wrist, and spine
+    fractures are the most common osteoporosis-related fractures.
 
-```{r echo=FALSE}
-#| label: tbl-penguins-top10
-#| tbl-cap: First 10 Penguins
+-   All races of people are at risk for osteoporosis.
 
-#replacing NA with white space
-df[is.na(df)] <- "" 
+-   However, white and Asian women, particularly those that are post
+    menopause, are at the greatest risk.
 
-df %>% kable("html") %>% 
+-   A healthy diet, weight-bearing exercises, and medications can
+    strengthen weak bones or prevent their loss. (Mayo Clinic)
+
+Here, Our goal is description of the data:
+
+-   **How factors such as age and weight are related to the fracture
+    rates among older women?**
+
+### Data Description
+
+This sample comes from the Global Longitudinal Study of Osteoporosis in
+Women (GLOW).
+
+The data set includes information on 500 subjects enrolled in this
+study.
+
+Install and load the aplore3 library to use the glow500 dataset and
+understand the structure dataset.
+
+We summarize some of the variables that we will use:
+
+-   PRIORFRAC: History of prior fracture
+-   AGE: Age at enrollment
+-   WEIGHT: Weight at enrollment (Kilograms)
+-   HEIGHT: Height at enrollment (Centimeters)
+-   BMI: Body mass index ($kg/m^2$)
+-   PREMENO: Menopause before age 45
+-   FRACTURE: Any fracture in first year of follow up
+-   RATERISK: Self-reported risk of fracture
+-   SMOKE: Former or current smoker
+
+```{r}
+#| echo: true
+df <- glow500 %>%
+  dplyr::select(fracture, age, priorfrac, premeno, raterisk, smoke, bmi)
+
+
+df %>% count(fracture) %>%
+  mutate(prop = round(prop.table(n),2)) %>%
+  kable(format = "html",col.names = c('Fracture', 'N', "Proportion")) %>% 
   kable_styling(bootstrap_options = c("striped", "hover"))
 ```
+
+```{r}
+df %>%
+  ggplot(aes(x= fracture, y = ..prop.., group = 1)) + 
+  geom_bar(fill = 'DarkBlue', color = 'black') +
+  geom_text(stat='count', aes(label=..count..), vjust=-1) + 
+  xlab("Fracture") +
+  ylab("Proportion") +
+  ylim(0,1)
+```
+
+**Age has a higher age in women with fractures than women without
+fractures. BMI distributions have almost the same mean and same variance
+in both groups with and without fracture, so probably BMI is not a
+useful variable to classify these two groups**
+
+```{r}
+p1 <- df %>% 
+  ggplot(aes(x = age)) +
+  geom_density(aes(y = ..density..,color = fracture, fill = fracture),alpha=0.2) +
+  ggtitle("Distribution of Subjects' Age") + 
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  xlab("Yaer") +
+  ylab("Density")
+
+
+p2 <-df %>% 
+  ggplot(aes(x = bmi)) +
+  geom_density(aes(y = ..density.., color = fracture, fill = fracture),alpha=0.2) +
+  ggtitle("Distribution of Subjects'BMI") + 
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  xlab("Body mass index") +
+  ylab("Density")
+
+p1/p2
+```
+
+```{r}
+p3 <- df %>%
+ ggplot(aes(fracture, bmi)) +
+  geom_boxplot(aes(fill = fracture)) + 
+  coord_flip() +
+  ggtitle("Subjects' BMI by Fracture in the First Year") + 
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  ylab("Body mass index") +
+  xlab("Fracture") 
+
+p4 <- df %>%
+ ggplot(aes(fracture, age)) +
+  geom_boxplot(aes(fill = fracture)) + 
+  coord_flip() +
+  ggtitle(" Age by Fracture in the First Year") + 
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  ylab("Year") +
+  xlab("Fracture") 
+
+p3/p4
+```
+
+```{r, fig.height=8,fig.width=8}
+p5 <- df %>%
+  ggplot(aes(x=priorfrac, 
+             y = ..prop.., 
+             group = fracture,
+             fill = fracture)) + 
+  geom_bar( position = 'dodge') +
+  geom_text(stat='count', 
+            aes(label=..count..), 
+            vjust=-1, 
+            position = position_dodge(width = 1)) +
+  xlab("prior fracture") +
+  ylab("Proportion") +
+  ylim(0,1) +
+  labs(fill = "fracture")
+
+
+p6 <- df %>%
+  ggplot(aes(x=raterisk, 
+             y = ..prop.., 
+             group = fracture,
+             fill = fracture)) + 
+  geom_bar( position = 'dodge') +
+  geom_text(stat='count', 
+            aes(label=..count..), 
+            vjust=-1, 
+            position = position_dodge(width = 1)) +
+  xlab("Self-reported risk of fracture") +
+  ylab("Proportion") +
+  ylim(0,1) +
+  labs(fill = "fracture")
+
+
+p7 <- df %>%
+  ggplot(aes(x= premeno, 
+             y = ..prop.., 
+             group = fracture,
+             fill = fracture)) + 
+  geom_bar( position = 'dodge') +
+  geom_text(stat='count', 
+            aes(label=..count..), 
+            vjust=-1, 
+            position = position_dodge(width = 1)) +
+  xlab("Menopause before age 45") +
+  ylab("Proportion") +
+  ylim(0,1) +
+  labs(fill = "fracture")
+
+p8 <- df %>%
+  ggplot(aes(x= smoke, 
+             y = ..prop.., 
+             group = fracture,
+             fill = fracture)) + 
+  geom_bar( position = 'dodge') +
+  geom_text(stat='count', 
+            aes(label=..count..), 
+            vjust=-1, 
+            position = position_dodge(width = 1)) +
+  xlab("Former or current smoker") +
+  ylab("Proportion") +
+  ylim(0,1) +
+  labs(fill = "fracture")
+
+(p5|p6)/(p7|p8)
+```
+
+
+**From these box plots, we can see the women who suffered from a fracture are older, but both groups have the same distribution of BMI.**
+
+**From the plots above, we see that the women with a history of prior fracture, and a high self-reported risk of fracture, have a higher probability of having a fracture in the first year of study. But, smokers and no smokers and women with or without menopause before 45 have the same probability of having a fracture. so smokers and menopause do not help classify these two groups, and we're not going to use them for modeling**
+
+
+```{r}
+dependent <- "fracture"
+explanatory <- c("bmi","age", "priorfrac", "premeno", "raterisk", "smoke")
+
+df %>% 
+  summary_factorlist(dependent, explanatory, add_dependent_label = TRUE) %>%
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+## Model development
+
+### simple model 
+
+```{r}
+mod.logit.1 <- glm(fracture ~  bmi + age, family = binomial(link = logit), data = df)
+
+## Get the equation in Latex
+# latex_equation <- extract_eq(mod.logit.1 )
+# print(latex_equation)
+
+summary(mod.logit.1)
+```
+
+$$
+\log\left[ \frac { P( \operatorname{fracture} = \operatorname{Yes} ) }{ 1 - P( \operatorname{fracture} = \operatorname{Yes} ) } \right] = \alpha + \beta_{1}\cdot\operatorname{bmi} + \beta_{2}\cdot \operatorname{age}
+$$
+
+- Recall:
+
+$$
+OR = \frac{Odds_{x_k+c}}{Odds_{x_k}}=exp(c \beta_k)
+$$
+
+- Find and interpret the estimated odds ratios for a 10-unit increase in age. 
+
+
+```{r}
+round(cbind(exp(10*coef(mod.logit.1)[3])),2)
+```
+
+**The estimated odds of having a fracture change by 1.77 times for every 10-year increase in age, or it's 77% higher**
+
+### model with categorical feature
+
+```{r}
+levels(df$priorfrac)
+levels(df$raterisk)
+
+#set reference levels in factors to make interpretation easier
+df$priorfrac<-relevel(df$priorfrac, ref="No")
+df$raterisk<-relevel(df$raterisk, ref="Less")
+
+mod.logit.2 <- glm(fracture ~  bmi + age + priorfrac + raterisk, family = binomial(link = logit), data = df)
+
+## Get the equation in Latex
+# latex_equation <- extract_eq(mod.logit.2 )
+# print(latex_equation)
+
+```
+
+$$
+\log\left[ \frac { P( \operatorname{fracture} = \operatorname{Yes} ) }{ 1 - P( \operatorname{fracture} = \operatorname{Yes} ) } \right] = \alpha + \beta_{1}\cdot \operatorname{bmi} + \beta_{2}\cdot \operatorname{age} + \beta_{3}\cdot \operatorname{priorfrac}_{\operatorname{Yes}} + \beta_{4}\cdot \operatorname{raterisk}_{\operatorname{Same}} + \beta_{5}\cdot \operatorname{raterisk}_{\operatorname{Greater}}
+$$
