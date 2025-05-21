@@ -1,5 +1,5 @@
 ---
-title: "Multinomial Probability"
+title: "Multinomial"
 format:
   html:
     toc: true

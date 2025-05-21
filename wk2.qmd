@@ -1,5 +1,5 @@
 ---
-title: "Logistic regression"
+title: "logit"
 format:
   html:
     toc: true
@@ -30,20 +30,39 @@ library(here)
 source(here("source","get_lib.R"))
 ```
 
-Reading CH 2.1, 2.2.1-2.2.4 (page 61- 94)
-
-# Logistic regression
-
+Reading 
+Christopher R. Bilder and Thomas M. Loughin. Analysis of Categorical Data with R. CRC Press. 2015.
+  - CH 2.1, 2.2.1-2.2.4 (page 61- 94)
+  - Ch. 2.2.5 – 2.2.8, 2.3 (page 94)
+  
+  
 -   In CH1, we first focused on estimating $\pi$
 -   Then, $\pi_1$ and $\pi_2$ and independent groups
     -   Briefly talked about `matched pair` case where $\pi_1$ and
         $\pi_2$ are dependent.
 -   Now we start talking about many different possible probabilities of
     success to estimate and perform inference upon.
+    
+- Use `odd` to estimate parameters and use `odd ratio` to evaluate the estimated parameters. 
 
-## Functional form
+# Generalized linear models (GLM)
 
-$$\pi_i = \frac{\text{exp}(\beta_0 + \beta_1x_{i,1}+...++ \beta_px_{i,p})}{1+\text{exp}(\beta_0 + \beta_1x_{i,1}+...++ \beta_px_{i,p})}$$
+- GLMs have three different parts (see page 121:
+  
+  1. Random Component:
+      - $Y$, for logistic regression, $Y$ has a Bernoulli distribution
+  
+  2. Systematic Component:
+      - This specifies a linear combination of the regression parameters with `features`, and this part is referred to as the `linear predictor`
+      - $\beta_0 + \beta_1x_1 + .... + \beta_px_p$
+      
+  3. LINK FUNCTION:
+      - Specifies how the expected value of the `random component` $E[Y]$ is linked to the `sysmatic` component.
+      - $\text{logit}(\pi) = \beta_0 + \beta_1x_1 + .... + \beta_px_p$
+      - where $E[Y] = \pi$
+
+
+## Link function 
 
 $$\text{logit}(\pi_i)=\text{log}(\frac{\pi_i}{1-\pi_i}) = \beta_0 + \beta_1x_{i,1}+...++ \beta_px_{i,p}$$
 
@@ -57,7 +76,7 @@ $$\text{logit}(\pi_i)=\text{log}(\frac{\pi_i}{1-\pi_i}) = \beta_0 + \beta_1x_{i,
     Appendix B.3.2, to successively find estimates of the regression
     parameters that increase the log-likelihood function
 
-## parameter estimation in R
+# Parameter estimation in R
 
 ```{r}
 #| echo: true
@@ -76,6 +95,13 @@ mod.fit
 # print(latex_equation)
 ```
 
+```{text}
+latex_equation <- extract_eq(mod.fit)
+print(latex_equation)
+```
+
+## Mod.fit()
+
 $$
 \log\left[ \frac { P( \operatorname{good} = \operatorname{1} ) }{ 1 - P( \operatorname{good} = \operatorname{1} ) } \right] = 5.812 +- 0.115\cdot(\operatorname{distance})
 $$
@@ -90,12 +116,13 @@ confint(mod.fit)
 -   also this way
 
 ```{r}
+#| echo: true
 summary(mod.fit)
 ```
 
 page74
 
-## Hypothesis tests for regression parameters
+### Hypothesis tests for regression parameters
 
 -   (see page 56)
 -   Wald test, which involves calculating $\Z_0$ and using standard
@@ -105,6 +132,8 @@ page74
 $$H_0: \text{logit}(\pi) =
 \log\left[ \frac { P( \operatorname{good} = \operatorname{1} ) }{ 1 - P( \operatorname{good} = \operatorname{1} ) } \right] = \alpha + \beta_{1}\cdot\operatorname{distance}
 $$
+
+
 
 $$H_A: \text{logit}(\pi) =
 \log\left[ \frac { P( \operatorname{good} = \operatorname{1} ) }{ 1 - P( \operatorname{good} = \operatorname{1} ) } \right] = \alpha + \beta_{1}\cdot\operatorname{distance} + \beta_2\cdot\text{another_feature}
@@ -180,58 +209,12 @@ anova(mod.fit, mod.fit2, test = "LR")
 
 ```
 
-# ODDS
+# Probability 
 
--   see page 83, the odd of success at a particular value of `x`
-
--   The following model can be used to estimate the odd at specific
-    value of `x`
-
-$$\text{Odds}_x = \text{exp}(\beta_0 + \beta_1x)$$
-
--   The following model can be used to estimate the odd at specific
-    value of `x + c`
-
-$$\text{Odds}_{x+c} = \text{exp}(\beta_0 + \beta_1(x+c)$$ \## ODD Ratio
-
-$$\text{OR} = \frac{\text{Odds}_{x+c}}{\text{Odds}_{x}}= \text{exp}(c\beta_1)$$ -
-Increase in odd is `OR` \> 1, - decrease in odd if `OR` \< 1,
-
-$$\hat{\text{OR}} = \text{exp}(c\hat{\beta}_1)$$ - So, it will have
-estimated variance. - As you have guessed by now, Wald CI does not work
-well when sample size small.
-
--   use `transformed LRT` statistic.
+$$\pi_i = \frac{\text{exp}(\beta_0 + \beta_1x_{i,1}+...++ \beta_px_{i,p})}{1+\text{exp}(\beta_0 + \beta_1x_{i,1}+...++ \beta_px_{i,p})}$$
 
 ```{r}
 #| echo: true
-#finds LR confidence interval
-mod.fit
-beta.ci <- confint(mod.fit, parm = "distance", level = 0.95)
-beta.ci
-```
-
-### understanding the changes in odd
-
--   `10-yard` decrease in `distance` increases the odds of a successful
-    placekick.
-
-```{r}
-rev(exp(-10*beta.ci))
-```
-
-```{r}
-beta.ci <- confint.default(object = mod.fit , parm = "distance",
-level = 0.95)
-
-rev(1/exp(beta.ci*10))
-```
-
--   Has similar interval due to large sample size
-
-# Probability
-
-```{r}
 linear.pred <- mod.fit$coefficients[1] +
 mod.fit$coefficients[2] * 20
 
@@ -251,10 +234,12 @@ predict(mod.fit, newdata = new_data, type = "response")
 -   We can get the $\hat{\pi}$
 
 ```{r}
+#| echo: true
 predict(mod.fit, newdata = new_data, type = "response", se = TRUE)
 ```
 
 ```{r}
+#| echo: true
 #create a function to get the confidence interval of pi
 ci.pi <- function(newdata , mod.fit.obj , alpha){
   linear.pred <- predict(object = mod.fit.obj , 
@@ -273,34 +258,95 @@ ci.pi <- function(newdata , mod.fit.obj , alpha){
 ```
 
 ```{r}
+#| echo: true
 ci.pi(newdata = data.frame(distance = 20), mod.fit.obj = mod.fit , alpha = 0.05)
 ```
 
+
 ```{r}
-curve(expr = predict(object = mod.fit , newdata =
-data.frame(distance = x), type = "response"), col = "red", add = TRUE , xlim = c(18, 66))
+#| echo: true
+x <- 5:70
 
-curve(expr = ci.pi(newdata = data.frame(distance = x),
-mod.fit.obj = mod.fit , alpha = 0.05) $lower , col = "blue", lty = "dotdash", add = TRUE , xlim = c(18, 66))
+predicted <- predict(object = mod.fit , newdata =
+data.frame(distance = x), type = "response")
 
-curve(expr = ci.pi(newdata = data.frame(distance = x),
-mod.fit.obj = mod.fit , alpha = 0.05) $upper , col = "blue", lty = "dotdash", add = TRUE , xlim = c(18, 66))
+lower <- ci.pi(newdata = data.frame(distance = x),
+mod.fit.obj = mod.fit , alpha = 0.05)$lower
 
-legend(locator (1), legend = c("Logistic regression model", "95%
-individual C.I."), lty = c("solid", "dotdash"), col = c("red", "blue"), bty = "n")
+upper <- ci.pi(newdata = data.frame(distance = x),
+mod.fit.obj = mod.fit , alpha = 0.05)$upper
+
+df <- as.data.frame(cbind(x,lower,upper,predicted)) %>% pivot_longer(-x)
+
+p <- df %>% ggplot(aes(x=x,y = value, color = name)) + geom_line()
+
+ggplotly(p)
 ```
 
-## Interaction
+# ODDS
 
--   
+-   see page 83, the odd of success at a particular value of `x`
 
-# Log odds to probability
+-   The following model can be used to estimate the odd at specific
+    value of `x`
 
+$$\text{Odds}_x = \text{exp}(\beta_0 + \beta_1x)$$
+
+-   The following model can be used to estimate the odd at specific
+    value of `x + c`
+
+$$\text{Odds}_{x+c} = \text{exp}(\beta_0 + \beta_1(x+c)$$ \
+
+## ODD Ratio
+
+$$\text{OR} = \frac{\text{Odds}_{x+c}}{\text{Odds}_{x}}= \text{exp}(c\beta_1)$$ -
+
+
+- Increase in odd is `OR` \> 1, 
+- decrease in odd if `OR` \< 1,
+
+$$\hat{\text{OR}} = \text{exp}(c\hat{\beta}_1)$$ - So, it will have
+estimated variance. - As you have guessed by now, Wald CI does not work
+well when sample size small.
+
+-   use `transformed LRT` statistic.
+
+```{r}
+#| echo: true
+#finds LR confidence interval
+mod.fit
+beta.ci <- confint(mod.fit, parm = "distance", level = 0.95)
+beta.ci
+```
+
+### Understanding the changes in odd
+
+-   `10-yard` decrease in `distance` increases the odds of a successful
+    placekick.
+
+```{r}
+rev(exp(-10*beta.ci))
+```
+
+```{r}
+beta.ci <- confint.default(object = mod.fit , parm = "distance",
+level = 0.95)
+
+rev(1/exp(beta.ci*10))
+```
+
+-   Has similar interval due to large sample size
+
+
+### Example of magin coin
+
+-   You can convert log odd to probability 
 -   Your aunt offers a service in which she weights coins to make them
     unfair.
 
 -   You give her a coin and tell her how much you want the `log-odds` to
-    change. She returns the modified coin.
+    change. 
+      - She returns the modified coin.
 
 -   For each of the following orders, use your function to compute the
     resulting probability of heads:
@@ -363,7 +409,7 @@ labs(title = "probability versus odds")
 
 # Case Study: South African Heart Disease
 
-## Introduction
+## Background
 
 -   Target: `Probability of getting coronary heart disease`, `chd`
 -   Feature:
@@ -376,36 +422,33 @@ labs(title = "probability versus odds")
     screening in three rural communities, South African Medical Journal
     64: 430–436.
 
-## Data Description
+- `Data Description`
+  -   sbp: systolic blood pressure
+  -   tobacco: cumulative tobacco use (kg)
+  -   ldl: low density lipoprotein cholesterol ('bad' cholestrol)
+  -   adiposity: Body adiposity index determines body fat
+      percentage(calculated as (HC / (HM)1.5) - 18, where HC = Hip
+      Circumference in Centimetres and HM = Height in meters)
+  -   famhist: family history of heart disease
+  -   typea: A personality type that could raise one's chances of
+      developing coronary heart disease
+  -   obesity: Body Mass Index (BMI) ($kg/m^2$)
+  -   alcohol: current alcohol consumption
+  -   age: age at onset
+  -   `chd`: coronary heart disease  (`target`)
 
--   sbp: systolic blood pressure
--   tobacco: cumulative tobacco use (kg)
--   ldl: low density lipoprotein cholesterol ('bad' cholestrol)
--   adiposity: Body adiposity index determines body fat
-    percentage(calculated as (HC / (HM)1.5) - 18, where HC = Hip
-    Circumference in Centimetres and HM = Height in meters)
--   famhist: family history of heart disease
--   typea: A personality type that could raise one's chances of
-    developing coronary heart disease
--   obesity: Body Mass Index (BMI) ($kg/m^2$)
--   alcohol: current alcohol consumption
--   age: age at onset
--   `chd`: coronary heart disease
 
-\newpage
+## Task
 
-# Exploratory Analysis
-
-For this case study, we focus on blood pressure, smoking, cholesterol,
-and age.
+- Using `blood pressure`, `smoking`, `cholesterol`,and `age`.
 
 -   Load the data and answer the following questions:
 
-    -   What are the number of variables and number of observations?
-    -   What is the type of each variable? Do we need to change it?
-    -   Are there any missing values (in each of the variables)?
-    -   Are there any abnormal values in each of the variables in the
-        raw data?
+    -   `What are the number of variables and number of observations?`
+    -   `What is the type of each variable? Do we need to change it?`
+    -   `Are there any missing values (in each of the variables)?`
+    -   `Are there any abnormal values in each of the variables in the
+        raw data?`
 
 ```{r}
 df <- SAheart %>%
@@ -417,13 +460,15 @@ head(df)%>%
 
 ```
 
-## Univariate Analysis
+## EDA
 
--   The response (or dependent) variable of interest, Heart disease, is
-    a binary variable taking the type factor.
+- Univariate analysis 
 
--   Use a bar chart to explore the distribution of the response variable
-    (chd). What do you learn?
+  -   The response (or dependent) variable of interest, Heart disease, is
+      a binary variable taking the type factor.
+  
+  -   Use a bar chart to explore the distribution of the response variable
+      (`chd`). What do you learn?
 
 ```{r echo=FALSE, warning=FALSE}
 
@@ -493,20 +538,20 @@ grid.arrange(p1, p2,p3,p4, nrow = 2, ncol = 2)
 
 ```
 
-## Bivariate Analysis
+- `Bivariate Analysis`
 
--   Prior to moving on to the fully specified model, it is advisable to
-    first examine the simple associations between the response and each
-    explanatory variable.
-
--   `Box plots` are useful for exploring the association between a
-    categorical variable and a variable measured on an interval scale.
-
--   Use a `boxplot` to examine how the explanatory variables are
-    correlated with the response variable (chd)?
-
-    -   The `coord_flip()` function is used to keep the dependent
-        variable on the y-axis.
+  -   Prior to moving on to the fully specified model, it is advisable to
+      first examine the simple associations between the response and each
+      explanatory variable.
+  
+  -   `Box plots` are useful for exploring the association between a
+      categorical variable and a variable measured on an interval scale.
+  
+  -   Use a `boxplot` to examine how the explanatory variables are
+      correlated with the response variable (chd)?
+  
+      -   The `coord_flip()` function is used to keep the dependent
+          variable on the y-axis.
 
 ```{r echo=FALSE, fig.height=11}
 p5 <- df %>%
@@ -552,8 +597,6 @@ p8 <- df %>%
 p5/p6/p7/p8
 ```
 
-\newpage
-
 -   Use the convenient summary_factorlist() function from the finalfit
     package to tabulate data.
 
@@ -572,11 +615,10 @@ df %>%
     important for explaining heart disease? How is that variable
     correlated with heart disease?
 
-\newpage
 
-# Model Development
 
-## Linear probability model
+## MRL
+
 
 -   Is the linear probability model an appropriate choice to study the
     relationship between heart disease and risk factors?
@@ -584,12 +626,22 @@ df %>%
 -   Estimate the following linear probability model and interpret the
     model results.
 
-$$ chd = \beta_0 + \beta_1 ldl + \beta_2 sbp + + \beta_3 tobacco + \beta_4 age + u$$
+$$\text{chd} = \beta_0 + \beta_1 \cdot \text{ldl} + \beta_2 \cdot \text{sbp} + + \beta_3 \cdot \text{tobacco} + \beta_4 \cdot \text{age} + \epsilon$$
 
 ```{r error = TRUE}
 #mod.linear <-  # uncomment and replace with your code
 mod.linear <- lm(chd ~ ldl + sbp + tobacco + age, data = df)
 
+
+# latex_equation <- extract_eq(mod.linear )
+# print(latex_equation)
+```
+
+$$
+\operatorname{\hat{chd}} = -0.35 + 0.036\cdot\operatorname{ldl} + 0.00097\cdot\operatorname{sbp} + 0.0165 \cdot\operatorname{tobacco} + 0.007 \cdot \operatorname{age} + \hat{\epsilon}
+$$
+
+```{r}
 summary(mod.linear)
 ```
 
@@ -608,21 +660,28 @@ fitted_values %>%
 
 \newpage
 
-## Generalized linear model
+## GLM
 
--   Estimate the following logistic regression model and interpret the
-    model results.
+- Generalized linear model
+- Estimate the following logistic regression model and interpret the model results.
 
-$$ logit(\pi_i) =\beta_0 + \beta_1 ldl + \beta_2 sbp + + \beta_3 tobacco + \beta_4 age +  u$$
+$$ \text{logit}(\pi_i) =\beta_0 + \beta_1 \cdot \text{ldl} + \beta_2 \cdot \text{sbp} + + \beta_3 \cdot \text{tobacco} + \beta_4 \cdot \text{age} +  \epsilon$$
 
 ```{r ,error = TRUE}
 #mod.logit.h0 <-   # uncomment and replace with your code
 mod.logit.h0 <- glm(chd ~ ldl + sbp + tobacco + age, family = binomial(link = logit), data = df)
 
-summary(mod.logit.h0)
+# latex_equation <- extract_eq(mod.logit.h0 )
+# print(latex_equation)
 ```
 
-### Interpretation of model results
+$$
+\log\left[ \frac { P( \operatorname{chd} = \operatorname{1} ) }{ 1 - P( \operatorname{chd} = \operatorname{1} ) } \right] = -4.54 + 0.018\cdot \operatorname{ldl} + 0.004\cdot \operatorname{sbp} + 0.075\cdot \operatorname{tobacco} + 0.04\cdot \operatorname{age}
+$$
+
+
+
+### Odd ratio 
 
 -   Do the `raw` coefficient estimates `directionally make sense`?
 
@@ -642,7 +701,9 @@ summary(mod.logit.h0)
 
 $$
 \text{OR} = \frac{\text{Odds}_{x_k+c}}{\text{Odds}_{x_k}}=exp(c \beta_k)
-$$ - The odd of a success change by exp(c$\beta_k$) `times` for every
+$$ 
+
+- The odd of a success change by exp(c$\beta_k$) `times` for every
 c-unit increase in x
 
 -   Compute and interpret the estimated odds ratio for a 10-unit
@@ -662,9 +723,7 @@ round(exp(10*coef(mod.logit.h0)),2)
 > blood pressure doesn't change the odds of having heart disease, and
 > it's consistent with its insignificant coefficient.**
 
-# Statistical Inference
-
-## Hypothesis Test
+### Hypothesis Test
 
 -   Using the likelihood ratio test (LRT) for hypothesis testing is a
     common practice in a logistic regression model.
@@ -690,8 +749,6 @@ anova(mod.logit.h0, mod.logit.ha, test = "Chisq")
 #Anova()
 Anova(mod.logit.ha, test = "LR")
 ```
-
-## Deviance
 
 -   `deviance` refers to the amount that a particular model deviates
     from another model as measured by $-2\text{log}(\Lambda)$.
@@ -756,9 +813,9 @@ pvalue <- 1-pchisq(test_stat, df = degree_freedom)
 > that obesity is not correlated with heart disease given this data
 > set.**
 
-## Confidence Interval
+### Confidence Interval
 
-### Confidence Interval for odds ratio
+- Confidence Interval for `odds ratio`
 
 **Wald Confidence:**
 
@@ -808,7 +865,7 @@ round(cbind(odds_ci ),2)
 > likelihood ratio (LR) confidence interval is pretty close to the Wald
 > CI.**
 
-### Confidence Interval for the Probability of Success
+- `Confidence Interval for the Probability of Success`
 
 -   Recall that the estimated probability of success is $$
     \hat{\pi} = \frac{exp \left( \hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_k \right)}{1+exp \left(\hat{\beta}_0 + \hat{\beta}_1 x_1 + \dots + \hat{\beta}_K x_k \right)}
@@ -867,7 +924,7 @@ CI.pi = exp(CI.lin.pred)/(1+exp(CI.lin.pred))
 round(data.frame(pi.hat, lower=CI.pi[1], upper=CI.pi[2]),4)
 ```
 
-### Final Visualization
+## Final Visualization
 
 -   Using both the linear probability and logistic regression models,
     plot the estimated probability of heart disease for different values
@@ -903,9 +960,7 @@ lines(df$ldl, lm.z + lm.coef[2]*x,col="green")
 
 ```
 
-\newpage
-
-### Final Report
+## Final Report
 
 -   Display both estimated linear and logistic models in a regression
     table. Is there any significant difference between their results?
@@ -924,7 +979,9 @@ stargazer(mod.linear, mod.logit.h0, type = "text", omit.stat = "f",
 > probability of having heart disease. Also, LDL is the most correlated
 > variable with the probability of heart disease in both models.**
 
-# Example
+# Case Study: osteoporosis
+
+## Background
 
 -   In `osteoporosis`, bones become weak and brittle, so weak that even
     bending over or coughing can fracture them. Hip, wrist, and spine
@@ -943,7 +1000,6 @@ Here, Our goal is description of the data:
 -   **How factors such as age and weight are related to the fracture
     rates among older women?**
 
-### Data Description
 
 This sample comes from the Global Longitudinal Study of Osteoporosis in
 Women (GLOW).
@@ -962,9 +1018,15 @@ We summarize some of the variables that we will use:
 -   HEIGHT: Height at enrollment (Centimeters)
 -   BMI: Body mass index ($kg/m^2$)
 -   PREMENO: Menopause before age 45
--   FRACTURE: Any fracture in first year of follow up
+-   `FRACTURE`: Any fracture in first year of follow up (`target`)
 -   RATERISK: Self-reported risk of fracture
 -   SMOKE: Former or current smoker
+
+## Task
+
+- Predict the probability of have a `fracture`
+
+## EDA
 
 ```{r}
 #| echo: true
@@ -1118,7 +1180,7 @@ df %>%
   kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
-## Model development
+## GLM
 
 ### simple model 
 

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>One and Two binary groups – Notes on Discrete Response</title>
+<title>Binary groups – Discrete Response</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -162,7 +162,7 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Notes on Discrete Response</span>
+    <span class="navbar-title">Discrete Response</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -173,11 +173,11 @@ window.Quarto = {
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
     <a class="nav-link active" href="./wk1.html" aria-current="page"> 
-<span class="menu-text">One and Two binary groups</span></a>
+<span class="menu-text">Binary groups</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./wk2.html"> 
-<span class="menu-text">Logistic regression</span></a>
+<span class="menu-text">logit</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./wk3.html"> 
@@ -216,7 +216,9 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#distributions" id="toc-distributions" class="nav-link active" data-scroll-target="#distributions">Distributions</a>
+  <li><a href="#brief-review-on-terms" id="toc-brief-review-on-terms" class="nav-link active" data-scroll-target="#brief-review-on-terms">Brief review on terms</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#distributions" id="toc-distributions" class="nav-link" data-scroll-target="#distributions">Distributions</a>
   <ul class="collapse">
   <li><a href="#bernoulli-distribution" id="toc-bernoulli-distribution" class="nav-link" data-scroll-target="#bernoulli-distribution">Bernoulli distribution</a>
   <ul class="collapse">
@@ -233,8 +235,7 @@ window.Quarto = {
   </ul></li>
   <li><a href="#one-binary-group" id="toc-one-binary-group" class="nav-link" data-scroll-target="#one-binary-group">One binary group</a>
   <ul class="collapse">
-  <li><a href="#interval-vs-hypothesis-test" id="toc-interval-vs-hypothesis-test" class="nav-link" data-scroll-target="#interval-vs-hypothesis-test">Interval vs Hypothesis test</a></li>
-  <li><a href="#interval-test" id="toc-interval-test" class="nav-link" data-scroll-target="#interval-test">Interval test</a></li>
+  <li><a href="#interval" id="toc-interval" class="nav-link" data-scroll-target="#interval">Interval</a></li>
   <li><a href="#hypothesis-test" id="toc-hypothesis-test" class="nav-link" data-scroll-target="#hypothesis-test">Hypothesis test</a>
   <ul class="collapse">
   <li><a href="#hypothesis-testing-using-wilson-interval-score-test-statistic" id="toc-hypothesis-testing-using-wilson-interval-score-test-statistic" class="nav-link" data-scroll-target="#hypothesis-testing-using-wilson-interval-score-test-statistic">Hypothesis testing using Wilson interval, score test statistic</a></li>
@@ -244,7 +245,7 @@ window.Quarto = {
   </ul></li>
   <li><a href="#two-binary-groups" id="toc-two-binary-groups" class="nav-link" data-scroll-target="#two-binary-groups">Two binary groups</a>
   <ul class="collapse">
-  <li><a href="#interval-test-1" id="toc-interval-test-1" class="nav-link" data-scroll-target="#interval-test-1">Interval test</a>
+  <li><a href="#interval-test" id="toc-interval-test" class="nav-link" data-scroll-target="#interval-test">Interval test</a>
   <ul class="collapse">
   <li><a href="#larry-birds-free-throw-shooting" id="toc-larry-birds-free-throw-shooting" class="nav-link" data-scroll-target="#larry-birds-free-throw-shooting">Larry Bird’s free throw shooting</a></li>
   </ul></li>
@@ -272,7 +273,7 @@ window.Quarto = {
   <li><a href="#prostate-cancer-diagnosis-procedures" id="toc-prostate-cancer-diagnosis-procedures" class="nav-link" data-scroll-target="#prostate-cancer-diagnosis-procedures">Prostate cancer diagnosis procedures</a>
   <ul class="collapse">
   <li><a href="#hypothesis-testing" id="toc-hypothesis-testing" class="nav-link" data-scroll-target="#hypothesis-testing">Hypothesis testing</a></li>
-  <li><a href="#interval" id="toc-interval" class="nav-link" data-scroll-target="#interval">Interval</a></li>
+  <li><a href="#interval-1" id="toc-interval-1" class="nav-link" data-scroll-target="#interval-1">Interval</a></li>
   </ul></li>
   </ul></li>
   <li><a href="#larger-contingency-tables" id="toc-larger-contingency-tables" class="nav-link" data-scroll-target="#larger-contingency-tables">Larger contingency tables</a></li>
@@ -284,7 +285,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">One and Two binary groups</h1>
+<h1 class="title">Binary groups</h1>
 </div>
 
 
@@ -307,6 +308,38 @@ window.Quarto = {
   background-color: #f4f442;
 }
 </style>
+<section id="brief-review-on-terms" class="level1">
+<h1>Brief review on terms</h1>
+<ul>
+<li><code>Distribution</code> is a <code>function</code> and has <code>parameters</code>.
+<ul>
+<li>We can estimate parameters of the distribution based on <code>sample</code></li>
+</ul></li>
+<li>In <code>MLR</code> (multiple linear regression), we estimate the parameter of the function using <code>OLS</code> and predict <code>target</code>.
+<ul>
+<li>The target of model whose parameters were estimated using OLS follows <code>normal distribution</code></li>
+<li>Statistical significance of the parameters were evaluated using <code>t-statistic</code> and <code>p-value</code> associated with it.</li>
+<li>We also talked about the physical meaning of the estimated coefficient of the parameters.</li>
+<li>In OLS, we had several assumptions.</li>
+</ul></li>
+<li><code>Contingency table</code>, <code>joint, marginal</code>, <code>conditional probabilities</code> and talked about independent events.</li>
+</ul>
+</section>
+<section id="overview" class="level1">
+<h1>Overview</h1>
+<ul>
+<li>CH1 first talks about <code>Bernoulli</code> and <code>Binomial distribution</code> and how we can estimate thir <code>parameters</code> using <code>MLE</code>.</li>
+<li>Likelihood Function (aka likelihood), likelihood ratio test (LRT), and transformed LRT are statistics that we will be using a lot
+<ul>
+<li>This statistic follows <span class="math inline">\chi^2</span> distribution</li>
+</ul></li>
+<li>You may also want to remember another statistic called <code>score test</code> (see page 17), <code>odd</code> and <code>odd ratio</code>
+<ul>
+<li>Will be using <code>odd</code> to develop model</li>
+<li>and <code>odd ratio</code> to evaluate the meaning of the parameters in the model</li>
+</ul></li>
+</ul>
+</section>
 <section id="distributions" class="level1">
 <h1>Distributions</h1>
 <ul>
@@ -379,8 +412,7 @@ L(\pi|y_1,y_2,....y_n) &amp;= P(Y_1 = y_1)\cdot ... P(Y_n=y_n)\\
 </ul>
 <p><span class="math display">
 \begin{aligned}
-  Log[L(\pi|x_1,x_2,x_3)] &amp;= \\
-       &amp; \left( {\sum_{i=1}^{3} x_i} \right)log(\pi) + \left({\sum_{i=1}^{3}(1- x_i)} \right) log(1-\pi)\\
+  \text{Log}[L(\pi|x_1,x_2,x_3)] &amp;= \left( {\sum_{i=1}^{3} x_i} \right)\text{log}(\pi) + \left({\sum_{i=1}^{3}(1- x_i)} \right) \text{log}(1-\pi)\\
 \end{aligned}
 </span></p>
 <ul>
@@ -411,8 +443,8 @@ L(\pi|y_1,y_2,....y_n) &amp;= P(Y_1 = y_1)\cdot ... P(Y_n=y_n)\\
 </section>
 <section id="one-binary-group" class="level1">
 <h1>One binary group</h1>
-<section id="interval-vs-hypothesis-test" class="level2">
-<h2 class="anchored" data-anchor-id="interval-vs-hypothesis-test">Interval vs Hypothesis test</h2>
+<section id="interval" class="level2">
+<h2 class="anchored" data-anchor-id="interval">Interval</h2>
 <ul>
 <li><p>Given observation, knowing distribution, we are estimating the parameter of the function.</p></li>
 <li><p>Since this is an estimator, it will change each time we collect sample.</p></li>
@@ -420,22 +452,12 @@ L(\pi|y_1,y_2,....y_n) &amp;= P(Y_1 = y_1)\cdot ... P(Y_n=y_n)\\
 <ul>
 <li>It rely on the underlying normal distribution approximation for the maximum likelihood estimator. (see page 11)</li>
 </ul></li>
-<li><p>When only one simple parameter is of interest, such as <span class="math inline">\pi</span> here, we generally prefer confidence intervals over hypothesis tests, because the interval gives a range of possible parameter values.</p></li>
-<li><p>We can typically infer that a hypothesized value for a parameter can be rejected if it does not lie within the confidence interval for the parameter.</p></li>
-<li><p>However, there are situations where a <code>fixed known value</code> of <span class="math inline">\pi</span>, say <span class="math inline">\pi_0</span> , is of special interest, leading to a formal hypothesis test of</p></li>
-</ul>
-<p><span class="math display">H_0 : \pi = \pi_0</span> <span class="math display">H_a : \pi  \not= \pi_0</span></p>
-</section>
-<section id="interval-test" class="level2">
-<h2 class="anchored" data-anchor-id="interval-test">Interval test</h2>
-<ul>
-<li>See page 11 and 12</li>
 </ul>
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="wk1_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="wk1_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="768"></p>
 </figure>
 </div>
 </div>
@@ -444,9 +466,18 @@ L(\pi|y_1,y_2,....y_n) &amp;= P(Y_1 = y_1)\cdot ... P(Y_n=y_n)\\
 <section id="hypothesis-test" class="level2">
 <h2 class="anchored" data-anchor-id="hypothesis-test">Hypothesis test</h2>
 <ul>
+<li><p>When only one simple parameter is of interest, such as <span class="math inline">\pi</span> here, we generally prefer confidence intervals over hypothesis tests, because the interval gives a range of possible parameter values.</p></li>
+<li><p>We can typically infer that a hypothesized value for a parameter can be rejected if it does not lie within the confidence interval for the parameter.</p></li>
+<li><p>However, there are situations where a <code>fixed known value</code> of <span class="math inline">\pi</span>, say <span class="math inline">\pi_0</span> , is of special interest, leading to a formal hypothesis test of</p></li>
+</ul>
+<p><span class="math display">H_0 : \pi = \pi_0</span> <span class="math display">H_a : \pi  \not= \pi_0</span></p>
+<ul>
 <li>Situations where a <code>fixed known value</code> of <span class="math inline">\pi</span>, say <span class="math inline">\pi_0</span> , is of special interest, leading to a formal hypothesis test of</li>
 </ul>
 <p><span class="math display">H_0 : \pi = \pi_0</span> <span class="math display">H_a : \pi  \not= \pi_0</span></p>
+<ul>
+<li>See page 11 and 12</li>
+</ul>
 <section id="hypothesis-testing-using-wilson-interval-score-test-statistic" class="level3">
 <h3 class="anchored" data-anchor-id="hypothesis-testing-using-wilson-interval-score-test-statistic">Hypothesis testing using Wilson interval, score test statistic</h3>
 <div class="quarto-figure quarto-figure-center">
@@ -513,8 +544,8 @@ L(\pi|y_1,y_2,....y_n) &amp;= P(Y_1 = y_1)\cdot ... P(Y_n=y_n)\\
 <li><p>We have two random variables <span class="math inline">Y_1</span> and <span class="math inline">Y_2</span> and their outcome is independent of each other.</p></li>
 <li><p>We have <code>TWO BINARY VARIABLES</code></p></li>
 </ul>
-<section id="interval-test-1" class="level2">
-<h2 class="anchored" data-anchor-id="interval-test-1">Interval test</h2>
+<section id="interval-test" class="level2">
+<h2 class="anchored" data-anchor-id="interval-test">Interval test</h2>
 <ul>
 <li>Wald Confidence interval using normal approximation.</li>
 <li>Book recommend using the Agresti-Caffo method</li>
@@ -545,6 +576,14 @@ First    made missed
 <li><code>Wald Confidence interval</code></li>
 </ul>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="do">#########################</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#wald CI</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="do">#########################</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>var.wald <span class="ot">&lt;-</span> pi.hat1<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>pi.hat1) <span class="sc">/</span> <span class="fu">sum</span>(c.table[<span class="dv">1</span>,]) <span class="sc">+</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>pi.hat2<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>pi.hat2) <span class="sc">/</span> <span class="fu">sum</span>(c.table[<span class="dv">2</span>,])</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>pi.hat1 <span class="sc">-</span> pi.hat2 <span class="sc">+</span> <span class="fu">qnorm</span>(<span class="at">p =</span> <span class="fu">c</span>(alpha<span class="sc">/</span><span class="dv">2</span>, <span class="dv">1</span><span class="sc">-</span>alpha <span class="sc">/</span><span class="dv">2</span>)) <span class="sc">*</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sqrt</span>(var.wald)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] -0.11218742  0.06227017</code></pre>
 </div>
@@ -553,6 +592,15 @@ First    made missed
 <li><code>Agresti-Caffo confidence interval</code></li>
 </ul>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">#########################</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Agresti-Caffo</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="do">#########################</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>pi.tilde1 <span class="ot">&lt;-</span> (c.table[<span class="dv">1</span>,<span class="dv">1</span>] <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> (<span class="fu">sum</span>(c.table[<span class="dv">1</span>,]) <span class="sc">+</span> <span class="dv">2</span>) </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>pi.tilde2 <span class="ot">&lt;-</span> (c.table[<span class="dv">2</span>,<span class="dv">1</span>] <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> (<span class="fu">sum</span>(c.table[<span class="dv">2</span>,]) <span class="sc">+</span> <span class="dv">2</span>) </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>var.AC <span class="ot">&lt;-</span> pi.tilde1<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>pi.tilde1) <span class="sc">/</span> (<span class="fu">sum</span>(c.table[<span class="dv">1</span>,]) <span class="sc">+</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>pi.tilde2<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>pi.tilde2) <span class="sc">/</span> (<span class="fu">sum</span>(c.table[<span class="dv">2</span>,]) <span class="sc">+</span> <span class="dv">2</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>pi.tilde1 <span class="sc">-</span> pi.tilde2 <span class="sc">+</span> <span class="fu">qnorm</span>(<span class="at">p =</span> <span class="fu">c</span>(alpha<span class="sc">/</span><span class="dv">2</span>, <span class="dv">1</span><span class="sc">-</span>alpha <span class="sc">/</span><span class="dv">2</span>)) <span class="sc">*</span><span class="fu">sqrt</span>(var.AC)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] -0.10353254  0.07781192</code></pre>
 </div>
@@ -576,7 +624,7 @@ First    made missed
 </section>
 <section id="lrt-test" class="level3">
 <h3 class="anchored" data-anchor-id="lrt-test">LRT test</h3>
-<p><span class="math display">-2\text{log}({\Lambda})= ... </span> - if <span class="math inline">-2\text{log}({\Lambda}) &gt; \chi^2_{..}^{..}</span>, Reject <span class="math inline">H_0</span></p>
+<p><span class="math display">-2\text{log}({\Lambda})= ... </span> - if <span class="math inline">-2\text{log}({\Lambda}) &gt; \chi^2</span> with some degrees of freedom, Reject <span class="math inline">H_0</span></p>
 </section>
 <section id="score-test" class="level3">
 <h3 class="anchored" data-anchor-id="score-test">Score test</h3>
@@ -584,7 +632,7 @@ First    made missed
 <li>Use score statistic to perform test. Score test performs the best when the same size is small.</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.test</span>(<span class="at">x =</span> c.table , <span class="at">conf.level =</span> <span class="fl">0.95</span>, <span class="at">correct =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.test</span>(<span class="at">x =</span> c.table , <span class="at">conf.level =</span> <span class="fl">0.95</span>, <span class="at">correct =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     2-sample test for equality of proportions without continuity correction
@@ -616,62 +664,67 @@ sample estimates:
 </ol>
 <ul>
 <li><p>In both cases, 1. <span class="math inline">\pi_1 - \pi_2 = 0.01</span>.</p></li>
-<li><p>In case (1), this change is small compare to 1. $_1 _2 $</p></li>
-<li><p>In case (2), this change is 11 times the chance of $_2 $. Suppose <span class="math inline">\pi_2</span> is the chance of nonsmoking population getting a disease, then, the chance is 11 times the chance of nonsmoking population getting a disease.</p></li>
+<li><p>In case (1), this change is small compare to 1. <span class="math inline">\pi_1\text{ and } \pi_2</span></p></li>
+<li><p>In case (2), this change is 11 times the chance of <span class="math inline">\pi_2</span>. Suppose <span class="math inline">\pi_2</span> is the chance of nonsmoking population getting a disease, then, the chance is 11 times the chance of nonsmoking population getting a disease.</p></li>
 <li><p>To capture this information, we use another statistic called <code>relative risk</code></p></li>
 </ul>
-<p><span class="math display">\text{RR} = \frac{\pi_1}{\pi_2}=\frac{0.011}{0.001}</span> - Smokers are 11 times <code>as likely</code> to have the disease than nonsmokers - Smokers are 10 times <code>more likely</code> to have that disease than nonsmokers. (see page 38)</p>
+<p><span class="math display">\text{RR} = \frac{\pi_1}{\pi_2}=\frac{0.011}{0.001}</span></p>
 <ul>
-<li><span class="math inline">\hat{RR}</span> is MLE and using normal approximation is rather poor for MLE and not recommended. Use normal approximation on <span class="math inline">\text{log}(\hat{RR})</span></li>
+<li><p>Smokers are 11 times <code>as likely</code> to have the disease than nonsmokers</p></li>
+<li><p>Smokers are 10 times <code>more likely</code> to have that disease than nonsmokers. (see page 38)</p></li>
+<li><p><span class="math inline">\hat{RR}</span> is MLE and using normal approximation is rather poor for MLE and not recommended.</p>
+<ul>
+<li>Use normal approximation on <span class="math inline">\text{log}(\hat{RR})</span></li>
+</ul></li>
 </ul>
 <section id="rr-of-salk-vaccine-clinical-trial" class="level3">
 <h3 class="anchored" data-anchor-id="rr-of-salk-vaccine-clinical-trial">RR of Salk vaccine clinical trial</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>c.table <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="at">data =</span> <span class="fu">c</span>(<span class="dv">57</span>, <span class="dv">142</span>, <span class="dv">200688</span>, <span class="dv">201087</span>), <span class="at">dim =</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>), <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="at">Treatment =</span> <span class="fu">c</span>(<span class="st">"vaccine"</span>, <span class="st">"placebo"</span>), <span class="at">Result =</span> <span class="fu">c</span>(<span class="st">"polio"</span>, <span class="st">"polio free"</span>)))</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>c.table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>c.table <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="at">data =</span> <span class="fu">c</span>(<span class="dv">57</span>, <span class="dv">142</span>, <span class="dv">200688</span>, <span class="dv">201087</span>), <span class="at">dim =</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>), <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="at">Treatment =</span> <span class="fu">c</span>(<span class="st">"vaccine"</span>, <span class="st">"placebo"</span>), <span class="at">Result =</span> <span class="fu">c</span>(<span class="st">"polio"</span>, <span class="st">"polio free"</span>)))</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>c.table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>         Result
 Treatment polio polio free
   vaccine    57     200688
   placebo   142     201087</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#calculate conditional probability</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>pi.hat.table <span class="ot">&lt;-</span> c.table<span class="sc">/</span><span class="fu">rowSums</span>(c.table) </span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>pi.hat.table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#calculate conditional probability</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>pi.hat.table <span class="ot">&lt;-</span> c.table<span class="sc">/</span><span class="fu">rowSums</span>(c.table) </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>pi.hat.table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>         Result
 Treatment        polio polio free
   vaccine 0.0002839423  0.9997161
   placebo 0.0007056637  0.9992943</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#estimated parameters to be compared</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>pi.hat1 <span class="ot">&lt;-</span> pi.hat.table[<span class="dv">1</span>,<span class="dv">1</span>] </span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>pi.hat2 <span class="ot">&lt;-</span> pi.hat.table[<span class="dv">2</span>,<span class="dv">1</span>]</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>RR <span class="ot">&lt;-</span> pi.hat1<span class="sc">/</span>pi.hat2</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>RR</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#estimated parameters to be compared</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>pi.hat1 <span class="ot">&lt;-</span> pi.hat.table[<span class="dv">1</span>,<span class="dv">1</span>] </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>pi.hat2 <span class="ot">&lt;-</span> pi.hat.table[<span class="dv">2</span>,<span class="dv">1</span>]</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>RR <span class="ot">&lt;-</span> pi.hat1<span class="sc">/</span>pi.hat2</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>RR</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.4023763</code></pre>
 </div>
 </div>
 <ul>
-<li>The <code>estimated</code> probability of contracting polio is 0.4 times <code>as likely</code> for the vaccine group that for teh placebo group.</li>
+<li>The <code>estimated</code> probability of contracting polio is 0.4 times <code>as likely</code> for the vaccine group that for thh placebo group.</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#set type 1 error</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>n1 <span class="ot">&lt;-</span> <span class="fu">sum</span>(c.table[<span class="dv">1</span>,]) </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>n2 <span class="ot">&lt;-</span> <span class="fu">sum</span>(c.table[<span class="dv">2</span>,])</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>var.log.rr <span class="ot">&lt;-</span> (<span class="dv">1</span><span class="sc">-</span>pi.hat1)<span class="sc">/</span>(n1<span class="sc">*</span>pi.hat1) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">-</span>pi.hat2)<span class="sc">/</span>(n2<span class="sc">*</span>pi.hat2)</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>ci <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="fu">log</span>(pi.hat1<span class="sc">/</span>pi.hat2) <span class="sc">+</span> <span class="fu">qnorm</span>(<span class="at">p =</span> <span class="fu">c</span>(alpha<span class="sc">/</span><span class="dv">2</span>,</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="sc">-</span>alpha<span class="sc">/</span><span class="dv">2</span>)) <span class="sc">*</span> <span class="fu">sqrt</span>(var.log.rr))</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>ci</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#set type 1 error</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>n1 <span class="ot">&lt;-</span> <span class="fu">sum</span>(c.table[<span class="dv">1</span>,]) </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>n2 <span class="ot">&lt;-</span> <span class="fu">sum</span>(c.table[<span class="dv">2</span>,])</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>var.log.rr <span class="ot">&lt;-</span> (<span class="dv">1</span><span class="sc">-</span>pi.hat1)<span class="sc">/</span>(n1<span class="sc">*</span>pi.hat1) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">-</span>pi.hat2)<span class="sc">/</span>(n2<span class="sc">*</span>pi.hat2)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>ci <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="fu">log</span>(pi.hat1<span class="sc">/</span>pi.hat2) <span class="sc">+</span> <span class="fu">qnorm</span>(<span class="at">p =</span> <span class="fu">c</span>(alpha<span class="sc">/</span><span class="dv">2</span>,</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="sc">-</span>alpha<span class="sc">/</span><span class="dv">2</span>)) <span class="sc">*</span> <span class="fu">sqrt</span>(var.log.rr))</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>ci</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.2959316 0.5471084</code></pre>
 </div>
@@ -743,12 +796,20 @@ Table&nbsp;1: First 10 Penguins
 <section id="or-of-salk-vaccine-clinical-trial" class="level3">
 <h3 class="anchored" data-anchor-id="or-of-salk-vaccine-clinical-trial">OR of Salk vaccine clinical trial</h3>
 <div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>OR.hat <span class="ot">&lt;-</span> c.table[<span class="dv">1</span>,<span class="dv">1</span>] <span class="sc">*</span> c.table[<span class="dv">2</span>,<span class="dv">2</span>] <span class="sc">/</span> (c.table[<span class="dv">2</span>,<span class="dv">1</span>] <span class="sc">*</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>c.table[<span class="dv">1</span>,<span class="dv">2</span>])</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(OR.hat , <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.4022</code></pre>
 </div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 4.972972e-06</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">#get confidence interval</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="fl">0.05</span> </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>var.log.or <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span>c.table[<span class="dv">1</span>,<span class="dv">1</span>] <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span>c.table[<span class="dv">1</span>,<span class="dv">2</span>] <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span>c.table[<span class="dv">2</span>,<span class="dv">1</span>] <span class="sc">+</span> <span class="dv">1</span><span class="sc">/</span>c.table[<span class="dv">2</span>,<span class="dv">2</span>]</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>OR.CI <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="fu">log</span>(OR.hat) <span class="sc">+</span> <span class="fu">qnorm</span>(<span class="at">p =</span> <span class="fu">c</span>(alpha<span class="sc">/</span><span class="dv">2</span>, <span class="dv">1</span><span class="sc">-</span>alpha <span class="sc">/</span><span class="dv">2</span>))<span class="sc">*</span><span class="fu">sqrt</span>(var.log.or))</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(OR.CI , <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.30 0.55</code></pre>
 </div>
@@ -776,39 +837,39 @@ Table&nbsp;1: First 10 Penguins
 </ul>
 <p><span class="math display">H_0: \pi_{+1}=\pi_{1+} </span> <span class="math display">H_a: \pi_{+1}\not= \pi_{1+} </span></p>
 <ul>
-<li>We can use <code>wald test statistic</code> (the book uses <span class="math inline">Z_0</span> notation which was used for score statistic) or <code>McNemar's test statistic</code>, <code>M</code> which has approximately <span class="math inline">\chi_^2</span> distribution for large samples.
+<li>We can use <code>wald test statistic</code> (the book uses <span class="math inline">Z_0</span> notation which was used for score statistic) or <code>McNemar's test statistic</code>, <code>M</code> which has approximately <span class="math inline">\chi^2</span> distribution for large samples.
 <ul>
 <li>Reject <span class="math inline">H_0</span> when <code>M</code> &gt; <span class="math inline">\chi^2_{..}</span></li>
 </ul></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">#get marginal distribution </span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">sum</span>(c.table) </span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>pi.hat.plus1 <span class="ot">&lt;-</span> <span class="fu">sum</span>(c.table[,<span class="dv">1</span>])<span class="sc">/</span>n </span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>pi.hat<span class="fl">.1</span>plus <span class="ot">&lt;-</span> <span class="fu">sum</span>(c.table[<span class="dv">1</span>,])<span class="sc">/</span>n</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">#evaluate the difference by </span></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">#subtracting the sample statistics</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(pi.hat.plus1 , pi.hat<span class="fl">.1</span>plus , </span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">diff =</span> pi.hat.plus1 <span class="sc">-</span> pi.hat<span class="fl">.1</span>plus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#get marginal distribution </span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">sum</span>(c.table) </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>pi.hat.plus1 <span class="ot">&lt;-</span> <span class="fu">sum</span>(c.table[,<span class="dv">1</span>])<span class="sc">/</span>n </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>pi.hat<span class="fl">.1</span>plus <span class="ot">&lt;-</span> <span class="fu">sum</span>(c.table[<span class="dv">1</span>,])<span class="sc">/</span>n</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co">#evaluate the difference by </span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co">#subtracting the sample statistics</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(pi.hat.plus1 , pi.hat<span class="fl">.1</span>plus , </span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">diff =</span> pi.hat.plus1 <span class="sc">-</span> pi.hat<span class="fl">.1</span>plus)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  pi.hat.plus1 pi.hat.1plus       diff
 1 0.0004950569     0.499398 -0.4989029</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>c.table <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="at">data =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">3</span>), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>), <span class="at">dimnames =</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(<span class="at">MRI =</span> <span class="fu">c</span>(<span class="st">"Localized"</span>, <span class="st">"Advanced"</span>), <span class="at">Ultrasound =</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="st">"Localized"</span>, <span class="st">"Advanced"</span>))) </span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>c.table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>c.table <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="at">data =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">3</span>), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>), <span class="at">dimnames =</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">list</span>(<span class="at">MRI =</span> <span class="fu">c</span>(<span class="st">"Localized"</span>, <span class="st">"Advanced"</span>), <span class="at">Ultrasound =</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="st">"Localized"</span>, <span class="st">"Advanced"</span>))) </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>c.table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           Ultrasound
 MRI         Localized Advanced
   Localized         4        6
   Advanced          3        3</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcnemar.test</span>(<span class="at">x =</span> c.table , <span class="at">correct =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mcnemar.test</span>(<span class="at">x =</span> c.table , <span class="at">correct =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     McNemar's Chi-squared test
@@ -818,8 +879,8 @@ McNemar's chi-squared = 1, df = 1, p-value = 0.3173</code></pre>
 </div>
 </div>
 </section>
-<section id="interval" class="level3">
-<h3 class="anchored" data-anchor-id="interval">Interval</h3>
+<section id="interval-1" class="level3">
+<h3 class="anchored" data-anchor-id="interval-1">Interval</h3>
 <ul>
 <li><code>Wald confidence interval</code></li>
 </ul>

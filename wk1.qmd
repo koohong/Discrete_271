@@ -1,5 +1,5 @@
 ---
-title: "One and Two binary groups "
+title: "Binary groups "
 format:
   html:
     toc: true
@@ -31,6 +31,28 @@ editor_options:
 library(here)
 source(here("source","get_lib.R"))
 ```
+
+# Brief review on terms
+
+- `Distribution` is a `function` and has `parameters`.
+  - We can estimate parameters of the distribution based on `sample`
+  
+- In `MLR` (multiple linear regression), we estimate the parameter of the function using `OLS` and predict `target`.
+  - The target of model whose parameters were estimated using OLS follows `normal distribution`
+  - Statistical significance of the parameters were evaluated using `t-statistic` and `p-value` associated with it.
+  - We also talked about the physical meaning of the estimated coefficient of the parameters.
+  - In OLS, we had several assumptions.
+  
+- `Contingency table`, `joint, marginal`, `conditional probabilities` and talked about independent events.
+  
+# Overview
+
+- CH1 first talks about `Bernoulli` and `Binomial distribution` and how we can estimate thir `parameters` using `MLE`.
+- Likelihood Function (aka likelihood), likelihood ratio test (LRT), and transformed LRT are statistics that we will be using a lot
+  - This statistic follows $\chi^2$ distribution
+- You may also want to remember another statistic called `score test` (see page 17), `odd` and `odd ratio`
+  - Will be using `odd` to develop model 
+  - and `odd ratio` to evaluate the meaning of the parameters in the model
 
 # Distributions
 
@@ -94,8 +116,7 @@ $$
 
 $$
 \begin{aligned}
-  Log[L(\pi|x_1,x_2,x_3)] &= \\
-       & \left( {\sum_{i=1}^{3} x_i} \right)log(\pi) + \left({\sum_{i=1}^{3}(1- x_i)} \right) log(1-\pi)\\
+  \text{Log}[L(\pi|x_1,x_2,x_3)] &= \left( {\sum_{i=1}^{3} x_i} \right)\text{log}(\pi) + \left({\sum_{i=1}^{3}(1- x_i)} \right) \text{log}(1-\pi)\\
 \end{aligned}
 $$
 
@@ -133,7 +154,7 @@ $$\hat{\pi} = \frac{2}{3} $$
 
 # One binary group
 
-## Interval vs Hypothesis test
+## Interval 
 
 -   Given observation, knowing distribution, we are estimating the parameter of the function.
 
@@ -143,19 +164,7 @@ $$\hat{\pi} = \frac{2}{3} $$
 
     -   It rely on the underlying normal distribution approximation for the maximum likelihood estimator. (see page 11)
 
--   When only one simple parameter is of interest, such as $\pi$ here, we generally prefer confidence intervals over hypothesis tests, because the interval gives a range of possible parameter values.
-
--   We can typically infer that a hypothesized value for a parameter can be rejected if it does not lie within the confidence interval for the parameter.
-
--   However, there are situations where a `fixed known value` of $\pi$, say $\pi_0$ , is of special interest, leading to a formal hypothesis test of
-
-$$H_0 : \pi = \pi_0$$ $$H_a : \pi  \not= \pi_0$$
-
-## Interval test
-
-- See page 11 and 12
-
-```{r}
+```{r, fig.height=8,fig.width=8}
 
 # Initial settings and calculations
 alpha <- 0.05
@@ -274,9 +283,20 @@ abline(h = 1-alpha, lty = "dotted")
 
 ## Hypothesis test
 
+-   When only one simple parameter is of interest, such as $\pi$ here, we generally prefer confidence intervals over hypothesis tests, because the interval gives a range of possible parameter values.
+
+-   We can typically infer that a hypothesized value for a parameter can be rejected if it does not lie within the confidence interval for the parameter.
+
+-   However, there are situations where a `fixed known value` of $\pi$, say $\pi_0$ , is of special interest, leading to a formal hypothesis test of
+
+$$H_0 : \pi = \pi_0$$ $$H_a : \pi  \not= \pi_0$$
+
 -   Situations where a `fixed known value` of $\pi$, say $\pi_0$ , is of special interest, leading to a formal hypothesis test of
 
 $$H_0 : \pi = \pi_0$$ $$H_a : \pi  \not= \pi_0$$
+
+- See page 11 and 12
+
 
 ### Hypothesis testing using Wilson interval, score test statistic
 
@@ -356,6 +376,7 @@ alpha <- 0.05
 - `Wald Confidence interval`
 
 ```{r}
+#| echo: true
 #########################
 #wald CI
 #########################
@@ -370,6 +391,7 @@ sqrt(var.wald)
 - `Agresti-Caffo confidence interval`
 
 ```{r}
+#| echo: true
 #########################
 # Agresti-Caffo
 #########################
@@ -403,7 +425,7 @@ $$\chi^2 = \sum_{j=1}^2\frac{(w_j-n_j\bar{\pi})^2}{n_j\bar{\pi}(1-\bar{\pi})}$$
 ### LRT test
 
 $$-2\text{log}({\Lambda})= ... $$
-- if $-2\text{log}({\Lambda}) > \chi^2_{..}^{..}$, Reject $H_0$
+- if $-2\text{log}({\Lambda}) > \chi^2$ with some degrees of freedom, Reject $H_0$
 
 ### Score test
 
@@ -427,16 +449,19 @@ prop.test(x = c.table , conf.level = 0.95, correct = FALSE)
 2. $\pi_1 = 0.011 \text{ and }  \pi_2 = 0.001$
 
 - In both cases, 1. $\pi_1 - \pi_2 = 0.01$. 
-- In case (1), this change is small compare to 1. $\pi_1 \text{ and }  \pi_2 $
-- In case (2), this change is 11 times the chance of $\pi_2 $.  Suppose $\pi_2$ is the chance of nonsmoking population getting a disease, then, the chance is 11 times the chance of nonsmoking population getting a disease.
+- In case (1), this change is small compare to 1. $\pi_1\text{ and } \pi_2$
+- In case (2), this change is 11 times the chance of $\pi_2$.  Suppose $\pi_2$ is the chance of nonsmoking population getting a disease, then, the chance is 11 times the chance of nonsmoking population getting a disease.
 
 - To capture this information, we use another statistic called `relative risk`
 
 $$\text{RR} = \frac{\pi_1}{\pi_2}=\frac{0.011}{0.001}$$
+
 - Smokers are 11 times `as likely` to have the disease than nonsmokers
+
 - Smokers are 10 times `more likely` to have that disease than nonsmokers. (see page 38)
 
-- $\hat{RR}$ is MLE and using normal approximation is rather poor for MLE and not recommended.  Use normal approximation on $\text{log}(\hat{RR})$
+- $\hat{RR}$ is MLE and using normal approximation is rather poor for MLE and not recommended.  
+  - Use normal approximation on $\text{log}(\hat{RR})$
 
 
 ### RR of Salk vaccine clinical trial
@@ -460,7 +485,7 @@ RR <- pi.hat1/pi.hat2
 RR
 ```
 
-- The `estimated` probability of contracting polio is 0.4 times `as likely` for the vaccine group that for teh placebo group.
+- The `estimated` probability of contracting polio is 0.4 times `as likely` for the vaccine group that for thh placebo group.
 
 ```{r}
 #| echo: true
@@ -523,6 +548,7 @@ df %>% kable("html") %>%
 ### OR of Salk vaccine clinical trial
 
 ```{r}
+#| echo: true
 OR.hat <- c.table[1,1] * c.table[2,2] / (c.table[2,1] *
 c.table[1,2])
 round(OR.hat , 4)
@@ -530,11 +556,9 @@ round(OR.hat , 4)
 #get confidence interval
 alpha <- 0.05 
 
-var.log.or <- 1/c.table[1,1] + 1/c.table[1,2] + 1/c.table[2,1]
-+ 1/c.table[2,2]
+var.log.or <- 1/c.table[1,1] + 1/c.table[1,2] + 1/c.table[2,1] + 1/c.table[2,2]
 
-OR.CI <- exp(log(OR.hat) + qnorm(p = c(alpha/2, 1-alpha /2)) *
-sqrt(var.log.or))
+OR.CI <- exp(log(OR.hat) + qnorm(p = c(alpha/2, 1-alpha /2))*sqrt(var.log.or))
 
 round(OR.CI , 2)
 
@@ -562,7 +586,7 @@ round(OR.CI , 2)
 $$H_0: \pi_{+1}=\pi_{1+} $$
 $$H_a: \pi_{+1}\not= \pi_{1+} $$
 
-- We can use `wald test statistic` (the book uses $Z_0$ notation which was used for score statistic) or `McNemar's test statistic`, `M` which has approximately $\chi_^2$ distribution for large samples. 
+- We can use `wald test statistic` (the book uses $Z_0$ notation which was used for score statistic) or `McNemar's test statistic`, `M` which has approximately $\chi^2$ distribution for large samples. 
   - Reject $H_0$ when `M` > $\chi^2_{..}$
 
 
