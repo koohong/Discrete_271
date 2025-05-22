@@ -33,27 +33,21 @@ source(here("source","get_lib.R"))
 
 # Types of Target
 
--   In CH1 and 2, the target was binary.
--   In CH3, target is factor which can be 
-    - ordinal (i.e., ordered like Likert scale) or 
-    - nominal (i.e., unordered like red and green)
+- ordinal (i.e., ordered like Likert scale) or 
+    
 
-# Nominal response regression models
+# Proportions odds model
 
--   target: red, blue, green (nominal)
--   recall that odd for binary response was
-
-$$\text{Odd} = \frac{\text{probability of success}}{\text{probability of failure}}$$
-
--   We can define odd ratio for multinomial response in a similar way
-
-$$\text{Odd} = \frac{\text{probability of getting red}}{\text{probability of getting blue}}$$
 
 ## Functional form 
 
-$$\text{log}(\frac{\text{probility of getting some color}}{\text{probability of getting blue}}) = \beta_{\text{some color }0} + \beta_{\text{some color }1}x_1 .. + \beta_{\text{some color }p}x_p$$
+- The model is the log-odds of cumulative probabilities, called `cumulative logits`
 
-$$\text{log}(\frac{\pi_j}{\pi_1}) = \beta_{j0} + \beta_{j1}x_1 .. + \beta_{jp}x_p$$
+$$\text{logit}(P(Y \le j)) = \text{log}\frac{P(Y \le j)}{1-P(Y \le j)}$$
+In particular, the `proportional odds model` is assumes the probabilities changes linear as the explanatory variable chagne and the also the slope of this relationship is the same regardless of the category `j`. (see page 170)
+
+
+$$\text{logit}(P(Y \le j)) = \beta_{j0} + \beta_{1}x_1 .. + \beta_{p}x_p$$
 
 -   using the multinomial regression model, we can estimate $\pi_1..\pi_J$ based on sample, but finding their confidence interval is hard such that we only focus on Wald Confidence interval here.
 
