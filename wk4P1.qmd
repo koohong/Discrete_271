@@ -86,7 +86,8 @@ rowSums(c.table1)
 
 -   For the I multinomial (i.e., product multinomial) setting, we again simulate a sample for a 2 × 3 contingency table (thus, I = 2).
 -   With this model, we need to draw samples of fixed size separately for each row.
-- Here is an example from book
+  - Question is can we get joint probability using this method?
+-   Here is an example from book
 
 ## This part is preparing the data set part
 
@@ -94,7 +95,8 @@ rowSums(c.table1)
 #| echo: true
 #calculate conditional probability 
 pi.cond <- pi.table/rowSums(pi.table)
-pi.cond
+pi.cond %>% kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
 
 #simulate based on the conditional probability
 #notice the sample size is different from c.table1
@@ -107,7 +109,8 @@ save2 <- rmultinom(n = 1, size = 600, prob = pi.cond[2,])
 c.table2 <- array(data = c(save1[1], save2[1], save1[2],
 save2[2], save1[3], save2 [3]), dim = c(2,3), dimnames = list(X = 1:2, Y = 1:3))
 
-c.table2
+c.table2 %>% kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
 ```
 
 -   `Can we estimate the joint from this table?` is the question.
@@ -121,6 +124,8 @@ c.table2
 -   Now, we have joint and marginal, can we test independence?
 
 # Testing for independence
+
+- See page 148
 
 $$H_0: P(X=x_i,Y=y_j) = P(x_i)\cdot P(y_j)$$ $$H_a: P(X=x_i,Y=y_j) \not= P(x_i)\cdot P(y_j)$$ Using the book notation in p147,
 

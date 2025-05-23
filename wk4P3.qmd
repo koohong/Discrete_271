@@ -31,16 +31,13 @@ source(here("source","get_lib.R"))
     -   Ch.3.4
         -   skip 3.4.3, 3.5 
 
-# Types of Target
-
-- ordinal (i.e., ordered like Likert scale) or 
-    
-
 # Proportions odds model
 
+- ordinal (i.e., ordered like Likert scale) or 
 
 ## Functional form 
 
+- (p170)
 - The model is the log-odds of cumulative probabilities, called `cumulative logits`
 
 $$\text{logit}(P(Y \le j)) = \text{log}\frac{P(Y \le j)}{1-P(Y \le j)}$$
@@ -48,139 +45,81 @@ In particular, the `proportional odds model` is assumes the probabilities change
 
 
 $$\text{logit}(P(Y \le j)) = \beta_{j0} + \beta_{1}x_1 .. + \beta_{p}x_p$$
+- Notice the subscript `j` exists only for the constant term. This is the simplified version of the nominal response model.
 
--   using the multinomial regression model, we can estimate $\pi_1..\pi_J$ based on sample, but finding their confidence interval is hard such that we only focus on Wald Confidence interval here.
+- The model assumes that the effects of the explanatory variables are the same regardless of which cumulative probabilities are used to from the `log odds`
+
+- For a fixed `j`, increasing $x_j$ by `c` units changes every log-odds by $c\beta_r$ when holding other explanatory variables constant.
+
+## Probability 
+
+$$\pi_1 = P(Y \le 1) - P(Y \le 0) = \frac{\text{exp}(\beta_{j0} + \beta_{1}x_1 .. + \beta_{p}x_p)}{1+\text{exp}(\beta_{j0} + \beta_{1}x_1 .. + \beta_{p}x_p)}$$
+$$\pi_J = P(Y \le J) - P(Y \le J-1) = \frac{\text{exp}(\beta_{J-1,0} + \beta_{1}x_1 .. + \beta_{p}x_p)}{1+\text{exp}(\beta_{J-1,0} + \beta_{1}x_1 .. + \beta_{p}x_p)}$$
 
 
-# wheat example
+# Wheat problem
 
-![](image/wheat.PNG){fig-align="center" width="400"}
-
--   Target is nominal response: `Healthy`, `Sprout` and `Scab`
-
-## EDA
-
-```{r}
-#| echo: true
-wheat <- read.csv(here("data","Wheat.csv"), stringsAsFactors = TRUE)
-
-hrw <- wheat %>% filter(class == "hrw")
-
-p <- ggparcoord(data = hrw, 
-                columns = c(2:6),
-                groupColumn = 7,
-                showPoints = TRUE, 
-                title = "Parallel Coordinate Plot for the Iris Data",
-                alphaLines = 0.9)
-
-ggplotly(p)
-```
-
-## Fit the model 
+- Now assuming `scab (Y=1) < sprout (Y=2) < healthy (Y=3)` and fit proportional odds model to the same data
 
 ```{r}
-#| echo: false
-#the first is the baseline
+wheat <- read.csv(here("data","Wheat.csv"))
+glimpse(wheat)
+wheat$type <- as.factor(wheat$type)
 levels(wheat$type)
 
-mod.fit <- multinom(formula = type ~ class + density + hardness
-+ size + weight + moisture , data = wheat)
+#reorder the response
+wheat$type.order <- factor(wheat$type , levels = c("Scab",
+"Sprout", "Healthy"))
+
+levels(wheat$type.order)
+
 ```
 
-## Evaluation
+## fit the model 
+
+- `method = "logistic" in polr()` argument instruct R to use the logit transformation on the cumulative probabilities.
 
 ```{r}
-summary(mod.fit)
-```
+mod.fit.ord <- polr(formula = type.order ~ class + density +
+hardness + size + weight + moisture , data = wheat , method = "logistic")
 
-- The first parameter `class` has two values `hrw` and `srw`
-- This model output is hard to see. 
-
-```{r}
-
-
-# library(equatiomatic)
-# model <- lm(formula = type ~ class + density + hardness
-# + size + weight + moisture , data = wheat)
-# latex_equation <- extract_eq(model)
+# latex_equation <- extract_eq(mod.fit.ord)
 # print(latex_equation)
-
 ```
-
--   The estimated coefficient for `classrw`, `-0.648` is part of the following equation
 
 $$
-\operatorname{log\frac{\hat{\pi}_{scab}}{\hat{\pi}_{Healthy}}} = 30.55 -0.65\cdot(\operatorname{class}_{\operatorname{srw}}) + \beta_{2}(\operatorname{density}) + \beta_{3}(\operatorname{hardness}) + \beta_{4}(\operatorname{size}) + \beta_{5}(\operatorname{weight}) + \beta_{6}(\operatorname{moisture}) + \hat{\epsilon}
-$$ 
+\begin{aligned}
+\log\left[ \frac { P( \operatorname{type.order}  \leq  \operatorname{Scab} ) }{ 1 - P( \operatorname{type.order}  \leq  \operatorname{Scab} ) } \right] &= \alpha_{1} + \beta_{1}(\operatorname{class}_{\operatorname{srw}}) + \beta_{2}(\operatorname{density}) + \beta_{3}(\operatorname{hardness}) + \beta_{4}(\operatorname{size}) + \beta_{5}(\operatorname{weight}) + \beta_{6}(\operatorname{moisture}) \\
+\log\left[ \frac { P( \operatorname{type.order}  \leq  \operatorname{Sprout} ) }{ 1 - P( \operatorname{type.order}  \leq  \operatorname{Sprout} ) } \right] &= \alpha_{2} + \beta_{1}(\operatorname{class}_{\operatorname{srw}}) + \beta_{2}(\operatorname{density}) + \beta_{3}(\operatorname{hardness}) + \beta_{4}(\operatorname{size}) + \beta_{5}(\operatorname{weight}) + \beta_{6}(\operatorname{moisture})
+\end{aligned}
+$$
+## evaluate
 
-- test statistic is -0.978 and its corresponding p-value is 0.32 - there is not sufficient evidence that hard and soft red winter wheat have different effects on the scab or healthy status of the kernels given the other explanatory variables are in the model
-
-- Let's print the output again. 
-
-```{r}
-#using parameter library
-a <- model_parameters(mod.fit, digits = 3, p_digits = 3)
-
-a[a$Response=="Scab",-c(8)] %>% kable("html", caption = "Scab") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"))
-
-a[a$Response=="Sprout",-c(8)] %>% kable("html", caption = "Sprout") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"))
-```
-
-### Does anything have any predictive power?
-
--  So many numbers to keep track of... 
-
-![](image/20250515_1714_Comical Cry for Help_simple_compose_01jvb71d92env8p907xwzqr048.png){fig-align="center" width="400"}
-
-
-
-$$H_0: \beta_{21} = \beta_{31} = 0$$
-$$H_0: \beta_{21} \not = 0 \text{ and/or } \beta_{31} \not= 0$$
-
-### Anova()
-
-Anova() test performs LR test.
-  - LR Chisq is the transformed test statistic related to `class` variable,$-2\text{log}(\lambda)=0.964$
-  - Because of the large p-value, there is not sufficient evidence to indicate that the class of wheat is important given that the other variables are in the model.
-  
-```{r}
-Anova(mod.fit) %>% kable("html", caption = "Anova()") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover"))
-```
-
-- Separate tests for `density`, `hardness`, and `weight` in the output all indicate at least marginal evidence of importance for these explanatory variables.
-
+- $\alpha_1 = 17.57$ and $\alpha_2 = 20.04$ and their corresponding t-stat are 7.82 and 8.56 respectively.
 
 ```{r}
-pi.hat <- predict(object = mod.fit , newdata = wheat , type =
-"probs")
-
-##let check the accuracy
-hat_type <- predict(object = mod.fit , newdata = wheat, type = "class" )
-result <- table(hat_type, wheat$type)
-#accuracy
-sum(diag(result))/sum(result)
+summary(mod.fit.ord)
 ```
+
+- density and weight have low `p-value`
 
 ```{r}
-mod0 <- multinom(formula = type ~ density , data = wheat)
-new_density <- as.data.frame(seq(0.7,2,by = 0.01))
-colnames(new_density) <- "density"
-
-pi_hat <- predict(object = mod0 , newdata = new_density , type =
-"probs")
-
-p <- cbind(pi_hat,new_density) %>% pivot_longer(-density) %>% 
-    ggplot(aes(x=density, y = value, color = name)) + geom_point() +
-    ggtitle("If your model had only density in it")
-
-ggplotly(p)
+Anova(mod.fit.ord)
 ```
+
+## predict $\pi_j$
+
+```{r}
+pi.hat.ord <- predict(object = mod.fit.ord , type = "probs")
+
+head(pi.hat.ord)
+```
+
+- For finding confidence interval see page 175
 
 ## OR
 
-- The log-odds are modeled directly in a multinomial regression model, odds ratios are useful for interpreting an explanatory variable’s relationship with the response
+- p175
+- The odds of $Y \le j$ vs $Y > j$ change by $e^{c\beta_1}$ times for a `c-unit` increase in $x_1$ while holding the other explanatory variables in the model constant.
 
-
+- The OR stays the same no matter what response category is used for `j`
