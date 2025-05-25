@@ -49,3 +49,569 @@ Reading
       - Specifies how the expected value of the `random component` $E[Y]$ is linked to the `sysmatic` component.
       - $\text{logit}(\pi) = \beta_0 + \beta_1x_1 + .... + \beta_px_p$
       - where $E[Y] = \pi$
+
+
+## Class Announcements
+
+No HW this week
+
+Lab-1 due in 1 week
+
+## Roadmap
+
+**Rearview Mirror**
+
+- Model unordered and ordered categorical response 
+
+**Today**
+
+- Poisson probability model
+
+- Poisson regression model, estimation, and statistical inference
+
+- Model Comparison Criteria, Model Assessment, Goodness of Fit
+
+**Looking Ahead**
+
+- Univariate and multivariate time-series
+
+- Notion of dependency and stationarity
+
+# Poisson Distribution 
+
+Recall that the Poisson distribution models count data i.e. the number of events between 0,1,... for a random variable $X$. The distribution is:
+
+$$P(X=k)=\frac{\lambda^ke^{-\lambda}}{k!}$$
+One key assumption of the distribution is that $E(X)=Var(X)=\lambda$, meaning that the mean and variance of the distribution is the same.
+
+As we will see this is a limiting assumption when we do Poisson Regression.
+
+
+In Poisson regression we model the log of $\lambda$ (the mean assuming a Poisson distribution) as a linear combination of the features:
+
+$$\text{log}(\lambda_i)=\text{log}(E(Y_i|X_i))=X_i\beta$$
+
+We use maximum likelihood to estimate the coefficients in $\beta$ assuming that $Y$ follows an iid Poisson distribution:
+
+$$max_\beta\ L(\beta|Y_1,...,Y_n)=P(Y_1=y_1,...,Y_n=y_n|\beta)=\Pi_i\frac{e^{y_iX_i\beta}e^{-e^{X_i\beta}}}{y_i!}$$
+
+The log likelihood has no closed form solution, so we estimate the parameters beta using numerical methods just like in logistic regression.
+
+For each $y_i$ we can calculate and predict fitted values using the MLE of the coefficients:
+
+$$\hat{y_i}=E(y_i|X_i)=\lambda_i=e^{X_i\beta}$$
+Under Poisson regression, the $Var(\hat{y_i})=\lambda_i=e^{X_i\beta}$ so that Poisson regression naturally has heteroskedasticity in the results.
+
+Because coefficients are linear on the log scale, when exponentiated they multiply the expected mean outcome. This is similar to the interpretation in logistic regression except we are not dealing with odds ratios but rather changes in the average outcome.
+
+## Parameter
+
+Equal Mean and Variance and Overdispersion
+
+This assumption of equal mean and variance is often not met when actually fitting to data, which results in what is known as overdispersion where the variance in the data is larger than the variance fit in the model.
+
+This usually can be remedied by adding more $X$ variables into the model to improve the fit.
+
+Another option is to fit what are known as a quasi poisson model or negative binomial regression model. In both cases, we relax the equal mean and variance assumption by adding an additional parameter to the variance of the response variable, allowing it to be larger than the mean.
+
+In quasi poisson regression we set $
+
+$$\text{V}[\hat{y_i}]=\theta\lambda_i$$ 
+and in negative binomial regression we set 
+
+$$\text{V}[\hat{y_i}]=\lambda_i+\kappa\lambda_i^2$$
+
+
+# Case Study: Modeling the Number of Awards 
+
+## Target
+
+  - `The number of awards` earned by students based on the `type of programs students were enrolled` in using historical admission data. 
+  - `num_awards`: the number of awards earned by students at a high school in a year
+  - `math`: students’ scores on their final math exam
+  - `prog`: the type of program in which the students were enrolled 
+    - `1 = General`
+    - `2 = Academic` 
+    - `3 = Vocational`
+
+## EDA
+
+- What is the number of observations?
+- What is the number of variables? 
+- Are there any redundant variables?
+- Are there any missing information?
+- Are there any duplicated records?
+- Are there any values in each of the variables that seem unreasonable?
+
+```{r}
+df <- read.csv("./data/PossionEx1.csv", 
+               stringsAsFactors = F, 
+               header=TRUE, sep=",")
+
+head(df) %>%
+  kable("html", caption = "Modeling the Number of Awards") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+#str(df)
+
+## convert prog to factor
+df$prog = factor(df$prog)
+  
+
+# Checking the number of missing values for each of the variables
+# df[!complete.cases(df),]
+sapply(df, function(x) sum(is.na(x)))
+
+```
+
+\newpage
+
+### Univariate Analysis
+
+- Use a frequency table and a bar plot to explore the distribution of the response variable(num_awards). What do you learn?
+
+```{r}
+#| echo: false
+df %>%
+  count(num_awards) %>%
+  mutate(prop = round(prop.table(n),2)) %>%
+  kable("html", caption = "Modeling the Number of Awards",
+        col.names = c('Number of awards', 'N', "Proportion")) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+  
+
+df %>%
+  ggplot(aes(x= num_awards, y = ..prop.., group = 1)) + 
+  geom_bar(fill = 'DarkBlue', color = 'black') +
+  geom_text(stat='count', aes(label=..count..), vjust= -1) + 
+  xlab("Number of awards") +
+  ylab("Proportion") +
+  ylim(0,1)
+
+```
+
+- The prog is the committee’s key explanatory variable of interest. It has three levels: academic, general, and vocational. Use a frequency table and a bar plot to examine its distribution. What do you discover? 
+
+```{r}
+#| echo: false
+#| 
+df %>%
+  count(prog) %>%
+  mutate(prop = round(prop.table(n),2)) %>%
+  kable("html", caption = "Modeling the Number of Awards",
+        col.names = c(' Type of program', 'N', "Proportion")) %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+
+df %>%
+  ggplot(aes(x= prog, y = ..prop.., group = 1)) + 
+  geom_bar(fill = 'DarkBlue', color = 'black') +
+  geom_text(stat='count', aes(label=..count..), vjust=-1) + 
+  xlab("Type of program") +
+  ylab("Proportion") +
+  ylim(0,1)
+```
+
+- Plot the distribution of math scores. What are the range and average math scores?
+
+```{r warning=FALSE, error=FALSE, message=FALSE}
+#| echo: false
+
+df %>% 
+  ggplot(aes(x = math)) +
+  geom_histogram(aes(y = ..density..), binwidth = 5 ,fill = "DarkBlue", color = "black") +
+  geom_vline(aes(xintercept = mean(math)), color = "red", linetype = "dashed") +
+  ggtitle("Distribution of students’ math scores") + 
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  xlab("Socre") +
+  ylab("Density")
+
+```
+
+### Bivariate Analysis
+
+- Examine the associations between the number of awards and program and math scores.
+
+- The graph below shows the distribution of the number of awards by program types. How are awards distributed among different programs?
+```{r}
+#| echo: false
+df %>% 
+  ggplot(aes(x = num_awards)) +
+  geom_bar(aes(color = prog, fill = prog),alpha=0.2, position = "dodge" ) +
+  ggtitle("Distribution of the Number of Awards by Program Types") + 
+  xlab("Award") +
+  ylab("Count")
+
+```
+
+- The graph below shows the distribution of the number of awards and students' math scores. Is there any clear relationship between them?
+
+```{r}
+#| echo: false
+df %>%
+  ggplot(aes(num_awards, math)) +
+  geom_boxplot(aes(fill = factor(num_awards))) + 
+  geom_jitter()+
+  coord_flip() +
+  ggtitle("Math Score by the Number of Awards") + 
+  theme(plot.title = element_text(lineheight=1, face="bold")) +
+  xlab("Number of Awards") +
+  ylab("Math Score") 
+```
+
+- Use summary_factorlist() function from the finalfit package to tabulate data. What do you learn from the EDA?
+
+```{r}
+#| echo: false
+dependent <- "num_awards"
+explanatory <- c("prog", "math")
+df %>% 
+  summary_factorlist(dependent, explanatory, add_dependent_label = TRUE) %>%
+  kable("html", caption = "Modeling the Number of Awards") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+
+# Model Development
+
+- Given the specification of a poisson regression model below,
+
+$$\log(mean\_num\_awards) = \beta_0 + \beta_1 prog + \beta_2 math + u$$
+
+- Estimate and interpret the model results using `glm()` and the correct `family` parameter:
+
+## Coefficients
+
+```{r}
+#| echo: true
+poisson.mod.1 <- poisson.mod.1 <- glm(num_awards ~ prog + math, 
+                                      data = df, 
+                                      family = poisson)
+
+summary(poisson.mod.1)
+```
+
+- The `negative coefficients` of the `general` and `vocational programs` indicate that the number of wards is lower in these two programs.
+
+- The positive coefficients of `math` score indicates that the number of awards is increasing as the math score increases.
+
+```{r}
+#| echo: true
+
+(exp(coef(poisson.mod.1)) - 1) * 100
+```
+
+To have a more convenient way to interpret these coefficients, we compute and use percentage changes
+  - Holding `program type constant`, 1 unit increase in math score increase the mean number of awards by 7%.
+
+  - Hold `math score constant`; 
+    - a student in the `general program`, on average, receives 66% fewer awards than students in the `academic program`
+    - a student in the `vocational program`, on average, receives 51% fewer awards than students in the academic program
+
+### Anova()
+
+- Test the overall effect of prog using `Anova()`:   
+
+```{r}
+## test model differences with chi square test
+Anova(poisson.mod.1)
+```
+
+- Based on the p-values, the prog, taken together, is a statistically significant predictor of the number of awards.
+
+
+## Plot the result 
+
+- Plot the fitted values across the three programs and discuss how the number of awards is associated with math scores.
+
+```{r}
+# uncomment and run the code
+
+## calculate and store predicted values
+fitted_values <- predict(poisson.mod.1, type="response")
+
+## create the plot
+
+p <- ggplot(df, aes(x = math, y = fitted_values, colour = prog)) +
+ geom_point(aes(y = num_awards), alpha=.5, position=position_jitter(h=.2)) +
+ geom_line(size = 1) +
+ labs(x = "Math Score", y = "Expected number of awards")
+
+ggplotly(p)
+```
+
+- This graph indicates that the most awards are earned by students in the `academic` program, especially if the student has a high math score. 
+
+- Students in the `general program` earn the lowest number of awards
+
+## CI of cofficients
+
+- Construct and interpret the confidence intervals for each variable using `confint()`.
+    
+```{r}
+# Confident intervals for the original coefficient estimates
+beta.interval <- confint(poisson.mod.1, level = 0.95)
+
+beta.interval %>% kable("html", caption = "beta interval") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+# Convert the confidence intervals to percentage change, corresponding to the coefficient estimates
+
+100 * (exp(beta.interval) - 1) %>% 
+  kable("html", caption = "beta interval") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+- at $\alpha = 0.05$, Compared to the students in `academic program`, the mean number of awards that students in `General program` decreases by 35% to 84% holding the math score constant.
+
+- With 95% confidence, the mean number of awards decrease by 11% to 75% for the student in `vocational program` vs. student in `academic programs`, holding the math score constant.
+
+-  95% confidence interval of a the effect of 1-unit increase in math score on the mean number of award holding everything else constant is `5.07% to 9.53% increase` 
+
+
+\newpage
+
+# Model Comparison Criteria
+
+Recall that the general form of most information criteria is:
+
+$$\text{IC}(k)=-2log(L(\hat{\beta}|y_1,.....,y_n))+kr$$
+
+Where 
+
+- $\text{log}(L(\hat{\beta}|y_1,.....,y_n))$ is the log-likelihood of an estimated model, - `n` is the sample size, 
+- `r` is the number of parameters in the model, 
+- `k` is a penalty term on the number of parameters. 
+
+The three most common information criteria are:
+
+## AIC
+
+$$AIC = IC(2) = -2log(L(\hat{\beta}|y_1,.....,y_n))+2r$$
+
+## AIC_c
+
+$$AIC_c = IC(\frac{2n}{n-r-1}) = -2log(L(\hat{\beta}|y_1,.....,y_n))+r\frac{2n}{n-r-1}=AIC+\frac{2r(r+1)}{n-r-1}$$
+
+## BIC
+
+$$BIC = IC(log(n)) = -2log(L(\hat{\beta}|y_1,.....,y_n))+rlog(n)$$
+
+## Example
+
+- Compute these three information criteria for the following three models and then rank the models based on each criterion using `AIC()`, `BIC()`, and `AICc()`.  
+
+$$\text{mod.1:   }\log(mean\_num\_awards) = \beta_0 + \beta_1 prog + u  $$
+$$\text{mod.2:   }\log(mean\_num\_awards) = \beta_0 + \beta_1 math + u$$
+
+$$\text{mod.3:   }\log(mean\_num\_awards) = \beta_0 + \beta_1 prog + \beta_2 math + u$$
+
+```{r}
+## fit models
+mod.1 <- glm(num_awards ~ math, data = df, family = poisson)
+mod.2 <- glm(num_awards ~ prog, data = df, family = poisson)
+mod.3 <- glm(num_awards ~ prog + math, data = df, family = poisson)
+
+## compute AIC
+data.frame(mod.1 = AIC(mod.1, k = 2), mod.2 = AIC(mod.2), mod.3 = AIC(mod.3))
+
+## compute corrected AIC 
+data.frame(mod.1 = AICc(mod.1), mod.2 = AICc(mod.2), mod.3 = AICc(mod.3))
+
+## compute BIC
+data.frame(mod.1 = BIC(mod.1), mod.2 = BIC(mod.2), mod.3 = BIC(mod.3))
+```
+
+- The model with the `lowest` AIC, corrected AIC, or BIC score is preferred. 
+  - The absolute values of these scores do not matter.
+
+- These scores can be negative or positive.
+  - Based on all these three criteria, the third model with both math and program is the best, and the second model with the only program is the worst model
+
+
+# Model Assessment
+
+Recall that the Pearson residuals correct for unequal variance in the raw residuals by dividing by the standard deviation:
+
+$$e_m = \frac{y_m - \widehat{y_m}}{\sqrt{\widehat{\text{V}(Y_m)}}}$$
+
+Standardized Pearson residuals also correct for overestimates of the standard deviation of $y_m - \widehat{y_m}$:
+
+$$r_m = \frac{y_m - \widehat{y_m}}{\sqrt{\widehat{\text{V}(Y_m-\hat{Y_m})}}}=\frac{y_m - \widehat{y_m}}{\sqrt{\widehat{\text{V}(Y_m)}-(1-h_m)}}$$
+where $h_m$ is the mth diagonal element of the hat matrix.
+
+- For the first Poisson model using `prog` and `math` as predictors, plot the standardized Pearson residuals against explanatory variables, fitted values, and the linear predictor to assess whether the model assumptions are satisfied. 
+
+```{r message=FALSE, warning=FALSE}
+#| echo: false
+pred <- predict(poisson.mod.1, type = "response")
+res <- residuals(poisson.mod.1, type = "pearson")
+s.res <- rstandard(poisson.mod.1, type = "pearson")
+lin.pred <- poisson.mod.1$linear.predictors
+
+df1 <- data.frame(df, pred, res, s.res, lin.pred)
+
+#Standardized Pearson residual vs math plot
+
+df1 %>%
+ ggplot(aes(x = df1$math , y = df1$s.res)) +
+ geom_point() +
+ geom_hline(yintercept=c(3, 2, 0, -2, -3), color = "red", linetype = "dashed")+
+ geom_smooth(se = FALSE)+
+ ggtitle("Standardized residuals vs. Math") +
+ xlab("Math") +
+ ylab("Standardized Pearson residuals")
+
+#Standardized Pearson residual vs fitted values
+
+df1 %>%
+ ggplot(aes(x = df1$pred , y = df1$s.res)) +
+ geom_point() +
+ geom_hline(yintercept=c(3, 2, 0, -2, -3), color = "red", linetype = "dashed")+
+ geom_smooth(se = FALSE)+
+ ggtitle("Standardized residuals vs. Math") +
+ xlab("Fitted values") +
+ ylab("Standardized Pearson residuals")
+
+#Standardized Pearson residual vs linear predictor
+
+df1 %>%
+ ggplot(aes(x = df1$lin.pred , y = df1$s.res)) +
+ geom_point() +
+ geom_hline(yintercept=c(3, 2, 0, -2, -3), color = "red", linetype = "dashed")+
+ geom_smooth(se = FALSE)+
+ ggtitle("Standardized residuals vs. Math") +
+ xlab("Linear predictor") +
+ ylab("Standardized Pearson residuals")
+```
+
+We have four assumptions general assumptions for Poisson regression
+
+- 1. IID data.
+- 2. The distribution of the response is the one specified by the model, which here is Poisson.
+- 3. The mean of the distribution is linked to the explanatory variables by the `link function` that we specify. In Poisson is is log().
+
+- 4. The link relates to the explanatory variables in a `linear fashion`. Here linearity means using a linear combination of the regression parameters.
+  - For `iid data`, we must discuss how the data is generated and look for possible clustering. 
+    - Here there could be some clustering among the students who are in the same program or same classroom, or same cohort, which would violate independence.
+
+  - The plot of the standardized residuals against `math` shows roughly the same variance throughout the math score range. 
+    - There is no severe curvature in the plot, suggesting we don’t need a transformation or additional polynomial terms.
+
+    - Similarly, the plots of `residuals against the fitted values` and `linear predictor` have roughly constant variance. 
+      - They show no evident curvature, so we can conclude that the link function fits well here.
+
+- We can also use these plots to check for `extreme residuals`. In this case, there are numerous residuals whose magnitudes are larger than 2 or 3, scattered across the range of math scores. 
+
+- This may be a sign of `overdispersion`, meaning more variability in the
+counts than the model estimated. 
+
+- This is an indication that there may be important explanatory variables missing from the model
+
+
+
+\newpage
+
+# Goodness of Fit
+
+$$H_0: \text{Our Model is correct}$$
+- The Pearson Statistic $\chi^2$ and Residual Deviance $D$ are often used to test the goodness of fit, where the null hypothesis is that our model is correct. Under asymptotic theory, both of these follow a chi-squared distribution with the same degrees of freedom as the residuals from the Poisson model.
+
+We can also use these to test for overdispersion in our model since if our model is a good fit to the data we should not have overdispersion.
+
+## The Pearson Statistics
+
+
+$$\chi^2=\sum_{i=1}^{n}\frac{(y_{i}-\exp\{\textbf{X}_{i}\hat{\beta}\})^{2}}{\exp\{\textbf{X}_{i}\hat{\beta}\}}$$
+
+```{r}
+#| echo: true
+# Calculate Pearson statistic residuals
+pearson_stat <- sum(residuals(poisson.mod.1, type = "pearson")^2)
+pearson_stat
+
+# Get p value associated with the pearson statistic
+pearson_p.value <- pchisq(pearson_stat, poisson.mod.1$df.residual,
+lower.tail = FALSE)
+pearson_p.value
+```
+
+
+## Residual Deviance 
+
+$$D=2\sum_{i=1}^{n}\biggl[y_{i}\log\biggl(\frac{y_{i}}{\exp\{\textbf{X}_{i}\hat{\beta}\}}\biggr)-(y_{i}-\exp\{\textbf{X}_{i}\hat{\beta}\})\biggr]$$
+
+
+```{r}
+#Calculate deviance p value
+deviance_p.value <- pchisq(poisson.mod.1$deviance, poisson.mod.1$df.residual,
+lower.tail = FALSE)
+deviance_p.value
+```
+
+- `Goodness-of-fit statistics` test is a more objective measure of the overall fit.
+
+- The null hypothesis is that the model is correct against the alternative that it is not.
+- We can use both Pearson statistic or the residual deviance to perform this test
+
+- Here, the two non significant p-values indicate that we `fail to reject the null hypothesis that the model is correct`
+
+
+\newpage
+
+# Directly Testing for Over Dispersion
+
+We can use a dispersion test for Poisson regression from the AER package that tests the null hypothesis that 
+
+$$\theta=1$$ 
+
+vs. not in a regression of the form 
+
+$$\text{V}(Y_i)=(1+\alpha)*\lambda_i$$
+
+- Note that if we set $(1+\alpha)=\theta$ we get the variance form for a quasipoisson above. 
+
+- So this test is examining whether the variance of our outcome variable appears to come from a Poisson or quasipoisson distribution.
+
+If we reject the null hypothesis due to a small p-value, we have overdispersion if $\alpha>0$ and underdispersion (smaller variance in reality which is less common) if $\alpha<0$.
+
+The test itself reports the estimated dispersion value along with a p-value.
+
+Run the test using `dispersiontest()`:
+
+```{r}
+#| echo: true
+# replace with your code
+dispersiontest(poisson.mod.1)
+```
+
+- Note the dispersion estimate above 1 but lack of significant `p-value` since it is larger than 0.05. 
+  - This means we fail to reject the $H_0$ that poission regression is value.
+
+- If we reject the $H_0$ in an overdispersion test, that means we should fit a quasipoisson or `negative binomial regression`.
+
+- We can fit quasipoisson directly using `glm()` and specifying the appropriate family. 
+- For a negative binomial using regression, we need to use `glm.nb()` from the MASS package.
+
+```{r}
+# quasipoisson regression
+quasi.poisson <- glm(num_awards ~ prog + math, data = df, family = quasipoisson)
+
+# negative binomial regression
+neg.binom <- glm.nb(num_awards ~ prog + math, data = df)
+```
+
+```{r}
+stargazer(poisson.mod.1, quasi.poisson, neg.binom, type="text")
+```
+
+
+\newpage
+
+## Reminders
+
+1. Before next live session: 
+    1. Complete and turn in the Lab-1
+    2. Complete all videos and reading for unit 6
+

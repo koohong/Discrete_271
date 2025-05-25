@@ -79,3 +79,25 @@ library(parameters)       # Show model results as nice tables
 library(package = vcd) #assocstats
 library(package = PropCIs) #diffpropci.wald.mp (page 46)
 
+
+## POISION
+
+##Tools for performing model selection like AICc()
+if(!"gamlr"%in%rownames(installed.packages())) {install.packages("gamlr")}
+library(gamlr)
+
+## To generate regression results tables and plots
+if(!"finalfit"%in%rownames(installed.packages())) {install.packages("finalfit")}
+library(finalfit)
+
+## To produces LaTeX code, HTML/CSS code and ASCII text for well-formatted tables
+if(!"stargazer"%in%rownames(installed.packages())) {install.packages("stargazer")}
+library(stargazer)
+
+## For overdispersion test
+if(!"AER"%in%rownames(installed.packages())) {install.packages("AER")}
+library(AER)
+
+## For negative binomial regression
+if(!"MASS"%in%rownames(installed.packages())) {install.packages("MASS")}
+library(MASS)
