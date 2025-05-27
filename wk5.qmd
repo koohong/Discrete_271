@@ -1,5 +1,5 @@
 ---
-title: "Logistic regression"
+title: "Possion regression"
 format:
   html:
     toc: true
@@ -100,7 +100,7 @@ The log likelihood has no closed form solution, so we estimate the parameters be
 For each $y_i$ we can calculate and predict fitted values using the MLE of the coefficients:
 
 $$\hat{y_i}=E(y_i|X_i)=\lambda_i=e^{X_i\beta}$$
-Under Poisson regression, the $Var(\hat{y_i})=\lambda_i=e^{X_i\beta}$ so that Poisson regression naturally has heteroskedasticity in the results.
+Under Poisson regression, the $\text{V}[\hat{y_i}]=\lambda_i=e^{X_i\beta}$ so that Poisson regression naturally has heteroskedasticity in the results.
 
 Because coefficients are linear on the log scale, when exponentiated they multiply the expected mean outcome. This is similar to the interpretation in logistic regression except we are not dealing with odds ratios but rather changes in the average outcome.
 
@@ -357,7 +357,7 @@ beta.interval %>% kable("html", caption = "beta interval") %>%
 
 # Convert the confidence intervals to percentage change, corresponding to the coefficient estimates
 
-100 * (exp(beta.interval) - 1) %>% 
+as.data.frame(100 * (exp(beta.interval) - 1)) %>% 
   kable("html", caption = "beta interval") %>% 
   kable_styling(bootstrap_options = c("striped", "hover"))
 
@@ -373,6 +373,9 @@ beta.interval %>% kable("html", caption = "beta interval") %>%
 \newpage
 
 # Model Comparison Criteria
+
+[LINK1](https://stats.stackexchange.com/questions/232465/how-to-compare-models-on-the-basis-of-aic)
+[LINK2](https://www.scribbr.com/statistics/akaike-information-criterion/)
 
 Recall that the general form of most information criteria is:
 

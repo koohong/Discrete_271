@@ -185,7 +185,7 @@ window.Quarto = {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./wk4P2.html"> 
-<span class="menu-text">Nominal Response</span></a>
+<span class="menu-text">Nominol response regression model</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./wk4P3.html"> 
@@ -193,7 +193,7 @@ window.Quarto = {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./wk5.html"> 
-<span class="menu-text">Logistic regression</span></a>
+<span class="menu-text">Possion regression</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -355,6 +355,7 @@ X       1     2     3
 <ul>
 <li>For the I multinomial (i.e., product multinomial) setting, we again simulate a sample for a 2 × 3 contingency table (thus, I = 2).</li>
 <li>With this model, we need to draw samples of fixed size separately for each row.</li>
+<li>Question is can we get joint probability using this method?</li>
 <li>Here is an example from book</li>
 </ul>
 <section id="this-part-is-preparing-the-data-set-part" class="level2">
@@ -362,30 +363,70 @@ X       1     2     3
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#calculate conditional probability </span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>pi.cond <span class="ot">&lt;-</span> pi.table<span class="sc">/</span><span class="fu">rowSums</span>(pi.table)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>pi.cond</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>   Y
-X     1   2   3
-  1 0.4 0.4 0.2
-  2 0.6 0.2 0.2</code></pre>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>pi.cond <span class="sc">%&gt;%</span> <span class="fu">kable</span>(<span class="st">"html"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-striped table-hover caption-top table-sm small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">3</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.4</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">0.2</td>
+</tr>
+</tbody>
+</table>
+
+
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#simulate based on the conditional probability</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#notice the sample size is different from c.table1</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#suppose that we sampled 400 and 600.  This is just what was </span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#observed or we selected this</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">8111</span>) </span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>save1 <span class="ot">&lt;-</span> <span class="fu">rmultinom</span>(<span class="at">n =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">400</span>, <span class="at">prob =</span> pi.cond[<span class="dv">1</span>,]) </span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>save2 <span class="ot">&lt;-</span> <span class="fu">rmultinom</span>(<span class="at">n =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">600</span>, <span class="at">prob =</span> pi.cond[<span class="dv">2</span>,])</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>c.table2 <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="at">data =</span> <span class="fu">c</span>(save1[<span class="dv">1</span>], save2[<span class="dv">1</span>], save1[<span class="dv">2</span>],</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>save2[<span class="dv">2</span>], save1[<span class="dv">3</span>], save2 [<span class="dv">3</span>]), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>), <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="at">X =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">Y =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>))</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>c.table2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>   Y
-X     1   2   3
-  1 162 159  79
-  2 351 126 123</code></pre>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#simulate based on the conditional probability</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#notice the sample size is different from c.table1</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#suppose that we sampled 400 and 600.  This is just what was </span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#observed or we selected this</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">8111</span>) </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>save1 <span class="ot">&lt;-</span> <span class="fu">rmultinom</span>(<span class="at">n =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">400</span>, <span class="at">prob =</span> pi.cond[<span class="dv">1</span>,]) </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>save2 <span class="ot">&lt;-</span> <span class="fu">rmultinom</span>(<span class="at">n =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">600</span>, <span class="at">prob =</span> pi.cond[<span class="dv">2</span>,])</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>c.table2 <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="at">data =</span> <span class="fu">c</span>(save1[<span class="dv">1</span>], save2[<span class="dv">1</span>], save1[<span class="dv">2</span>],</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>save2[<span class="dv">2</span>], save1[<span class="dv">3</span>], save2 [<span class="dv">3</span>]), <span class="at">dim =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>), <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="at">X =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">Y =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>))</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>c.table2 <span class="sc">%&gt;%</span> <span class="fu">kable</span>(<span class="st">"html"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-striped table-hover caption-top table-sm small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">3</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">162</td>
+<td style="text-align: right;">159</td>
+<td style="text-align: right;">79</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">351</td>
+<td style="text-align: right;">126</td>
+<td style="text-align: right;">123</td>
+</tr>
+</tbody>
+</table>
+
+
 </div>
 </div>
 <ul>
@@ -409,6 +450,9 @@ X       1      2      3
 </section>
 <section id="testing-for-independence" class="level1">
 <h1>Testing for independence</h1>
+<ul>
+<li>See page 148</li>
+</ul>
 <p><span class="math display">H_0: P(X=x_i,Y=y_j) = P(x_i)\cdot P(y_j)</span> <span class="math display">H_a: P(X=x_i,Y=y_j) \not= P(x_i)\cdot P(y_j)</span> Using the book notation in p147,</p>
 <p><span class="math display">H_0: \pi_{ij}=\pi_{i+}\pi_{+j} \text{  for each i,j}</span> <span class="math display">H_0: \pi_{ij}\not=\pi_{i+}\pi_{+j} \text{  for some i,j}</span></p>
 <section id="compare-test-statistic-and-chi2" class="level3">

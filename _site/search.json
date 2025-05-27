@@ -2,51 +2,149 @@
   {
     "objectID": "wk5.html",
     "href": "wk5.html",
-    "title": "Logistic regression",
+    "title": "Possion regression",
     "section": "",
-    "text": "Reading - Ch 4.1,4.2.1 - 4.2.3,5.2 - Skim sections 5.1, 5.2.3,5.3,.5.4\n\nGeneralized linear models (GLM)\n\nGLMs have three different parts (see page 121:\n\nRandom Component:\n\nY, for logistic regression, Y has a Bernoulli distribution\n\nSystematic Component:\n\nThis specifies a linear combination of the regression parameters with features, and this part is referred to as the linear predictor\n\\beta_0 + \\beta_1x_1 + .... + \\beta_px_p\n\nLINK FUNCTION:\n\nSpecifies how the expected value of the random component E[Y] is linked to the sysmatic component.\n\\text{logit}(\\pi) = \\beta_0 + \\beta_1x_1 + .... + \\beta_px_p\nwhere E[Y] = \\pi"
+    "text": "Reading - Ch 4.1,4.2.1 - 4.2.3,5.2 - Skim sections 5.1, 5.2.3,5.3,.5.4"
+  },
+  {
+    "objectID": "wk5.html#class-announcements",
+    "href": "wk5.html#class-announcements",
+    "title": "Possion regression",
+    "section": "Class Announcements",
+    "text": "Class Announcements\nNo HW this week\nLab-1 due in 1 week"
+  },
+  {
+    "objectID": "wk5.html#roadmap",
+    "href": "wk5.html#roadmap",
+    "title": "Possion regression",
+    "section": "Roadmap",
+    "text": "Roadmap\nRearview Mirror\n\nModel unordered and ordered categorical response\n\nToday\n\nPoisson probability model\nPoisson regression model, estimation, and statistical inference\nModel Comparison Criteria, Model Assessment, Goodness of Fit\n\nLooking Ahead\n\nUnivariate and multivariate time-series\nNotion of dependency and stationarity"
+  },
+  {
+    "objectID": "wk5.html#parameter",
+    "href": "wk5.html#parameter",
+    "title": "Possion regression",
+    "section": "Parameter",
+    "text": "Parameter\nEqual Mean and Variance and Overdispersion\nThis assumption of equal mean and variance is often not met when actually fitting to data, which results in what is known as overdispersion where the variance in the data is larger than the variance fit in the model.\nThis usually can be remedied by adding more X variables into the model to improve the fit.\nAnother option is to fit what are known as a quasi poisson model or negative binomial regression model. In both cases, we relax the equal mean and variance assumption by adding an additional parameter to the variance of the response variable, allowing it to be larger than the mean.\nIn quasi poisson regression we set $\n\\text{V}[\\hat{y_i}]=\\theta\\lambda_i and in negative binomial regression we set\n\\text{V}[\\hat{y_i}]=\\lambda_i+\\kappa\\lambda_i^2"
+  },
+  {
+    "objectID": "wk5.html#target",
+    "href": "wk5.html#target",
+    "title": "Possion regression",
+    "section": "Target",
+    "text": "Target\n\nThe number of awards earned by students based on the type of programs students were enrolled in using historical admission data.\nnum_awards: the number of awards earned by students at a high school in a year\nmath: students’ scores on their final math exam\nprog: the type of program in which the students were enrolled\n\n1 = General\n2 = Academic\n3 = Vocational"
+  },
+  {
+    "objectID": "wk5.html#eda",
+    "href": "wk5.html#eda",
+    "title": "Possion regression",
+    "section": "EDA",
+    "text": "EDA\n\nWhat is the number of observations?\nWhat is the number of variables?\nAre there any redundant variables?\nAre there any missing information?\nAre there any duplicated records?\nAre there any values in each of the variables that seem unreasonable?\n\n\n\n\nModeling the Number of Awards\n\n\nX\nid\nnum_awards\nprog\nmath\n\n\n\n\n1\n45\n0\nVocational\n41\n\n\n2\n108\n0\nGeneral\n41\n\n\n3\n15\n0\nVocational\n44\n\n\n4\n67\n0\nVocational\n42\n\n\n5\n153\n0\nVocational\n40\n\n\n6\n51\n0\nGeneral\n42\n\n\n\n\n\n\n\n         X         id num_awards       prog       math \n         0          0          0          0          0 \n\n\n\n\nUnivariate Analysis\n\nUse a frequency table and a bar plot to explore the distribution of the response variable(num_awards). What do you learn?\n\n\n\n\nModeling the Number of Awards\n\n\nNumber of awards\nN\nProportion\n\n\n\n\n0\n124\n0.62\n\n\n1\n49\n0.24\n\n\n2\n13\n0.06\n\n\n3\n9\n0.04\n\n\n4\n2\n0.01\n\n\n5\n2\n0.01\n\n\n6\n1\n0.00\n\n\n\n\n\n\n\nWarning: The dot-dot notation (`..prop..`) was deprecated in ggplot2 3.4.0.\nℹ Please use `after_stat(prop)` instead.\n\n\n\n\n\n\n\n\n\n\nThe prog is the committee’s key explanatory variable of interest. It has three levels: academic, general, and vocational. Use a frequency table and a bar plot to examine its distribution. What do you discover?\n\n\n\n\nModeling the Number of Awards\n\n\nType of program\nN\nProportion\n\n\n\n\nAcademic\n105\n0.52\n\n\nGeneral\n45\n0.22\n\n\nVocational\n50\n0.25\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nPlot the distribution of math scores. What are the range and average math scores?\n\n\n\n\n\n\n\n\n\n\n\n\nBivariate Analysis\n\nExamine the associations between the number of awards and program and math scores.\nThe graph below shows the distribution of the number of awards by program types. How are awards distributed among different programs?\n\n\n\n\n\n\n\n\n\n\n\nThe graph below shows the distribution of the number of awards and students’ math scores. Is there any clear relationship between them?\n\n\n\n\n\n\n\n\n\n\n\nUse summary_factorlist() function from the finalfit package to tabulate data. What do you learn from the EDA?\n\n\n\n\nModeling the Number of Awards\n\n\nDependent: num_awards\n\nunit\nvalue\n\n\n\n\nprog\nAcademic\nMean (sd)\n1.0 (1.3)\n\n\n\nGeneral\nMean (sd)\n0.2 (0.4)\n\n\n\nVocational\nMean (sd)\n0.2 (0.5)\n\n\nmath\n[33.0,75.0]\nMean (sd)\n0.6 (1.1)"
+  },
+  {
+    "objectID": "wk5.html#coefficients",
+    "href": "wk5.html#coefficients",
+    "title": "Possion regression",
+    "section": "Coefficients",
+    "text": "Coefficients\n\npoisson.mod.1 &lt;- poisson.mod.1 &lt;- glm(num_awards ~ prog + math, \n                                      data = df, \n                                      family = poisson)\n\nsummary(poisson.mod.1)\n\n\nCall:\nglm(formula = num_awards ~ prog + math, family = poisson, data = df)\n\nDeviance Residuals: \n    Min       1Q   Median       3Q      Max  \n-2.2043  -0.8436  -0.5106   0.2558   2.6796  \n\nCoefficients:\n               Estimate Std. Error z value Pr(&gt;|z|)    \n(Intercept)    -4.16327    0.66288  -6.281 3.37e-10 ***\nprogGeneral    -1.08386    0.35825  -3.025  0.00248 ** \nprogVocational -0.71405    0.32001  -2.231  0.02566 *  \nmath            0.07015    0.01060   6.619 3.63e-11 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n(Dispersion parameter for poisson family taken to be 1)\n\n    Null deviance: 287.67  on 199  degrees of freedom\nResidual deviance: 189.45  on 196  degrees of freedom\nAIC: 373.5\n\nNumber of Fisher Scoring iterations: 6\n\n\n\nThe negative coefficients of the general and vocational programs indicate that the number of wards is lower in these two programs.\nThe positive coefficients of math score indicates that the number of awards is increasing as the math score increases.\n\n\n(exp(coef(poisson.mod.1)) - 1) * 100\n\n   (Intercept)    progGeneral progVocational           math \n    -98.444332     -66.171250     -51.034289       7.267164 \n\n\nTo have a more convenient way to interpret these coefficients, we compute and use percentage changes - Holding program type constant, 1 unit increase in math score increase the mean number of awards by 7%.\n\nHold math score constant;\n\na student in the general program, on average, receives 66% fewer awards than students in the academic program\na student in the vocational program, on average, receives 51% fewer awards than students in the academic program\n\n\n\nAnova()\n\nTest the overall effect of prog using Anova():\n\n\n\nAnalysis of Deviance Table (Type II tests)\n\nResponse: num_awards\n     LR Chisq Df Pr(&gt;Chisq)    \nprog   14.572  2  0.0006852 ***\nmath   45.010  1   1.96e-11 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n\nBased on the p-values, the prog, taken together, is a statistically significant predictor of the number of awards."
+  },
+  {
+    "objectID": "wk5.html#plot-the-result",
+    "href": "wk5.html#plot-the-result",
+    "title": "Possion regression",
+    "section": "Plot the result",
+    "text": "Plot the result\n\nPlot the fitted values across the three programs and discuss how the number of awards is associated with math scores.\n\n\n\nWarning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.\nℹ Please use `linewidth` instead.\n\n\n\n\n\n\n\nThis graph indicates that the most awards are earned by students in the academic program, especially if the student has a high math score.\nStudents in the general program earn the lowest number of awards"
+  },
+  {
+    "objectID": "wk5.html#ci-of-cofficients",
+    "href": "wk5.html#ci-of-cofficients",
+    "title": "Possion regression",
+    "section": "CI of cofficients",
+    "text": "CI of cofficients\n\nConstruct and interpret the confidence intervals for each variable using confint().\n\n\n\nWaiting for profiling to be done...\n\n\n\nbeta interval\n\n\n\n2.5 %\n97.5 %\n\n\n\n\n(Intercept)\n-5.4857279\n-2.8857230\n\n\nprogGeneral\n-1.8558691\n-0.4350439\n\n\nprogVocational\n-1.3905775\n-0.1261624\n\n\nmath\n0.0494967\n0.0910770\n\n\n\n\n\n\n\n\nbeta interval\n\n\n\n2.5 %\n97.5 %\n\n\n\n\n(Intercept)\n-99.585448\n-94.418558\n\n\nprogGeneral\n-84.368296\n-35.276377\n\n\nprogVocational\n-75.106849\n-11.852828\n\n\nmath\n5.074217\n9.535332\n\n\n\n\n\n\n\n\nat \\alpha = 0.05, Compared to the students in academic program, the mean number of awards that students in General program decreases by 35% to 84% holding the math score constant.\nWith 95% confidence, the mean number of awards decrease by 11% to 75% for the student in vocational program vs. student in academic programs, holding the math score constant.\n95% confidence interval of a the effect of 1-unit increase in math score on the mean number of award holding everything else constant is 5.07% to 9.53% increase"
+  },
+  {
+    "objectID": "wk5.html#aic",
+    "href": "wk5.html#aic",
+    "title": "Possion regression",
+    "section": "AIC",
+    "text": "AIC\nAIC = IC(2) = -2log(L(\\hat{\\beta}|y_1,.....,y_n))+2r"
+  },
+  {
+    "objectID": "wk5.html#aic_c",
+    "href": "wk5.html#aic_c",
+    "title": "Possion regression",
+    "section": "AIC_c",
+    "text": "AIC_c\nAIC_c = IC(\\frac{2n}{n-r-1}) = -2log(L(\\hat{\\beta}|y_1,.....,y_n))+r\\frac{2n}{n-r-1}=AIC+\\frac{2r(r+1)}{n-r-1}"
+  },
+  {
+    "objectID": "wk5.html#bic",
+    "href": "wk5.html#bic",
+    "title": "Possion regression",
+    "section": "BIC",
+    "text": "BIC\nBIC = IC(log(n)) = -2log(L(\\hat{\\beta}|y_1,.....,y_n))+rlog(n)"
+  },
+  {
+    "objectID": "wk5.html#example",
+    "href": "wk5.html#example",
+    "title": "Possion regression",
+    "section": "Example",
+    "text": "Example\n\nCompute these three information criteria for the following three models and then rank the models based on each criterion using AIC(), BIC(), and AICc().\n\n\\text{mod.1:   }\\log(mean\\_num\\_awards) = \\beta_0 + \\beta_1 prog + u   \\text{mod.2:   }\\log(mean\\_num\\_awards) = \\beta_0 + \\beta_1 math + u\n\\text{mod.3:   }\\log(mean\\_num\\_awards) = \\beta_0 + \\beta_1 prog + \\beta_2 math + u\n\n\n     mod.1    mod.2    mod.3\n1 384.0762 416.5149 373.5045\n\n\n     mod.1    mod.2    mod.3\n1 384.1371 416.6373 373.7096\n\n\n     mod.1    mod.2    mod.3\n1 390.6728 426.4098 386.6978\n\n\n\nThe model with the lowest AIC, corrected AIC, or BIC score is preferred.\n\nThe absolute values of these scores do not matter.\n\nThese scores can be negative or positive.\n\nBased on all these three criteria, the third model with both math and program is the best, and the second model with the only program is the worst model"
+  },
+  {
+    "objectID": "wk5.html#the-pearson-statistics",
+    "href": "wk5.html#the-pearson-statistics",
+    "title": "Possion regression",
+    "section": "The Pearson Statistics",
+    "text": "The Pearson Statistics\n\\chi^2=\\sum_{i=1}^{n}\\frac{(y_{i}-\\exp\\{\\textbf{X}_{i}\\hat{\\beta}\\})^{2}}{\\exp\\{\\textbf{X}_{i}\\hat{\\beta}\\}}\n\n# Calculate Pearson statistic residuals\npearson_stat &lt;- sum(residuals(poisson.mod.1, type = \"pearson\")^2)\npearson_stat\n\n[1] 212.1437\n\n# Get p value associated with the pearson statistic\npearson_p.value &lt;- pchisq(pearson_stat, poisson.mod.1$df.residual,\nlower.tail = FALSE)\npearson_p.value\n\n[1] 0.203986"
+  },
+  {
+    "objectID": "wk5.html#residual-deviance",
+    "href": "wk5.html#residual-deviance",
+    "title": "Possion regression",
+    "section": "Residual Deviance",
+    "text": "Residual Deviance\nD=2\\sum_{i=1}^{n}\\biggl[y_{i}\\log\\biggl(\\frac{y_{i}}{\\exp\\{\\textbf{X}_{i}\\hat{\\beta}\\}}\\biggr)-(y_{i}-\\exp\\{\\textbf{X}_{i}\\hat{\\beta}\\})\\biggr]\n\n\n[1] 0.6182274\n\n\n\nGoodness-of-fit statistics test is a more objective measure of the overall fit.\nThe null hypothesis is that the model is correct against the alternative that it is not.\nWe can use both Pearson statistic or the residual deviance to perform this test\nHere, the two non significant p-values indicate that we fail to reject the null hypothesis that the model is correct"
+  },
+  {
+    "objectID": "wk5.html#reminders",
+    "href": "wk5.html#reminders",
+    "title": "Possion regression",
+    "section": "Reminders",
+    "text": "Reminders\n\nBefore next live session:\n\nComplete and turn in the Lab-1\nComplete all videos and reading for unit 6"
   },
   {
     "objectID": "wk4P2.html",
     "href": "wk4P2.html",
-    "title": "Nominal Response",
+    "title": "Nominol response regression model",
     "section": "",
     "text": "Reading\n\nCh.3.3"
   },
   {
     "objectID": "wk4P2.html#functional-form",
     "href": "wk4P2.html#functional-form",
-    "title": "Nominal Response",
+    "title": "Nominol response regression model",
     "section": "Functional form",
     "text": "Functional form\n\\text{log}(\\frac{\\text{probility of getting some color}}{\\text{probability of getting blue}}) = \\beta_{\\text{some color }0} + \\beta_{\\text{some color }1}x_1 .. + \\beta_{\\text{some color }p}x_p\n\\text{log}(\\frac{\\pi_j}{\\pi_1}) = \\beta_{j0} + \\beta_{j1}x_1 .. + \\beta_{jp}x_p\n\nusing the multinomial regression model, we can estimate \\pi_1..\\pi_J based on sample, but finding their confidence interval is hard such that we only focus on Wald Confidence interval here."
   },
   {
-    "objectID": "wk4P2.html#eda",
-    "href": "wk4P2.html#eda",
-    "title": "Nominal Response",
-    "section": "EDA",
-    "text": "EDA\n\nwheat &lt;- read.csv(here(\"data\",\"Wheat.csv\"), stringsAsFactors = TRUE)\n\nhrw &lt;- wheat %&gt;% filter(class == \"hrw\")\n\np &lt;- ggparcoord(data = hrw, \n                columns = c(2:6),\n                groupColumn = 7,\n                showPoints = TRUE, \n                title = \"Parallel Coordinate Plot for the Iris Data\",\n                alphaLines = 0.9)\n\nggplotly(p)"
+    "objectID": "wk4P2.html#fit-the-model-and-evaluate",
+    "href": "wk4P2.html#fit-the-model-and-evaluate",
+    "title": "Nominol response regression model",
+    "section": "Fit the model and evaluate",
+    "text": "Fit the model and evaluate\n\nEDA\n\nwheat &lt;- read.csv(here(\"data\",\"Wheat.csv\"), stringsAsFactors = TRUE)\n\nhrw &lt;- wheat %&gt;% filter(class == \"hrw\")\n\np &lt;- ggparcoord(data = hrw, \n                columns = c(2:6),\n                groupColumn = 7,\n                showPoints = TRUE, \n                title = \"Parallel Coordinate Plot for the Iris Data\",\n                alphaLines = 0.9)\n\nggplotly(p)\n\n\n\n\n\n\n\nFit the model\n\n#the first is the baseline\nlevels(wheat$type)\n\n[1] \"Healthy\" \"Scab\"    \"Sprout\" \n\n#library(package = nnet)\nmod.fit &lt;- multinom(formula = type ~ class + density + hardness\n+ size + weight + moisture , data = wheat)\n\n# weights:  24 (14 variable)\ninitial  value 302.118379 \niter  10 value 234.991271\niter  20 value 192.127549\nfinal  value 192.112352 \nconverged\n\n\n\n\nEvaluation\n\n\nCall:\nmultinom(formula = type ~ class + density + hardness + size + \n    weight + moisture, data = wheat)\n\nCoefficients:\n       (Intercept)   classsrw   density    hardness      size     weight\nScab      30.54650 -0.6481277 -21.59715 -0.01590741 1.0691139 -0.2896482\nSprout    19.16857 -0.2247384 -15.11667 -0.02102047 0.8756135 -0.0473169\n          moisture\nScab    0.10956505\nSprout -0.04299695\n\nStd. Errors:\n       (Intercept)  classsrw  density    hardness      size     weight\nScab      4.289865 0.6630948 3.116174 0.010274587 0.7722862 0.06170252\nSprout    3.767214 0.5009199 2.764306 0.008105748 0.5409317 0.03697493\n        moisture\nScab   0.1548407\nSprout 0.1127188\n\nResidual Deviance: 384.2247 \nAIC: 412.2247 \n\n\n\nThe first parameter class has two values hrw and srw\nThis model output is hard to see.\n\n\n# library(equatiomatic)\n# model &lt;- lm(formula = type ~ class + density + hardness\n# + size + weight + moisture , data = wheat)\n# latex_equation &lt;- extract_eq(model)\n# print(latex_equation)\n\n\nThe estimated coefficient for classrw, -0.648 is part of the following equation\n\n\n\\operatorname{log\\frac{\\hat{\\pi}_{scab}}{\\hat{\\pi}_{Healthy}}} = 30.55 -0.65\\cdot(\\operatorname{class}_{\\operatorname{srw}}) + \\beta_{2}(\\operatorname{density}) + \\beta_{3}(\\operatorname{hardness}) + \\beta_{4}(\\operatorname{size}) + \\beta_{5}(\\operatorname{weight}) + \\beta_{6}(\\operatorname{moisture}) + \\hat{\\epsilon}\n\n\ntest statistic is -0.978 and its corresponding p-value is 0.32 - there is not sufficient evidence that hard and soft red winter wheat have different effects on the scab or healthy status of the kernels given the other explanatory variables are in the model\nLet’s print the output again.\n\n\n\n\nScab\n\n\nParameter\nCoefficient\nSE\nCI\nCI_low\nCI_high\nz\np\nResponse\n\n\n\n\n(Intercept)\n30.5464951\n4.2898646\n0.95\n22.1385150\n38.9544752\n7.1206199\n0.0000000\nScab\n\n\nclasssrw\n-0.6481277\n0.6630948\n0.95\n-1.9477696\n0.6515141\n-0.9774285\n0.3283570\nScab\n\n\ndensity\n-21.5971549\n3.1161741\n0.95\n-27.7047438\n-15.4895660\n-6.9306639\n0.0000000\nScab\n\n\nhardness\n-0.0159074\n0.0102746\n0.95\n-0.0360452\n0.0042304\n-1.5482286\n0.1215673\nScab\n\n\nsize\n1.0691139\n0.7722862\n0.95\n-0.4445393\n2.5827670\n1.3843493\n0.1662515\nScab\n\n\nweight\n-0.2896482\n0.0617025\n0.95\n-0.4105829\n-0.1687135\n-4.6942690\n0.0000027\nScab\n\n\nmoisture\n0.1095650\n0.1548407\n0.95\n-0.1939172\n0.4130473\n0.7075983\n0.4791947\nScab\n\n\n\n\n\n\n\n\nSprout\n\n\n\nParameter\nCoefficient\nSE\nCI\nCI_low\nCI_high\nz\np\nResponse\n\n\n\n\n8\n(Intercept)\n19.1685687\n3.7672143\n0.95\n11.7849643\n26.5521732\n5.0882607\n0.0000004\nSprout\n\n\n9\nclasssrw\n-0.2247384\n0.5009199\n0.95\n-1.2065233\n0.7570465\n-0.4486513\n0.6536832\nSprout\n\n\n10\ndensity\n-15.1166714\n2.7643059\n0.95\n-20.5346114\n-9.6987314\n-5.4685234\n0.0000000\nSprout\n\n\n11\nhardness\n-0.0210205\n0.0081057\n0.95\n-0.0369074\n-0.0051335\n-2.5932793\n0.0095066\nSprout\n\n\n12\nsize\n0.8756135\n0.5409317\n0.95\n-0.1845931\n1.9358201\n1.6187138\n0.1055089\nSprout\n\n\n13\nweight\n-0.0473169\n0.0369749\n0.95\n-0.1197864\n0.0251526\n-1.2797020\n0.2006500\nSprout\n\n\n14\nmoisture\n-0.0429970\n0.1127188\n0.95\n-0.2639218\n0.1779279\n-0.3814532\n0.7028670\nSprout\n\n\n\n\n\n\n\n\n\nDoes anything have any predictive power?\n\nSo many numbers to keep track of…\n\n\n\n\n\n\nH_0: \\beta_{21} = \\beta_{31} = 0 H_0: \\beta_{21} \\not = 0 \\text{ and/or } \\beta_{31} \\not= 0\n\n\nAnova()\nAnova() test performs LR test. - LR Chisq is the transformed test statistic related to class variable,-2\\text{log}(\\lambda)=0.964 - Because of the large p-value, there is not sufficient evidence to indicate that the class of wheat is important given that the other variables are in the model.\n\nAnova(mod.fit) %&gt;% kable(\"html\", caption = \"Anova()\") %&gt;% \n  kable_styling(bootstrap_options = c(\"striped\", \"hover\"))\n\n\nAnova()\n\n\n\nLR Chisq\nDf\nPr(&gt;Chisq)\n\n\n\n\nclass\n0.9641189\n2\n0.6175104\n\n\ndensity\n90.5551631\n2\n0.0000000\n\n\nhardness\n7.0736934\n2\n0.0291050\n\n\nsize\n3.2106326\n2\n0.2008260\n\n\nweight\n28.2302354\n2\n0.0000007\n\n\nmoisture\n1.1933402\n2\n0.5506422\n\n\n\n\n\n\n\n\nSeparate tests for density, hardness, and weight in the output all indicate at least marginal evidence of importance for these explanatory variables.\n\n\npi.hat &lt;- predict(object = mod.fit , newdata = wheat , type =\n\"probs\")\n\npi.hat %&gt;% head() %&gt;% kable(\"html\", caption = \"pi.hat\") %&gt;% \n  kable_styling(bootstrap_options = c(\"striped\", \"hover\"))\n\n\npi.hat\n\n\nHealthy\nScab\nSprout\n\n\n\n\n0.8552110\n0.0463968\n0.0983922\n\n\n0.7492553\n0.0215722\n0.2291726\n\n\n0.5172800\n0.0689799\n0.4137401\n\n\n0.8982064\n0.0067407\n0.0950529\n\n\n0.5103245\n0.1762608\n0.3134147\n\n\n0.7924907\n0.0153041\n0.1922052\n\n\n\n\n\n\n\n\nCheck accuracy\n\n\n\n[1] 0.72\n\n\n\n\nChanges in probability\n\nWith respect to changes in density when the function has only density as its parameter\n\n\n\n# weights:  9 (4 variable)\ninitial  value 302.118379 \niter  10 value 229.769334\niter  20 value 229.712304\nfinal  value 229.712290 \nconverged"
   },
   {
-    "objectID": "wk4P2.html#fit-the-model",
-    "href": "wk4P2.html#fit-the-model",
-    "title": "Nominal Response",
-    "section": "Fit the model",
-    "text": "Fit the model\n\n\n[1] \"Healthy\" \"Scab\"    \"Sprout\" \n\n\n# weights:  24 (14 variable)\ninitial  value 302.118379 \niter  10 value 234.991271\niter  20 value 192.127549\nfinal  value 192.112352 \nconverged"
+    "objectID": "wk4P2.html#odds-ratios",
+    "href": "wk4P2.html#odds-ratios",
+    "title": "Nominol response regression model",
+    "section": "Odds ratios",
+    "text": "Odds ratios\n\nsee page 160\nThe log-odds are modeled directly in a multinomial regression model, odds ratios are useful for interpreting an explanatory variable’s relationship with the response\nOdds ratios for numerical explanatory variables represent the change in odds correspodning to a c-unit increase in a particular explanatory variable.\nThe odds of category j response vs a category 1 response (the baseline) are \\text{exp}(\\beta_{j0}+\\beta_{j1}x_1 + ... + \\beta_{jp}x_p)\nThe odds in Wheat proble are constructed as\n\n\\frac{P(Y=j)}{P(Y=1)}\nwhere j = 2 (scab) and 3 (sprout), and 1 (healthy)\nand we had 6 features (see table below)\n\nmod.fit &lt;- multinom(formula = type ~ class + density + hardness\n+ size + weight + moisture , data = wheat)\n\n# weights:  24 (14 variable)\ninitial  value 302.118379 \niter  10 value 234.991271\niter  20 value 192.127549\nfinal  value 192.112352 \nconverged\n\ncoefficients(mod.fit) %&gt;% kable(\"html\", caption = \"mod.fit\") %&gt;% \n  kable_styling(bootstrap_options = c(\"striped\", \"hover\"))\n\n\nmod.fit\n\n\n\n(Intercept)\nclasssrw\ndensity\nhardness\nsize\nweight\nmoisture\n\n\n\n\nScab\n30.54650\n-0.6481277\n-21.59715\n-0.0159074\n1.0691139\n-0.2896482\n0.109565\n\n\nSprout\n19.16857\n-0.2247384\n-15.11667\n-0.0210205\n0.8756135\n-0.0473169\n-0.042997\n\n\n\n\n\n\n\n\nchanges in OR\n\nwhen you change the value of the feature by 1 sd\n\n\nsd.wheat &lt;- apply(X = wheat[,-c(1,7,8)], MARGIN = 2, FUN = sd)\nsd.wheat\n\n   density   hardness       size     weight   moisture \n 0.1313021 27.3561563  0.4906125  7.9154398  2.0332132 \n\nc.value &lt;- c(1, sd.wheat)\nc.value\n\n              density   hardness       size     weight   moisture \n 1.0000000  0.1313021 27.3561563  0.4906125  7.9154398  2.0332132 \n\n\n\n\n          density hardness     size   weight moisture \n    0.52     0.06     0.65     1.69     0.10     1.25 \n\n\n          density hardness     size   weight moisture \n    1.91    17.04     1.55     0.59     9.90     0.80 \n\n\n\nThe estimated odds of a scab vs. a healthy kernel change by 0.06 times for a 0.13 increase in the density holding the other variables constant.\nEquivalently, we can say that the estimated odds of a scab vs. a healthy kernel change by 17.04 times for a 0.13 decrease in the density holding the other variables constant.\nThe estimated odds of a scab vs. healthy kernel change by 9.90 times for a 7.92 decrease in the weight holding the other variables constant.\n\n\n\n          density hardness     size   weight moisture \n    0.80     0.14     0.56     1.54     0.69     0.92 \n\n\n\nThe estimated odds of a sprout vs. ahealthy kernel change by 7.28 times for a 0.13 decrease in the density holding the other variables constant\nThe estimated odds of a sprout vs. healthy kernel change by 1.45 times for a 7.92 decrease in the weight holding the other variables constant.\nWe see that the larger the density and weight, the more likely a kernel is healthy."
   },
   {
-    "objectID": "wk4P2.html#evaluation",
-    "href": "wk4P2.html#evaluation",
-    "title": "Nominal Response",
-    "section": "Evaluation",
-    "text": "Evaluation\n\n\nCall:\nmultinom(formula = type ~ class + density + hardness + size + \n    weight + moisture, data = wheat)\n\nCoefficients:\n       (Intercept)   classsrw   density    hardness      size     weight\nScab      30.54650 -0.6481277 -21.59715 -0.01590741 1.0691139 -0.2896482\nSprout    19.16857 -0.2247384 -15.11667 -0.02102047 0.8756135 -0.0473169\n          moisture\nScab    0.10956505\nSprout -0.04299695\n\nStd. Errors:\n       (Intercept)  classsrw  density    hardness      size     weight\nScab      4.289865 0.6630948 3.116174 0.010274587 0.7722862 0.06170252\nSprout    3.767214 0.5009199 2.764306 0.008105748 0.5409317 0.03697493\n        moisture\nScab   0.1548407\nSprout 0.1127188\n\nResidual Deviance: 384.2247 \nAIC: 412.2247 \n\n\n\nThe first parameter class has two values hrw and srw\nThis model output is hard to see.\n\n\nThe estimated coefficient for classrw, -0.648 is part of the following equation\n\n\n\\operatorname{log\\frac{\\hat{\\pi}_{scab}}{\\hat{\\pi}_{Healthy}}} = 30.55 -0.65\\cdot(\\operatorname{class}_{\\operatorname{srw}}) + \\beta_{2}(\\operatorname{density}) + \\beta_{3}(\\operatorname{hardness}) + \\beta_{4}(\\operatorname{size}) + \\beta_{5}(\\operatorname{weight}) + \\beta_{6}(\\operatorname{moisture}) + \\hat{\\epsilon}\n\n\ntest statistic is -0.978 and its corresponding p-value is 0.32 - there is not sufficient evidence that hard and soft red winter wheat have different effects on the scab or healthy status of the kernels given the other explanatory variables are in the model\nLet’s print the output again.\n\n\n\n\nScab\n\n\nParameter\nCoefficient\nSE\nCI\nCI_low\nCI_high\nz\np\nResponse\n\n\n\n\n(Intercept)\n30.5464951\n4.2898646\n0.95\n22.1385150\n38.9544752\n7.1206199\n0.0000000\nScab\n\n\nclasssrw\n-0.6481277\n0.6630948\n0.95\n-1.9477696\n0.6515141\n-0.9774285\n0.3283570\nScab\n\n\ndensity\n-21.5971549\n3.1161741\n0.95\n-27.7047438\n-15.4895660\n-6.9306639\n0.0000000\nScab\n\n\nhardness\n-0.0159074\n0.0102746\n0.95\n-0.0360452\n0.0042304\n-1.5482286\n0.1215673\nScab\n\n\nsize\n1.0691139\n0.7722862\n0.95\n-0.4445393\n2.5827670\n1.3843493\n0.1662515\nScab\n\n\nweight\n-0.2896482\n0.0617025\n0.95\n-0.4105829\n-0.1687135\n-4.6942690\n0.0000027\nScab\n\n\nmoisture\n0.1095650\n0.1548407\n0.95\n-0.1939172\n0.4130473\n0.7075983\n0.4791947\nScab\n\n\n\n\n\n\n\n\nSprout\n\n\n\nParameter\nCoefficient\nSE\nCI\nCI_low\nCI_high\nz\np\nResponse\n\n\n\n\n8\n(Intercept)\n19.1685687\n3.7672143\n0.95\n11.7849643\n26.5521732\n5.0882607\n0.0000004\nSprout\n\n\n9\nclasssrw\n-0.2247384\n0.5009199\n0.95\n-1.2065233\n0.7570465\n-0.4486513\n0.6536832\nSprout\n\n\n10\ndensity\n-15.1166714\n2.7643059\n0.95\n-20.5346114\n-9.6987314\n-5.4685234\n0.0000000\nSprout\n\n\n11\nhardness\n-0.0210205\n0.0081057\n0.95\n-0.0369074\n-0.0051335\n-2.5932793\n0.0095066\nSprout\n\n\n12\nsize\n0.8756135\n0.5409317\n0.95\n-0.1845931\n1.9358201\n1.6187138\n0.1055089\nSprout\n\n\n13\nweight\n-0.0473169\n0.0369749\n0.95\n-0.1197864\n0.0251526\n-1.2797020\n0.2006500\nSprout\n\n\n14\nmoisture\n-0.0429970\n0.1127188\n0.95\n-0.2639218\n0.1779279\n-0.3814532\n0.7028670\nSprout\n\n\n\n\n\n\n\n\nDoes anything have any predictive power?\n\nSo many numbers to keep track of…\n\n\n\n\n\n\nH_0: \\beta_{21} = \\beta_{31} = 0 H_0: \\beta_{21} \\not = 0 \\text{ and/or } \\beta_{31} \\not= 0\n\n\nAnova()\nAnova() test performs LR test. - LR Chisq is the transformed test statistic related to class variable,-2\\text{log}(\\lambda)=0.964 - Because of the large p-value, there is not sufficient evidence to indicate that the class of wheat is important given that the other variables are in the model.\n\n\n\nAnova()\n\n\n\nLR Chisq\nDf\nPr(&gt;Chisq)\n\n\n\n\nclass\n0.9641189\n2\n0.6175104\n\n\ndensity\n90.5551631\n2\n0.0000000\n\n\nhardness\n7.0736934\n2\n0.0291050\n\n\nsize\n3.2106326\n2\n0.2008260\n\n\nweight\n28.2302354\n2\n0.0000007\n\n\nmoisture\n1.1933402\n2\n0.5506422\n\n\n\n\n\n\n\n\nSeparate tests for density, hardness, and weight in the output all indicate at least marginal evidence of importance for these explanatory variables.\n\n\n\n[1] 0.72\n\n\n\n\n# weights:  9 (4 variable)\ninitial  value 302.118379 \niter  10 value 229.769334\niter  20 value 229.712304\nfinal  value 229.712290 \nconverged"
-  },
-  {
-    "objectID": "wk4P2.html#or",
-    "href": "wk4P2.html#or",
-    "title": "Nominal Response",
-    "section": "OR",
-    "text": "OR\n\nThe log-odds are modeled directly in a multinomial regression model, odds ratios are useful for interpreting an explanatory variable’s relationship with the response"
+    "objectID": "wk4P2.html#confidence-interval",
+    "href": "wk4P2.html#confidence-interval",
+    "title": "Nominol response regression model",
+    "section": "Confidence interval",
+    "text": "Confidence interval\n\nGet the Wald intervals for the odd ratios\n\n\n# Wald intervals\nconf.beta &lt;- confint(object = mod.fit , level = 0.95)\n\nconf.beta\n\n, , Scab\n\n                   2.5 %        97.5 %\n(Intercept)  22.13851497  38.954475222\nclasssrw     -1.94776958   0.651514098\ndensity     -27.70474380 -15.489565975\nhardness     -0.03604523   0.004230411\nsize         -0.44453927   2.582767006\nweight       -0.41058295  -0.168713512\nmoisture     -0.19391723   0.413047326\n\n, , Sprout\n\n                   2.5 %       97.5 %\n(Intercept)  11.78496433 26.552173165\nclasssrw     -1.20652328  0.757046542\ndensity     -20.53461137 -9.698731394\nhardness     -0.03690744 -0.005133494\nsize         -0.18459306  1.935820104\nweight       -0.11978643  0.025152642\nmoisture     -0.26392179  0.177927888"
   },
   {
     "objectID": "wk2.html",
@@ -277,7 +375,7 @@
     "href": "wk4P1.html#this-part-is-preparing-the-data-set-part",
     "title": "Multinomial",
     "section": "This part is preparing the data set part",
-    "text": "This part is preparing the data set part\n\n#calculate conditional probability \npi.cond &lt;- pi.table/rowSums(pi.table)\npi.cond\n\n   Y\nX     1   2   3\n  1 0.4 0.4 0.2\n  2 0.6 0.2 0.2\n\n#simulate based on the conditional probability\n#notice the sample size is different from c.table1\n#suppose that we sampled 400 and 600.  This is just what was \n#observed or we selected this\nset.seed(8111) \nsave1 &lt;- rmultinom(n = 1, size = 400, prob = pi.cond[1,]) \nsave2 &lt;- rmultinom(n = 1, size = 600, prob = pi.cond[2,])\n\nc.table2 &lt;- array(data = c(save1[1], save2[1], save1[2],\nsave2[2], save1[3], save2 [3]), dim = c(2,3), dimnames = list(X = 1:2, Y = 1:3))\n\nc.table2\n\n   Y\nX     1   2   3\n  1 162 159  79\n  2 351 126 123\n\n\n\nCan we estimate the joint from this table? is the question.\n\nAnswer is, yes\n\n\n\n\n   Y\nX       1      2      3\n  1 0.405 0.3975 0.1975\n  2 0.585 0.2100 0.2050\n\n\n\nNow, we have joint and marginal, can we test independence?"
+    "text": "This part is preparing the data set part\n\n#calculate conditional probability \npi.cond &lt;- pi.table/rowSums(pi.table)\npi.cond %&gt;% kable(\"html\") %&gt;% \n  kable_styling(bootstrap_options = c(\"striped\", \"hover\"))\n\n\n\n\n1\n2\n3\n\n\n\n\n0.4\n0.4\n0.2\n\n\n0.6\n0.2\n0.2\n\n\n\n\n\n\n#simulate based on the conditional probability\n#notice the sample size is different from c.table1\n#suppose that we sampled 400 and 600.  This is just what was \n#observed or we selected this\nset.seed(8111) \nsave1 &lt;- rmultinom(n = 1, size = 400, prob = pi.cond[1,]) \nsave2 &lt;- rmultinom(n = 1, size = 600, prob = pi.cond[2,])\n\nc.table2 &lt;- array(data = c(save1[1], save2[1], save1[2],\nsave2[2], save1[3], save2 [3]), dim = c(2,3), dimnames = list(X = 1:2, Y = 1:3))\n\nc.table2 %&gt;% kable(\"html\") %&gt;% \n  kable_styling(bootstrap_options = c(\"striped\", \"hover\"))\n\n\n\n\n1\n2\n3\n\n\n\n\n162\n159\n79\n\n\n351\n126\n123\n\n\n\n\n\n\n\n\nCan we estimate the joint from this table? is the question.\n\nAnswer is, yes\n\n\n\n\n   Y\nX       1      2      3\n  1 0.405 0.3975 0.1975\n  2 0.585 0.2100 0.2050\n\n\n\nNow, we have joint and marginal, can we test independence?"
   },
   {
     "objectID": "wk4P3.html",
@@ -291,34 +389,34 @@
     "href": "wk4P3.html#functional-form",
     "title": "Ordinal response regression models",
     "section": "Functional form",
-    "text": "Functional form\n\\text{log}(\\frac{\\text{probility of getting some color}}{\\text{probability of getting blue}}) = \\beta_{\\text{some color }0} + \\beta_{\\text{some color }1}x_1 .. + \\beta_{\\text{some color }p}x_p\n\\text{log}(\\frac{\\pi_j}{\\pi_1}) = \\beta_{j0} + \\beta_{j1}x_1 .. + \\beta_{jp}x_p\n\nusing the multinomial regression model, we can estimate \\pi_1..\\pi_J based on sample, but finding their confidence interval is hard such that we only focus on Wald Confidence interval here."
+    "text": "Functional form\n\n(p170)\nThe model is the log-odds of cumulative probabilities, called cumulative logits\n\n\\text{logit}(P(Y \\le j)) = \\text{log}\\frac{P(Y \\le j)}{1-P(Y \\le j)} In particular, the proportional odds model is assumes the probabilities changes linear as the explanatory variable chagne and the also the slope of this relationship is the same regardless of the category j. (see page 170)\n\\text{logit}(P(Y \\le j)) = \\beta_{j0} + \\beta_{1}x_1 .. + \\beta_{p}x_p - Notice the subscript j exists only for the constant term. This is the simplified version of the nominal response model.\n\nThe model assumes that the effects of the explanatory variables are the same regardless of which cumulative probabilities are used to from the log odds\nFor a fixed j, increasing x_j by c units changes every log-odds by c\\beta_r when holding other explanatory variables constant."
   },
   {
-    "objectID": "wk4P3.html#eda",
-    "href": "wk4P3.html#eda",
+    "objectID": "wk4P3.html#probability",
+    "href": "wk4P3.html#probability",
     "title": "Ordinal response regression models",
-    "section": "EDA",
-    "text": "EDA\n\nwheat &lt;- read.csv(here(\"data\",\"Wheat.csv\"), stringsAsFactors = TRUE)\n\nhrw &lt;- wheat %&gt;% filter(class == \"hrw\")\n\np &lt;- ggparcoord(data = hrw, \n                columns = c(2:6),\n                groupColumn = 7,\n                showPoints = TRUE, \n                title = \"Parallel Coordinate Plot for the Iris Data\",\n                alphaLines = 0.9)\n\nggplotly(p)"
+    "section": "Probability",
+    "text": "Probability\n\\pi_1 = P(Y \\le 1) - P(Y \\le 0) = \\frac{\\text{exp}(\\beta_{j0} + \\beta_{1}x_1 .. + \\beta_{p}x_p)}{1+\\text{exp}(\\beta_{j0} + \\beta_{1}x_1 .. + \\beta_{p}x_p)} \\pi_J = P(Y \\le J) - P(Y \\le J-1) = \\frac{\\text{exp}(\\beta_{J-1,0} + \\beta_{1}x_1 .. + \\beta_{p}x_p)}{1+\\text{exp}(\\beta_{J-1,0} + \\beta_{1}x_1 .. + \\beta_{p}x_p)}"
   },
   {
     "objectID": "wk4P3.html#fit-the-model",
     "href": "wk4P3.html#fit-the-model",
     "title": "Ordinal response regression models",
-    "section": "Fit the model",
-    "text": "Fit the model\n\n\n[1] \"Healthy\" \"Scab\"    \"Sprout\" \n\n\n# weights:  24 (14 variable)\ninitial  value 302.118379 \niter  10 value 234.991271\niter  20 value 192.127549\nfinal  value 192.112352 \nconverged"
+    "section": "fit the model",
+    "text": "fit the model\n\nmethod = \"logistic\" in polr() argument instruct R to use the logit transformation on the cumulative probabilities.\n\n\n\\begin{aligned}\n\\log\\left[ \\frac { P( \\operatorname{type.order}  \\leq  \\operatorname{Scab} ) }{ 1 - P( \\operatorname{type.order}  \\leq  \\operatorname{Scab} ) } \\right] &= \\alpha_{1} + \\beta_{1}(\\operatorname{class}_{\\operatorname{srw}}) + \\beta_{2}(\\operatorname{density}) + \\beta_{3}(\\operatorname{hardness}) + \\beta_{4}(\\operatorname{size}) + \\beta_{5}(\\operatorname{weight}) + \\beta_{6}(\\operatorname{moisture}) \\\\\n\\log\\left[ \\frac { P( \\operatorname{type.order}  \\leq  \\operatorname{Sprout} ) }{ 1 - P( \\operatorname{type.order}  \\leq  \\operatorname{Sprout} ) } \\right] &= \\alpha_{2} + \\beta_{1}(\\operatorname{class}_{\\operatorname{srw}}) + \\beta_{2}(\\operatorname{density}) + \\beta_{3}(\\operatorname{hardness}) + \\beta_{4}(\\operatorname{size}) + \\beta_{5}(\\operatorname{weight}) + \\beta_{6}(\\operatorname{moisture})\n\\end{aligned}\n ## evaluate\n\n\\alpha_1 = 17.57 and \\alpha_2 = 20.04 and their corresponding t-stat are 7.82 and 8.56 respectively.\n\n\n\n\nRe-fitting to get Hessian\n\n\nCall:\npolr(formula = type.order ~ class + density + hardness + size + \n    weight + moisture, data = wheat, method = \"logistic\")\n\nCoefficients:\n            Value Std. Error t value\nclasssrw  0.17370   0.391764  0.4434\ndensity  13.50534   1.713009  7.8840\nhardness  0.01039   0.005932  1.7522\nsize     -0.29253   0.413095 -0.7081\nweight    0.12721   0.029996  4.2411\nmoisture -0.03902   0.088396 -0.4414\n\nIntercepts:\n               Value   Std. Error t value\nScab|Sprout    17.5724  2.2460     7.8237\nSprout|Healthy 20.0444  2.3395     8.5677\n\nResidual Deviance: 422.4178 \nAIC: 438.4178 \n\n\n\ndensity and weight have low p-value\n\n\n\nAnalysis of Deviance Table (Type II tests)\n\nResponse: type.order\n         LR Chisq Df Pr(&gt;Chisq)    \nclass       0.197  1    0.65749    \ndensity    98.437  1  &lt; 2.2e-16 ***\nhardness    3.084  1    0.07908 .  \nsize        0.499  1    0.47982    \nweight     18.965  1  1.332e-05 ***\nmoisture    0.195  1    0.65872    \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1"
   },
   {
-    "objectID": "wk4P3.html#evaluation",
-    "href": "wk4P3.html#evaluation",
+    "objectID": "wk4P3.html#predict-pi_j",
+    "href": "wk4P3.html#predict-pi_j",
     "title": "Ordinal response regression models",
-    "section": "Evaluation",
-    "text": "Evaluation\n\n\nCall:\nmultinom(formula = type ~ class + density + hardness + size + \n    weight + moisture, data = wheat)\n\nCoefficients:\n       (Intercept)   classsrw   density    hardness      size     weight\nScab      30.54650 -0.6481277 -21.59715 -0.01590741 1.0691139 -0.2896482\nSprout    19.16857 -0.2247384 -15.11667 -0.02102047 0.8756135 -0.0473169\n          moisture\nScab    0.10956505\nSprout -0.04299695\n\nStd. Errors:\n       (Intercept)  classsrw  density    hardness      size     weight\nScab      4.289865 0.6630948 3.116174 0.010274587 0.7722862 0.06170252\nSprout    3.767214 0.5009199 2.764306 0.008105748 0.5409317 0.03697493\n        moisture\nScab   0.1548407\nSprout 0.1127188\n\nResidual Deviance: 384.2247 \nAIC: 412.2247 \n\n\n\nThe first parameter class has two values hrw and srw\nThis model output is hard to see.\n\n\nThe estimated coefficient for classrw, -0.648 is part of the following equation\n\n\n\\operatorname{log\\frac{\\hat{\\pi}_{scab}}{\\hat{\\pi}_{Healthy}}} = 30.55 -0.65\\cdot(\\operatorname{class}_{\\operatorname{srw}}) + \\beta_{2}(\\operatorname{density}) + \\beta_{3}(\\operatorname{hardness}) + \\beta_{4}(\\operatorname{size}) + \\beta_{5}(\\operatorname{weight}) + \\beta_{6}(\\operatorname{moisture}) + \\hat{\\epsilon}\n\n\ntest statistic is -0.978 and its corresponding p-value is 0.32 - there is not sufficient evidence that hard and soft red winter wheat have different effects on the scab or healthy status of the kernels given the other explanatory variables are in the model\nLet’s print the output again.\n\n\n\n\nScab\n\n\nParameter\nCoefficient\nSE\nCI\nCI_low\nCI_high\nz\np\nResponse\n\n\n\n\n(Intercept)\n30.5464951\n4.2898646\n0.95\n22.1385150\n38.9544752\n7.1206199\n0.0000000\nScab\n\n\nclasssrw\n-0.6481277\n0.6630948\n0.95\n-1.9477696\n0.6515141\n-0.9774285\n0.3283570\nScab\n\n\ndensity\n-21.5971549\n3.1161741\n0.95\n-27.7047438\n-15.4895660\n-6.9306639\n0.0000000\nScab\n\n\nhardness\n-0.0159074\n0.0102746\n0.95\n-0.0360452\n0.0042304\n-1.5482286\n0.1215673\nScab\n\n\nsize\n1.0691139\n0.7722862\n0.95\n-0.4445393\n2.5827670\n1.3843493\n0.1662515\nScab\n\n\nweight\n-0.2896482\n0.0617025\n0.95\n-0.4105829\n-0.1687135\n-4.6942690\n0.0000027\nScab\n\n\nmoisture\n0.1095650\n0.1548407\n0.95\n-0.1939172\n0.4130473\n0.7075983\n0.4791947\nScab\n\n\n\n\n\n\n\n\nSprout\n\n\n\nParameter\nCoefficient\nSE\nCI\nCI_low\nCI_high\nz\np\nResponse\n\n\n\n\n8\n(Intercept)\n19.1685687\n3.7672143\n0.95\n11.7849643\n26.5521732\n5.0882607\n0.0000004\nSprout\n\n\n9\nclasssrw\n-0.2247384\n0.5009199\n0.95\n-1.2065233\n0.7570465\n-0.4486513\n0.6536832\nSprout\n\n\n10\ndensity\n-15.1166714\n2.7643059\n0.95\n-20.5346114\n-9.6987314\n-5.4685234\n0.0000000\nSprout\n\n\n11\nhardness\n-0.0210205\n0.0081057\n0.95\n-0.0369074\n-0.0051335\n-2.5932793\n0.0095066\nSprout\n\n\n12\nsize\n0.8756135\n0.5409317\n0.95\n-0.1845931\n1.9358201\n1.6187138\n0.1055089\nSprout\n\n\n13\nweight\n-0.0473169\n0.0369749\n0.95\n-0.1197864\n0.0251526\n-1.2797020\n0.2006500\nSprout\n\n\n14\nmoisture\n-0.0429970\n0.1127188\n0.95\n-0.2639218\n0.1779279\n-0.3814532\n0.7028670\nSprout\n\n\n\n\n\n\n\n\nDoes anything have any predictive power?\n\nSo many numbers to keep track of…\n\n\n\n\n\n\nH_0: \\beta_{21} = \\beta_{31} = 0 H_0: \\beta_{21} \\not = 0 \\text{ and/or } \\beta_{31} \\not= 0\n\n\nAnova()\nAnova() test performs LR test. - LR Chisq is the transformed test statistic related to class variable,-2\\text{log}(\\lambda)=0.964 - Because of the large p-value, there is not sufficient evidence to indicate that the class of wheat is important given that the other variables are in the model.\n\n\n\nAnova()\n\n\n\nLR Chisq\nDf\nPr(&gt;Chisq)\n\n\n\n\nclass\n0.9641189\n2\n0.6175104\n\n\ndensity\n90.5551631\n2\n0.0000000\n\n\nhardness\n7.0736934\n2\n0.0291050\n\n\nsize\n3.2106326\n2\n0.2008260\n\n\nweight\n28.2302354\n2\n0.0000007\n\n\nmoisture\n1.1933402\n2\n0.5506422\n\n\n\n\n\n\n\n\nSeparate tests for density, hardness, and weight in the output all indicate at least marginal evidence of importance for these explanatory variables.\n\n\n\n[1] 0.72\n\n\n\n\n# weights:  9 (4 variable)\ninitial  value 302.118379 \niter  10 value 229.769334\niter  20 value 229.712304\nfinal  value 229.712290 \nconverged"
+    "section": "predict \\pi_j",
+    "text": "predict \\pi_j\n\n\n        Scab    Sprout   Healthy\n1 0.03661601 0.2738502 0.6895338\n2 0.03351672 0.2576769 0.7088064\n3 0.08379891 0.4362428 0.4799583\n4 0.01694278 0.1526100 0.8304472\n5 0.11408176 0.4899557 0.3959626\n6 0.02874814 0.2308637 0.7403882\n\n\n\nFor finding confidence interval see page 175"
   },
   {
     "objectID": "wk4P3.html#or",
     "href": "wk4P3.html#or",
     "title": "Ordinal response regression models",
     "section": "OR",
-    "text": "OR\n\nThe log-odds are modeled directly in a multinomial regression model, odds ratios are useful for interpreting an explanatory variable’s relationship with the response"
+    "text": "OR\n\np175\nThe odds of Y \\le j vs Y &gt; j change by e^{c\\beta_1} times for a c-unit increase in x_1 while holding the other explanatory variables in the model constant.\nThe OR stays the same no matter what response category is used for j"
   }
 ]
